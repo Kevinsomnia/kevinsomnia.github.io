@@ -1,11 +1,10 @@
 /* Main styling for website */
 
 body {
-	padding-bottom: 2rem;
+	padding-bottom: 3rem; /* footer */
 	color: #dadada; /* text color */
-	background-color: #333333;
+	background-color: #171717;
 }
-
 
 /* Banner
 ------------------------- */
@@ -13,16 +12,11 @@ body {
 	color: #ffffff; /* text color */
 }
 
-.banner-contents {
-	margin-top: 3rem;
+.banner-parallax {
+	padding: 2.5rem;
 	margin-bottom: 3rem;
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
 }
-
-.banner-shadow {
-	background-color: #404040;
-	box-shadow: 0 0.5rem 3rem rgba(0, 0, 0, 0.5) !important
-}
-
 
 /* Main
 ------------------------- */
@@ -34,9 +28,16 @@ body {
 }
 
 .main-card {
-	margin: -0.2rem;
-	background-color: #404040;
+	transition: all .05s ease-in-out;
+	margin-left: -0.5rem;
+	margin-right: -0.5rem;
+	margin-bottom: 0.75rem;
+	background-color: #333333;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
+}
+
+.main-card:hover {
+	transform: scale(1.01);
 }
 
 .main-card-contents {
@@ -49,7 +50,6 @@ body {
 	border: 1px solid #75a5ffb0;
 }
 
-
 /* Link styling
 ------------------------- */
 a {
@@ -60,7 +60,6 @@ a:hover {
 	text-decoration: none;
 	text-shadow: 0px 0px 2rem #def0ff77;
 }
-
 
 /* Showcase
 ------------------------- */
