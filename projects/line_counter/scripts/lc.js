@@ -41,7 +41,7 @@ updateFileList = function () {
         listContents += '<a class="file-list-item">' + files[i] + '</a>';
     }
 
-    var label = '<strong>Selected Files:</strong>'
+    var label = '<strong>Selected Files (' + files.length + '):</strong>'
     list.innerHTML = label + '<div class="list-group">' + listContents + '</div>';
 
     // Update parallax.

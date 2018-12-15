@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    
+
     <!-- Fade start -->
     <script>
         document.body.classList.add('fade');
@@ -22,15 +22,30 @@
 
     <main role="main">
         <div class="project-container">
-            <div id="bodyBg" class="banner-parallax" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_banner.jpg">
-                <a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
-                    &laquo;&nbsp;Back to Home
-                </a>
-                <a class="btn btn-primary btn-md" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/line_counter"
-                    target="_blank" style="background-color:#292d50" role="button">
-                    <img src="../../images/github.png">
-                    &nbsp;View Source&nbsp;&raquo;
-                </a>
+            <div id="bodyBg" class="banner-parallax-small" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_banner.jpg">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
+                            &laquo;&nbsp;Back to Home
+                        </a>
+
+                        <a class="btn btn-primary btn-md" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/line_counter"
+                            target="_blank" style="background-color:#292d50" role="button">
+                            <img src="../../images/github.png">
+                            &nbsp;View Source&nbsp;&raquo;
+                        </a>
+                    </div>
+
+                    <div class="col-md-8">
+                    </div>
+
+                    <div class="col-md-1">
+                        <a class="btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal" style="background-color:#8b784d"
+                            role="button">
+                            ? &nbsp;Help
+                        </a>
+                    </div>
+                </div>
 
                 <br>
                 <br>
@@ -40,7 +55,7 @@
         </div>
 
         <div class="project-container">
-            <!-- START UI -->
+            <!-- START BODY UI -->
             <div class="row">
                 <div class="col">
                     <form id="dropArea" class="box">
@@ -69,6 +84,24 @@
 
         </div> <!-- /project-body -->
     </main>
+
+
+    <!-- HELP -->
+    <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content" style="background-color: #2d2a31b0;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">How To Use Line Counter</h5>
+                </div>
+
+                <div class="modal-body">
+                    <p>Just grow a bigger brain. <img src="../../images/4head.png"> <img src="../../images/omegalul.png"></p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Thanks</button>
+            </div>
+        </div>
+    </div>
 
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
