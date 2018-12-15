@@ -2,7 +2,7 @@
 
 body {
 	padding-bottom: 3rem; /* footer */
-	color: #dadada; /* text color */
+	color: #ebebeb; /* text color */
 	background-color: #171717;
 }
 
@@ -46,8 +46,12 @@ body {
 	color: #ffffff;
 }
 
-.main-button {
-	border: 1px solid #75a5ffb0;
+.btn {
+	border: 2px solid #5b616db0;
+}
+
+.btn:hover {
+	border: 2px solid #525bafb0;
 }
 
 /* LINK STYLING

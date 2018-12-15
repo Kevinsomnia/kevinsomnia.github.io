@@ -17,14 +17,21 @@
     <main role="main">
         <div class="project-body">
             <div class="banner-parallax" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_main.jpg">
-                <p><a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
-                        &laquo;&nbsp;Back to Home
-                    </a></p>
+                <a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
+                    &laquo;&nbsp;Back to Home
+                </a>
+                
+                <br>
+                <br>
 
                 <!-- START UI -->
                 <h2 class="main-header">Line Counter</h2>
-                <p>In development. Analyzes the line count for each file provided, and plots them
-                    neatly on a graph. Demonstrates I/O and the graph API.</p>
+
+                <a id="countBtn" class="btn btn-primary btn-md" onclick="CountUp" style="background-color:#4f6d41" role="button">
+                    i++
+                </a>
+
+
                 <!-- END UI -->
 
             </div> <!-- /parallax -->
@@ -34,6 +41,7 @@
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/parallax/parallax.min.js"></script>
+    <script src="scripts/lc.js"></script>
 </body>
 
 </html>
