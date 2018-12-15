@@ -9,6 +9,10 @@ body {
 
 /* Banner
 ------------------------- */
+.banner-name {
+	color: #ffffff; /* text color */
+}
+
 .banner-contents {
 	margin-top: 3rem;
 	margin-bottom: 3rem;
