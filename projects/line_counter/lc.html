@@ -15,32 +15,59 @@
 
 <body>
     <main role="main">
-        <div class="project-body">
-            <div class="banner-parallax" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_main.jpg">
+        <div class="project-container">
+            <div id="bodyBg" class="banner-parallax" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_banner.jpg">
                 <a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
                     &laquo;&nbsp;Back to Home
                 </a>
-                
-                <br>
-                <br>
-
-                <!-- START UI -->
-                <h2 class="main-header">Line Counter</h2>
-
-                <a id="countBtn" class="btn btn-primary btn-md" onclick="CountUp" style="background-color:#4f6d41" role="button">
-                    i++
+                <a class="btn btn-primary btn-md" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/line_counter"
+                    style="background-color:#292d50" role="button">
+                    <img src="../../images/github.png">
+                    &nbsp;View Source&nbsp;&raquo;
                 </a>
 
+                <br>
+                <br>
 
-                <!-- END UI -->
+                <h2 class="main-header">Line Counter</h2>
+            </div>
+        </div>
 
-            </div> <!-- /parallax -->
+        <div class="project-container">
+            <!-- START UI -->
+            <div class="row">
+                <div class="col">
+                    <form id="dropArea" class="box">
+                        <div class="file-input-area rounded">
+                            <input id="fileSelector" class="file-select" type="file" name="files[]" onchange="javascript:updateFileList()"
+                                multiple />
+
+                            <!-- Restyle file selector, since the input above is ugly. -->
+                            <label for="fileSelector" class="btn btn-primary btn-md" style="background-color:#617c80"
+                                role="button">
+                                Select files
+                            </label>
+
+                            <s>or drag them here.</s>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col">
+                    <p id="fileList">
+                    </p>
+                </div>
+            </div>
+
+            <!-- END UI -->
+
         </div> <!-- /project-body -->
     </main>
 
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/parallax/parallax.min.js"></script>
+    <script src="../../scripts/modernizr-min.js"></script>
     <script src="scripts/lc.js"></script>
 </body>
 

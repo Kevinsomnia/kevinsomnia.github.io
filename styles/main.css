@@ -13,6 +13,7 @@ body {
 }
 
 .banner-parallax {
+	background: transparent;
 	padding: 2.5rem;
 	margin-bottom: 3rem;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
@@ -29,10 +30,12 @@ body {
 
 .main-card {
 	transition: all .05s ease-in-out;
+	background-color: #333333;
 	margin-left: -0.5rem;
 	margin-right: -0.5rem;
 	margin-bottom: 0.75rem;
-	background-color: #333333;
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
 }
 
@@ -41,7 +44,7 @@ body {
 }
 
 .main-card-contents {
-	padding: 1.5rem;
+	padding: 1.25rem;
 	text-align: center;
 	color: #ffffff;
 }
@@ -80,10 +83,53 @@ a:hover {
 
 /* PROJECT PAGES
 ------------------------- */
-.project-body {
+.project-container {
 	width: 100%;
 	padding-left: 5vw;
 	padding-right: 5vw;
+	margin-top: 2vh;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.file-input-area {
+	background-color: #222222;
+	border: solid 2px;
+	border-color: #505050;
+	width: 100%;
+	padding: 10%;
+	margin: 0px;
+	text-align: center;
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important
+}
+
+.file-list-item {
+	background-color: #625e77;
+	border: solid 1px;
+	border-color: #898797;
+	color: #ebebeb;
+	width: 100%;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	border-radius: 2px;
+}
+
+.file-list-item:nth-of-type(odd) {
+	background-color: #625e77;
+	border-color: #898797;
+}
+
+.file-select {
+	display: none;
+}
+
+.file-drag-drop {
+	background-color: #6d6d6db2;
+	width: 100%;
+	padding: 5%;
+	margin: 0px;
 }
