@@ -1,0 +1,24 @@
+/* Main styling for website */
+
+body {
+	padding-top: 2rem;
+	padding-bottom: 2rem;
+	color: #333333; /* text color */
+}
+
+/* Showcase
+------------------------- */
+.showcase-divider {
+	margin: 2rem 0;
+}
+
+.showcase-heading {
+	font-weight: -20;     /* Bolder */
+	line-height: 1.25;
+	letter-spacing: -.07rem;
+}
+
+.showcase-body {
+	line-height: 1.5;
+	letter-spacing: 0.0rem;
+}
