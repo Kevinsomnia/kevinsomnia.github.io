@@ -14,6 +14,12 @@
 </head>
 
 <body>
+    
+    <!-- Fade start -->
+    <script>
+        document.body.classList.add('fadeout');
+    </script>
+
     <main role="main">
         <div class="project-container">
             <div id="bodyBg" class="banner-parallax" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_banner.jpg">
@@ -69,6 +75,13 @@
     <script src="../../scripts/parallax/parallax.min.js"></script>
     <script src="../../scripts/modernizr-min.js"></script>
     <script src="scripts/lc.js"></script>
+
+    <!-- Fade done -->
+    <script>document.addEventListener("DOMContentLoaded", function (e) {
+            document.body.classList.remove('fadeout');
+        });
+    </script>
+
 </body>
 
 </html>

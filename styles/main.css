@@ -4,6 +4,16 @@ body {
 	padding-bottom: 3rem; /* footer */
 	color: #ebebeb; /* text color */
 	background-color: #171717;
+	
+	/* fade in*/
+    opacity: 1;
+    transition: 0.5s opacity;
+}
+
+body.fadeout {
+	/* fade out*/
+    opacity: 0;
+    transition: none;
 }
 
 /* BANNER
@@ -21,6 +31,10 @@ body {
 
 /* MAIN
 ------------------------- */
+.main-fade {
+	opacity: 0.05;
+}
+
 .main-header {
 	color: #cdedff;
 	font-weight: -20;     /* Bolder */
