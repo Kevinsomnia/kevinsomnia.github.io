@@ -11,105 +11,114 @@
     <title>Kevin's Web Portfolio</title>
 
     <!-- Bootstrap and page CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/main.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
 </head>
 
 <body>
     <main role="main">
-
         <!-- Header of the webpage. -->
-        <div class="jumbotron">
-            <div class="container">
-                <h1 class="display-5">Kevin Tong</h1>
-                <h5 class="display-6">WEB PORTFOLIO</h1>
+        <div class="banner-shadow p-3 mb-5">
+            <div class="banner-contents">
+                <div class="container">
+                    <h1 class="display-5" style="color:#ffffff">Kevin Tong</h1>
+                    <h5 class="display-6">WEB PORTFOLIO</h1>
 
-                <p>Hello there! I am currently a undergraduate student at the University of Michigan. This is my
-                    work-in-progress website, where I experiment with many interesting things. Take a look around!</p>
-                <br>
+                        <p>Hello there! I am currently a undergraduate student majoring in Computer Science at the
+                            University of Michigan. This is my work-in-progress website, where I experiment with
+                            many
+                            interesting things. Take a look around!</p>
+                        <br>
 
-                <p><a href="https://www.github.com/kevinsomnia"><button type="button" class="btn btn-primary btn-md"
-                            role="button">
-                            <img src="assets/github.png">
-                            &nbsp;My GitHub &raquo;
-                        </button></a></p>
+                        <p><a class="btn btn-primary btn-md" href="https://www.github.com/kevinsomnia" style="background-color:#333333"
+                                role="button">
+                                <img src="assets/github.png">
+                                &nbsp;My GitHub
+                            </a></p>
+                </div>
             </div>
         </div>
 
-        <div class="container">
-            <!-- Example row of columns -->
-            <div class="row">
-                <div class="col-md-3">
-                    <h2>Mystery Project</h2>
-                    <p>Check this page again later. I am working on some cool web stuff.</p>
 
-                    <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+        <div class="container">
+            <!-- START WEB DEV PROJECTS -->
+            <div class="row">
+                <div class="col">
+                    <a href="https://www.google.com">
+                        <div class="main-card">
+                            <div class="main-card-contents">
+                                <img class="rounded-circle" src="assets/paxitium.jpg">
+                                <h2 class="main-header">Mystery Project</h2>
+                                <p>Check this page again later. I am working on some cool web stuff.</p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
+            <!-- END WEB DEV PROJECTS -->
 
-            <br>
-            <br>
-            <br>
+            <hr>
+            <hr>
             <hr>
 
             <!-- START GAME DEV SHOWCASE -->
-
-            <h2>Game Development</h2>
+            <h2 class="main-header">Game Development</h2>
             <p>I am also somewhat of a game developer.</p>
 
             <hr class="showcase-divider">
 
-            <div class="row showcase">
-                <!-- PAXITIUM -->
-                <div class="col-md-8">
-                    <h2 class="showcase-heading">Paxitium</h2>
-                    <p class="showcase-body">&nbsp;A multiplayer survival game set in the 1920s. Facing obstacles
-                        ranging from natural needs such as hunger and thirst to dangerous wildlife and unfriendly human
-                        NPCs, the player must choose a role and survive in the wilderness. Eventually through venturing
-                        multiple neighboring islands, the player is able to discover numerous clues related to the
-                        background of the world they are in.</p>
+            <div class="container">
+                <div class="row showcase">
+                    <!-- PAXITIUM -->
+                    <div class="col-md">
+                        <h4 class="main-header">Paxitium</h2>
+                            <p class="showcase-body">A multiplayer survival game set in the 1920s. Facing obstacles
+                                ranging from natural needs such as hunger and thirst to dangerous wildlife and
+                                unfriendly human NPCs, the player must choose a role and survive in the wilderness.
+                                Eventually
+                                through venturing multiple neighboring islands, the player is able to discover numerous
+                                clues
+                                related to the background of the world they are in.</p>
 
-                    <p><a class="btn btn-secondary btn-md" href="https://www.youtube.com/LutonStudios" role="button">
-                        Learn More &raquo;
-                    </a></p>
+                            <p><a class="btn btn-secondary btn-md main-button" href="https://www.youtube.com/LutonStudios"
+                                    role="button">
+                                    Learn More &raquo;
+                                </a></p>
+                    </div>
+                    <div class="col-md-3">
+                        <img class="rounded-circle" src="assets/paxitium.jpg">
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <img class="rounded-circle" src="assets/paxitium.jpg">
-                </div>
-            </div>
 
-            <hr class="showcase-divider">
+                <hr class="showcase-divider">
 
-            <div class="row showcase">
-                <!-- FROG-GO -->
-                <div class="col-md-8">
-                    <h2 class="showcase-heading">Frog-go</h2>
-                    <p class="showcase-body">&nbsp;A mobile game application in which I collaborated on developing the
-                        game logic.
-                        Going to be on Google Play.</p>
+                <div class="row showcase">
+                    <!-- FROG-GO -->
+                    <div class="col">
+                        <h4 class="main-header">Frog-go</h2>
+                            <p class="showcase-body">A mobile game application that I am developing with a friend. The
+                                goal
+                                is to not let the frog drown.
+                                It is coming to the Google Play Store very soon!</p>
 
-                    <p><a class="btn btn-secondary btn-md" href="https://play.google.com/store" role="button">Download
-                            from Google Play Store (soon)</a></p>
-                </div>
-                <div class="col-md-4">
-                    <img class="rounded-circle" src="assets/froggo.jpg">
-                </div>
-            </div>
+                            <p><a class="btn btn-secondary btn-md main-button" href="https://play.google.com/store"
+                                    style="max-width:100%" role="button">
+                                    Get from Google Play Store &raquo;
+                                </a></p>
+                    </div>
+                    <div class="col-md-3">
+                        <img class="rounded-circle" src="assets/froggo.jpg">
+                    </div>
+                </div> <!-- END OF SUBCONTAINER -->
 
-            <hr class="showcase-divider">
-
-            <!-- END OF GAME DEV SHOWCASE -->
-
+            </div> <!-- END OF GAME DEV SHOWCASE -->
         </div> <!-- /container -->
-
     </main>
-
-    <footer class="container">
-        <p>&copy; Kevin Tong 2018</p>
-    </footer>
 
     <!-- Scripts
     ================================================== -->
+    <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 </body>
+
 </html>

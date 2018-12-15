@@ -1,24 +1,72 @@
 /* Main styling for website */
 
 body {
-	padding-top: 2rem;
 	padding-bottom: 2rem;
-	color: #333333; /* text color */
+	color: #dadada; /* text color */
+	background-color: #333333;
 }
 
-/* Showcase
+
+/* Banner
 ------------------------- */
-.showcase-divider {
-	margin: 2rem 0;
+.banner-contents {
+	margin-top: 3rem;
+	margin-bottom: 3rem;
 }
 
-.showcase-heading {
+.banner-shadow {
+	background-color: #404040;
+	box-shadow: 0 0.5rem 3rem rgba(0, 0, 0, 0.5) !important
+}
+
+
+/* Main
+------------------------- */
+.main-header {
+	color: #cdedff;
 	font-weight: -20;     /* Bolder */
 	line-height: 1.25;
 	letter-spacing: -.07rem;
 }
 
+.main-card {
+	margin: -0.2rem;
+	background-color: #404040;
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
+}
+
+.main-card-contents {
+	padding: 1.5rem;
+	text-align: center;
+	color: #ffffff;
+}
+
+.main-button {
+	border: 1px solid #75a5ffb0;
+}
+
+
+/* Link styling
+------------------------- */
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: none;
+	text-shadow: 0px 0px 2rem #def0ff77;
+}
+
+
+/* Showcase
+------------------------- */
+.showcase-divider {
+	border-color: #666666;
+	border-style: inset;
+	border-width: 1px;
+	margin: 2rem 0;
+}
+
 .showcase-body {
 	line-height: 1.5;
-	letter-spacing: 0.0rem;
 }
