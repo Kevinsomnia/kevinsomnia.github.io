@@ -172,6 +172,7 @@ a:hover {
 
 .file-list-item:nth-of-type(even) {
 	background-color: #514e64;
+	border-color: #898797;
 }
 
 .file-list-item-notsup {
@@ -180,7 +181,8 @@ a:hover {
 }
 
 .file-list-item-notsup:nth-of-type(even) {
-	background-color: #775f2c;
+	background-color: #836a33;
+	border-color: #d39248;
 }
 
 .file-select {
@@ -192,4 +194,9 @@ a:hover {
 	width: 100%;
 	padding: 5%;
 	margin: 0px;
+}
+
+.file-bar {
+	max-width: 50vw;
+	height: 30vh;
 }

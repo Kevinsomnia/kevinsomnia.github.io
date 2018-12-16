@@ -10,11 +10,11 @@
 
     <!-- Bootstrap and page CSS -->
     <link href="../../styles/bootstrap.min.css" rel="stylesheet">
+    <link href="../../styles/animate.min.css" rel="stylesheet">
     <link href="../../styles/main.css" rel="stylesheet">
 </head>
 
 <body>
-
     <!-- Fade start -->
     <script>
         document.body.classList.add('fade');
@@ -93,12 +93,14 @@
 
             <div class="row">
                 <div class="col">
-                    <button type="button" class="btn btn-secondary wide-button" onclick="processFiles()">GO</button>
+                    <button id="analyzeBtn" type="button" class="btn btn-secondary wide-button" onclick="processFiles()">Analyze</button>
                 </div>
             </div>
 
-            <!-- END UI -->
+            <br>
+            <canvas id="dataChart" class="file-bar"></canvas>
 
+            <!-- END UI -->
         </div> <!-- /project-body -->
     </main>
 
@@ -119,14 +121,19 @@
         </div>
     </div>
 
+
+    <script src="../../scripts/popper.min.js"></script>
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
+    <script src="../../scripts/bootstrap-notify.min.js"></script>
     <script src="../../scripts/parallax/parallax.min.js"></script>
     <script src="../../scripts/modernizr-min.js"></script>
-    <script src="scripts/lc.js"></script>
+    <script src="../../scripts/Chart.min.js"></script>
+    <script src="scripts/line_counter.js"></script>
 
     <!-- Fade done -->
-    <script>document.addEventListener("DOMContentLoaded", function (e) {
+    <script>
+        document.addEventListener("DOMContentLoaded", function (e) {
             document.body.classList.remove('fade');
         });
     </script>
