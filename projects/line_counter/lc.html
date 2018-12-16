@@ -20,48 +20,58 @@
         document.body.classList.add('fade');
     </script>
 
-    <main role="main">
-        <div class="project-container">
-            <div id="bodyBg" class="banner-parallax-small" data-parallax="scroll" data-speed="0.45" data-image-src="../../images/parallax_banner.jpg">
-                <div class="row">
-                    <div class="col-md-3">
-                        <a class="btn btn-primary btn-md" href="../../index.html" style="background-color:#292d50" role="button">
-                            &laquo;&nbsp;Back to Home
-                        </a>
+    <!-- NAVBAR START -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark main-shadow">
+        <h3 class="main-header pr-3">Line Counter</h3>
 
-                        <a class="btn btn-primary btn-md" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/line_counter"
-                            target="_blank" style="background-color:#292d50" role="button">
-                            <img src="../../images/github.png">
-                            &nbsp;View Source&nbsp;&raquo;
-                        </a>
-                    </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                    <div class="col-md-8">
-                    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active pr-1">
+                    <a class="nav-link" href="../../index.html">
+                        Home
+                    </a>
+                </li>
 
-                    <div class="col-md-1">
-                        <a class="btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal" style="background-color:#8b784d"
-                            role="button">
-                            ? &nbsp;Help
-                        </a>
-                    </div>
-                </div>
+                <div class="d-none d-lg-inline-flex pr-1 v-divide"></div>
 
-                <br>
-                <br>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/line_counter"
+                        target="_blank">
+                        View source on &nbsp;<img src="../../images/github.png">
+                    </a>
+                </li>
 
-                <h2 class="main-header">Line Counter</h2>
-            </div>
+                <!-- Mobile (collapsed navbar) help link (hide on desktop) -->
+                <li class="nav-item active">
+                    <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
+                        Help
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Desktop help button (hide on mobile) -->
+            <a class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
+                style="background-color:#b99954b0" role="button">
+                ? &nbsp;Help
+            </a>
         </div>
+    </nav>
+    <!-- NAVBAR END-->
 
+    <main role="main">
         <div class="project-container">
             <!-- START BODY UI -->
             <div class="row">
-                <div class="col">
+                <div class="col-md-6 col-12">
                     <form id="dropArea" class="box">
                         <div class="file-input-area rounded">
-                            <input id="fileSelector" class="file-select" type="file" name="files[]" onchange="javascript:addFiles()"
-                                multiple />
+                            <input id="fileSelector" class="file-select" type="file" directory multiple />
 
                             <!-- Restyle file selector, since the input above is ugly. -->
                             <label for="fileSelector" class="btn btn-primary btn-md" style="background-color:#617c80"
@@ -69,14 +79,21 @@
                                 Select files
                             </label>
 
-                            <s>or drag them here.</s>
+                            &nbsp;or drag them here
                         </div>
                     </form>
                 </div>
 
+                <div class="col-md-6 col">
+                    <p id="fileListTitle"></p>
+                    <p id="fileList" class="scrollable-v" style="height:50vh"></p>
+                </div>
+            </div>
+
+
+            <div class="row">
                 <div class="col">
-                    <p id="fileList">
-                    </p>
+                    <button type="button" class="btn btn-secondary wide-button" onclick="processFiles()">GO</button>
                 </div>
             </div>
 
@@ -85,17 +102,16 @@
         </div> <!-- /project-body -->
     </main>
 
-
-    <!-- HELP -->
+    <!-- HELP MODAL -->
     <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content" style="background-color: #2d2a31b0;outline:solid 2px; outline-color: #37547eb0">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
                 <div class="modal-header">
                     <h5 class="modal-title">How To Use Line Counter</h5>
                 </div>
 
                 <div class="modal-body">
-                    <p>Just grow a bigger brain. <img src="../../images/4head.png"> <img src="../../images/omegalul.png"></p>
+                    <p>JUST GR<img src="../../images/omegalul.png">W A BRAIN <img src="../../images/4head.png"></p>
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Thanks</button>

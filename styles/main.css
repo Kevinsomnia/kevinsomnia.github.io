@@ -26,7 +26,7 @@ body.fadeout {
 	background: transparent;
 	padding: 2.5rem;
 	margin-bottom: 3rem;
-	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
 
 .banner-parallax-small {
@@ -36,10 +36,10 @@ body.fadeout {
 	padding-top: 1.75rem;
 	padding-bottom: 1.5rem;
 	margin-bottom: 2.5rem;
-	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
 
-/* MAIN
+/* MAIN/GENERAL STYLING
 ------------------------- */
 .main-fade {
 	opacity: 0.05;
@@ -60,7 +60,7 @@ body.fadeout {
 	margin-bottom: 0.75rem;
 	border-bottom-left-radius: 15px;
 	border-bottom-right-radius: 15px;
-	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
 
 .main-card:hover {
@@ -73,12 +73,41 @@ body.fadeout {
 	color: #ffffff;
 }
 
+.main-shadow {
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important;
+}
+
+.v-divide {
+	height:auto;
+	border-left:1px solid;
+	border-color: #ffffff5b;
+}
+
 .btn {
 	border: 2px solid #5b616db0;
 }
 
 .btn:hover {
 	border: 2px solid #525bafb0;
+}
+
+.scrollable {
+	overflow: auto;
+}
+
+.scrollable-h {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.scrollable-v {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.wide-button {
+	background-color: #6d6d6db2;
+	width: 100%;
 }
 
 /* LINK STYLING
@@ -109,9 +138,9 @@ a:hover {
 ------------------------- */
 .project-container {
 	width: 100%;
-	padding-left: 5vw;
-	padding-right: 5vw;
-	margin-top: 2vh;
+	padding-left: 15px;
+	padding-right: 15px;
+	margin-top: 20px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -120,11 +149,10 @@ a:hover {
 	background-color: #222222;
 	border: solid 2px;
 	border-color: #505050;
-	width: 100%;
-	padding: 10%;
+	padding: 10px;
 	margin: 0px;
 	text-align: center;
-	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important
+	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important;
 }
 
 .file-list-item {
@@ -142,9 +170,17 @@ a:hover {
 	border-radius: 2px;
 }
 
-.file-list-item:nth-of-type(odd) {
-	background-color: #625e77;
-	border-color: #898797;
+.file-list-item:nth-of-type(even) {
+	background-color: #514e64;
+}
+
+.file-list-item-notsup {
+	background-color: #9b7735;
+	border-color: #d39248;
+}
+
+.file-list-item-notsup:nth-of-type(even) {
+	background-color: #775f2c;
 }
 
 .file-select {
