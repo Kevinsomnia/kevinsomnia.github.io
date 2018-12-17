@@ -9,7 +9,7 @@ const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 
     'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
     'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
     'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
-    'zip'];
+    'zip', 'pdb', 'unity', 'unitypackage'];
 
 const TYPE_TEXT = 0; // Regular text files.
 const TYPE_JS = 1; // JavaScript
@@ -29,6 +29,9 @@ const SUPPORTED_TYPES = {
     'rtf': TYPE_TEXT,
     'xml': TYPE_TEXT,
     'md': TYPE_TEXT,
+    'srt': TYPE_TEXT,
+    'json': TYPE_TEXT,
+    'gitignore': TYPE_TEXT,
 
     'js': TYPE_JS,
     'html': TYPE_MARKUP,
@@ -160,25 +163,14 @@ function addFiles() {
         var file = fileSelector.files[i];
         var data = new FileInfo(file);
 
+        // Limit size of files.
+        if(data.size >= 1000000000) {
+            displayAddError(file.name + ' because it is too large! Each file must be less than 1 GB.');
+            continue;
+        }
         // Only add valid files (non-binary).
-        if (!data.valid()) {
-            // Display error
-            $.notify({ title: '<b>Failed to add:</b>', message: file.name + '. It\'s probably because it is a binary file.' }, {
-                type: 'danger',
-                allow_dismiss: true,
-                spacing: 5,
-                delay: 1200,
-                timer: 300,
-                placement: {
-                    from: "top",
-                    align: "center"
-                },
-                animate: {
-                    enter: 'animated faster fadeInDown',
-                    exit: 'animated faster fadeOutUp'
-                }
-            });
-
+        else if (!data.valid()) {
+            displayAddError(file.name + '. It\'s probably because it is a binary file.');
             continue;
         }
 
@@ -189,6 +181,25 @@ function addFiles() {
 
     // Update UI reprentation.
     updateFileList();
+}
+
+function displayAddError(msg) {
+
+    $.notify({ title: '<b>Failed to add:</b>', message: msg }, {
+        type: 'danger',
+        allow_dismiss: true,
+        spacing: 5,
+        delay: 2000,
+        timer: 500,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        animate: {
+            enter: 'animated faster fadeInDown',
+            exit: 'animated faster fadeOutUp'
+        }
+    });
 }
 
 function containedInFiles(toCheck) {
@@ -314,8 +325,7 @@ function readFile(file) {
                 var diff = i - lineStart;
 
                 if(windows) {
-                    // Skip \n.
-                    i++;
+                    i++; // Skip \n.
                 }
 
                 file.avgCharsPerLine += diff;
