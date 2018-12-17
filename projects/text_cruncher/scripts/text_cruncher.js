@@ -5,25 +5,39 @@ const INVALID_TYPES = ['exe', 'png', 'jpg', 'jpeg', 'mp3', 'mp4', 'dll', 'psd', 
 
 const TYPE_TEXT = 0; // Regular text files.
 const TYPE_JS = 1; // JavaScript
-const TYPE_HTML = 2; // HTML
+const TYPE_MARKUP = 2; // HTML/XML
 const TYPE_CSS = 3; // CSS
 const TYPE_CPP = 4; // C++
 const TYPE_CSHARP = 5; // C#
 const TYPE_JAVA = 6; // Java.
+const TYPE_UNISHADER = 7; // Unity Shaders.
 
 const SUPPORTED_TYPES = {
     'txt': TYPE_TEXT,
     'log': TYPE_TEXT,
     'csv': TYPE_TEXT,
     'ini': TYPE_TEXT,
+    'cfg': TYPE_TEXT,
+    'rtf': TYPE_TEXT,
+    'xml': TYPE_TEXT,
+    'md': TYPE_TEXT,
 
     'js': TYPE_JS,
-    'html': TYPE_HTML,
+    'html': TYPE_MARKUP,
+    'xml': TYPE_MARKUP,
     'css': TYPE_CSS,
     'cpp': TYPE_CPP,
     'cs': TYPE_CSHARP,
     'java': TYPE_JAVA,
+    'shader': TYPE_UNISHADER,
+    'cginc': TYPE_UNISHADER,
+    'compute': TYPE_UNISHADER,
 };
+
+// Chart visual constants
+const BASE_CHART_HEIGHT = 10; // in vh.
+const MIN_CHART_HEIGHT = 5;
+const BAR_SIZE = 3.5;
 
 
 // File collection
@@ -38,9 +52,6 @@ class FileInfo {
 
         if (!this.valid()) {
             console.log(this.name() + ' is an invalid file! Ignoring it...');
-        }
-        else if (!this.supported()) {
-            console.log(this.name() + ' is not natively supported. Some options will not apply to this file.');
         }
     }
 
@@ -113,10 +124,6 @@ class FileInfo {
     }
 }
 
-// Chart
-var ctx = document.getElementById("dataChart");
-var dataChart = null;
-
 // Drag and drop
 var dropArea = document.getElementById('dropArea');
 var fileList = [];
@@ -126,6 +133,7 @@ var fileSelector = document.getElementById('fileSelector');
 var listTitleUI = document.getElementById('fileListTitle');
 var fileListUI = document.getElementById('fileList');
 var analyzeButton = document.getElementById('analyzeBtn');
+var summaryText = document.getElementById('summaryText');
 
 dropArea.addEventListener('drop', function (e) {
     e.stopPropagation();
@@ -254,7 +262,7 @@ removeListItem = function (index) {
 // Webpage loaded.
 this.updateFileList();
 
-// THIS IS WHERE THE REAL STUFF HAPPENS (file reading).
+// THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
 var isReading = false;
 var totalLines, totalChars, filesReadSoFar;
 
@@ -284,7 +292,7 @@ readFile = function (file) {
     // File reading is async, so add a callback for when it completes.
     reader.onload = function (data) {
         filesReadSoFar++;
-        file.lineCount = 0;
+        file.lineCount = 1;
         file.avgCharsPerLine = 0;
 
         var text = data.target.result;
@@ -319,7 +327,8 @@ readFile = function (file) {
         if (filesReadSoFar == fileList.length) {
             // DONE READING. Show results and statistics.
             calculateExtraStats();
-            displayStats();
+            displayDetailedStats();
+            updateOverview();
             setIsReading(false);
         }
     };
@@ -347,93 +356,282 @@ calculateExtraStats = function () {
     console.log('total chars: ' + totalChars);
 }
 
+// Charts
+var activeChartView = 0;
+var chartUnits = ['# of Lines', 'Avg. Characters per Line', 'File Size in Bytes'];
 
-displayStats = function () {
-    console.log('displaying stats');
+var dataChartParent = document.getElementById('chartContainer');
+var dataChartCtx = document.getElementById('dataChart');
+var dataChart = new Chart(dataChartCtx, {
+    type: 'horizontalBar'
+});
 
-    // Initialize chart if it doesn't exist.
-    if (dataChart == null) {
-        dataChart = new Chart(ctx, {
-            type: 'horizontalBar'
-        });
+var distribChartCtx = document.getElementById('distribChart');
+var distribChart = new Chart(distribChartCtx, {
+    type: 'doughnut'
+});
+
+updateOverview = function () {
+    var selectedFiles = fileList.length > 0;
+
+    // Update summary box.
+    if (selectedFiles) {
+        var content = '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
+        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + '<br>';
+        content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + '<br>';
+
+        var avgCharsPerWord = 4.84;
+        var wpm = 60.0;
+        var charsPerMin = wpm * avgCharsPerWord;
+
+        content += '<br>If you were typing all of these files non-stop and consecutively, it would take you about ' + Math.ceil(totalChars / charsPerMin) + ' minute(s) to write it all!<br>';
+
+        summaryText.innerHTML = content;
+    }
+    else {
+        summaryText.innerHTML = '<b>Please select files using the dialog box above!</b>';
     }
 
-    // Update chart parameters.
+    Chart.defaults.global.legend.labels.usePointStyle = true;
+    var overview = retrieveOverviewData();
 
+    // DISTRIBUTION DOUGHNUT CHART OF FILE TYPES.
+    distribChart.data = {
+        labels: overview[0],
+        datasets: [{
+            data: overview[2],
+            backgroundColor: overview[3],
+            borderColor: overview[4],
+            borderWidth: 1
+        }]
+    };
+
+    distribChart.options = {
+        responsive: false,
+        maintainAspectRatio: false,
+        legend: {
+            labels: {
+                generateLabels: function (chart) {
+                    var data = chart.data;
+                    var newLabels = [];
+
+                    if (data.labels.length > 0) {
+                        // Generate new legend labels.
+                        var dataMeta = chart.getDatasetMeta(0);
+
+                        for (var i = 0; i < data.labels.length; i++) {
+                            var set = data.datasets[0];
+
+                            newLabels.push({
+                                text: overview[1][i],
+                                fillStyle: set.backgroundColor[i],
+                                strokeStyle: set.borderColor[i],
+                                lineWidth: set.borderWidth,
+                                hidden: dataMeta.data[i].hidden,
+                                index: i
+                            });
+                        }
+                    }
+
+                    return newLabels;
+                },
+                fontColor: '#ffffff'
+            }
+        }
+    };
+
+    distribChart.update();
+}
+
+// Returns a JSON object: {items (list), max (float/int)}.
+retrieveOverviewData = function () {
     var dataCount = fileList.length;
-    var fileNames = [];
-    var dataPoints = [];
 
-    var lineColors = [];
-    var lineBorders = [];
+    if (dataCount == 0) {
+        return [['% of File Type'], ['File Type'], [100], ['rgba(255,200,125,0.8)'], ['rgba(255,255,255,1.0)']];
+    }
 
-    var chartMax = 0;
+    var totalSize = 0;
 
-    fileList.sort(sortFilesHiToLo);
+    var names = [];
+    var extNames = [];
+    var extSizes = [];
+    var fillCols = [];
+    var borderCols = [];
 
     for (var i = 0; i < dataCount; i++) {
-        fileNames.push(fileList[i].name());
-        dataPoints.push(fileList[i].lineCount);
+        // Accumulate total file size per file extension.
+        var ext = fileList[i].getFileExtension().toUpperCase();
+        var indexInExtArr = extNames.indexOf(ext);
+        var fileSize = fileList[i].size();
 
-        //avgChars.push(fileList[i].avgCharsPerLine);
-
-        if (fileList[i].lineCount > chartMax) {
-            chartMax = fileList[i].lineCount;
+        if (indexInExtArr > -1) {
+            // Exists already, accumulate.
+            extSizes[indexInExtArr] += fileSize;
+        }
+        else {
+            // Create new pair.
+            names.push('% of .' + ext + ' files');
+            extNames.push(ext);
+            extSizes.push(fileSize);
         }
 
-        var progress = i / (1.0 * dataCount);
-        var rg = lerp(180, 80, progress);
-        lineColors.push('rgba(255,' + rg + ',56,0.6)');
-        lineBorders.push('rgba(205,' + rg + ',105,0.8)');
+        totalSize += fileSize;
     }
 
+    for (var i = 0; i < names.length; i++) {
+        extSizes[i] *= (100.0 / totalSize);
+        // Trim decimal places.
+        extSizes[i] = Math.round(extSizes[i] * 100.0) / 100.0;
+
+        // Get random colors for each segment.
+        var r = getRandomInt(0, 160);
+        var g = getRandomInt(0, 160);
+        var b = getRandomInt(0, 160);
+        fillCols.push('rgba(' + r + ',' + g + ',' + b + ',0.8)');
+        borderCols.push('rgba(' + (r + 95) + ',' + (g + 95) + ',' + (b + 95) + ',0.9)');
+    }
+
+    return [names, extNames, extSizes, fillCols, borderCols];
+}
+
+getRandomInt = function (min, max) {
+    var randomT = Math.random();
+    return Math.floor(lerp(min, max + 1, randomT));
+}
+
+changeDetailedView = function (viewIndex) {
+    if (viewIndex == activeChartView) {
+        return;
+    }
+
+    activeChartView = viewIndex;
+    displayDetailedStats();
+}
+
+displayDetailedStats = function () {
+    // BASE CHART WITH MULTIPLE VIEWS.
+    var chartData = retrieveChartData();
+
     dataChart.data = {
-        labels: fileNames,
+        labels: chartData[0],
         datasets: [{
-            label: '# of Lines',
-            data: dataPoints,
-            backgroundColor: lineColors,
-            borderColor: lineBorders,
+            label: chartUnits[activeChartView],
+            data: chartData[1],
+            backgroundColor: chartData[2],
+            borderColor: chartData[3],
             borderWidth: 1
         }]
     };
 
     dataChart.options = {
-        responsive: true,
         maintainAspectRatio: false,
-
         legend: {
             display: false
         },
         scales: {
             xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: chartUnits[activeChartView],
+                    fontColor: '#ffffff'
+                },
                 gridLines: {
                     display: true,
-                    color: '#808080a0',
-                    lineWidth: 2
+                    color: '#40404090',
+                    lineWidth: 1
                 },
                 ticks: {
                     min: 0,
-                    max: chartMax,
-                    stepSize: (chartMax / 5),
+                    max: chartData[4],
+                    stepSize: (chartData[4] / 4),
                     fontColor: '#ffffff'
                 }
             }],
             yAxes: [{
+                barPercentage: 0.925,
+                categoryPercentage: 1.0,
                 ticks: {
-                    fontColor: '#ffffff'
+                    fontColor: '#ffffff',
+                    mirror: true,
+                    padding: -5
                 }
             }]
         }
-    }
+    };
 
     dataChart.update();
+
+    var newHeight = Math.max(BASE_CHART_HEIGHT, MIN_CHART_HEIGHT + (fileList.length * BAR_SIZE));
+    dataChartParent.style.height = newHeight + 'vh';
 }
 
-sortFilesHiToLo = function (a, b) {
+// Returns a JSON object: {items (list), max (float/int)}.
+retrieveChartData = function () {
+    var dataCount = fileList.length;
+
+    if (dataCount == 0) {
+        return [[], [], [], [], 100];
+    }
+
+    // We do not want to sort the file list itself. So create a copy of this array.
+    var sortedFiles = fileList.slice(0);
+    sortedFiles.sort(sortFilesBehavior);
+
+    var names = [];
+    var vals = [];
+    var fillCols = [];
+    var borderCols = [];
+    var chartMax = 0;
+
+    for (var i = 0; i < dataCount; i++) {
+        // Get the value depending on chart view.
+        var val = sortedFiles[i].lineCount;
+
+        if (activeChartView == 1) {
+            val = sortedFiles[i].avgCharsPerLine;
+        }
+        else if (activeChartView == 2) {
+            val = sortedFiles[i].size();
+        }
+
+        // Set new maximum if applicable.
+        if (val > chartMax) {
+            chartMax = val;
+        }
+
+        names.push(sortedFiles[i].name());
+        vals.push(val);
+
+        // Create a gradient from colors
+        var factor = i / (1.0 * dataCount);
+        var rg = lerp(180, 80, factor);
+        fillCols.push('rgba(255,' + rg + ',56,0.125)');
+        borderCols.push('rgba(205,' + rg + ',105,0.8)');
+    }
+
+    chartMax = Math.ceil(chartMax);
+    return [names, vals, fillCols, borderCols, chartMax];
+}
+
+sortFilesBehavior = function (a, b) {
+    if (activeChartView == 1) {
+        // Sort by descending average characters per line.
+        return (b.avgCharsPerLine - a.avgCharsPerLine);
+    }
+    else if (activeChartView == 2) {
+        // Sort by descending file size.
+        return (b.size() - a.size());
+    }
+
+    // Sort by descending line count.
     return (b.lineCount - a.lineCount);
 }
 
 lerp = function (a, b, t) {
     return Math.round(a + ((b - a) * t));
 }
+
+// On page load: Enable visibility of graphs and fill with dummy data.
+displayDetailedStats();
+updateOverview();

@@ -39,8 +39,8 @@
                         &nbsp;My GitHub
                     </a>
 
-                    <a class="btn btn-primary btn-md" target="_blank" style="background-color:#4b415c"
-                        role="button">
+                    <a class="btn btn-primary btn-md" target="_blank" style="background-color:#4b415c" data-toggle="tooltip"
+                        data-placement="bottom" data-html="true" title="<b>Email</b>: tongkevn@umich.edu" role=" button">
                         Contact
                     </a>
             </div>
@@ -56,17 +56,18 @@
                 <div class="row">
                     <!-- FIRST ROW -->
                     <div class="col">
-                        <a href="projects/line_counter/index.html">
+                        <a href="projects/text_cruncher/index.html">
                             <div class="main-card">
                                 <div class="main-card-contents">
-                                    <img class="rounded-circle" src="images/line_counter.jpg">
+                                    <img class="rounded-circle" src="images/text_cruncher.jpg">
 
-                                    <p></p>
-                                    <h2 class="main-header">Line Counter</h2>
+                                    <p>
+                                        <h2 class="main-header">Text Cruncher</h2>
                                     </p>
 
-                                    Analyzes the line count for each file provided, and plots them
-                                    neatly on a graph. Demonstrates I/O and the graph API.
+                                    Analyzes multiple text files and spits out a detailed overview and comparison.
+                                    One use would be finding the longest scripts in your projects. This
+                                    demonstrates use of I/O and Chart.js.
                                 </div>
                             </div>
                         </a>
@@ -131,12 +132,17 @@
 
     </main>
 
+    <script src="scripts/popper.min.js"></script>
     <script src="scripts/jquery-3.3.1.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/parallax/parallax.min.js"></script>
 
     <!-- Fade done -->
-    <script>document.addEventListener("DOMContentLoaded", function (e) {
+    <script>
+        // Initialize tooltips for these elements.
+        $('[data-toggle="tooltip"]').tooltip();
+
+        document.addEventListener("DOMContentLoaded", function (e) {
             document.body.classList.remove('fade');
         });
     </script>
