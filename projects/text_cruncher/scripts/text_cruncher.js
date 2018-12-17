@@ -1,7 +1,15 @@
 const TYPE_INVALID = -2; // Files that would absolutely not be suitable.
 const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
-const INVALID_TYPES = ['exe', 'png', 'jpg', 'jpeg', 'mp3', 'mp4', 'dll', 'psd', 'pak', 'dat', 'bytes', 'pdf'];
+// Binary files are considered invalid types by default.
+const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 'dat',
+                       'db', 'dbf', 'deb', 'dll', 'dmg', 'dmp', 'doc', 'docx', 'drv', 'exe',
+                       'flv', 'fnt', 'gif', 'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg',
+                       'jpg', 'key', 'm4v', 'mdb', 'mid', 'midi', 'mov', 'mp3', 'mp4', 'mpa',
+                       'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
+                       'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
+                       'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
+                       'zip'];
 
 const TYPE_TEXT = 0; // Regular text files.
 const TYPE_JS = 1; // JavaScript
@@ -388,9 +396,20 @@ function updateOverview() {
         var wpm = 60.0;
         var charsPerMin = wpm * avgCharsPerWord;
 
-        content += '<br>If you were typing all of these files non-stop and consecutively, it would take you about ';
-        content += Math.ceil(totalChars / charsPerMin);
-        content += ' minute(s) to write it all! (from ' + wpm + ' words per minute)<br>';
+        content += '<br>If you started typing all of these files, non-stop and consecutively, you would finish at <b>';
+
+        // Calculate date in 'x' minutes into the future.
+        var curDate = new Date();
+        var durationInMinutes = (totalChars / charsPerMin);
+        var newMs = curDate.getTime() + (durationInMinutes * 60000); // Target date in ms.
+        curDate.setTime(newMs);
+
+        content += curDate.toLocaleString() + '</b> (from ' + wpm + ' words per minute).';
+
+        if (durationInMinutes >= 1440) {
+            // Takes a day or more.
+            content += " That's a long time!";
+        }
 
         summaryText.innerHTML = content;
     }
