@@ -47,9 +47,9 @@ body.fadeout {
 
 .main-header {
 	color: #cdedff;
-	font-weight: -20;     /* Bolder */
+	font-weight: -10;     /* Bolder */
 	line-height: 1.25;
-	letter-spacing: -.07rem;
+	letter-spacing: -.025rem;
 }
 
 .main-card {
@@ -83,6 +83,17 @@ body.fadeout {
 	height:auto;
 	border-left:1px solid;
 	border-color: #ffffff5b;
+}
+
+.progress {
+	background-color: #30324b;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+.progress-bar {
+	background-color: #3f4377;
+	margin: 2px;
 }
 
 .btn {
@@ -151,8 +162,9 @@ a:hover {
 	background-color: #222222;
 	border: solid 2px;
 	border-color: #505050;
-	padding: 10px;
-	margin: 0px;
+	height: 100%;
+	padding-top: 25%;
+	padding-bottom: 25%;
 	text-align: center;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important;
 }

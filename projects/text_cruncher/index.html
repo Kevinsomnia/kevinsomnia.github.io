@@ -15,9 +15,9 @@
 </head>
 
 <body>
-    <!-- Fade start -->
+    <!-- Content invisible. -->
     <script>
-        document.body.classList.add('fade');
+        document.body.classList.add('fadeout');
     </script>
 
     <!-- NAVBAR START -->
@@ -46,7 +46,7 @@
                     </a>
                 </li>
 
-                <!-- Mobile (collapsed navbar) help link (hide on desktop) -->
+                <!-- Mobile help link (hide on desktop) -->
                 <li class="nav-item active">
                     <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
                         Help
@@ -57,7 +57,7 @@
 
             <!-- Desktop help button (hide on mobile) -->
             <a class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
-                style="background-color:#b99954b0" role="button">
+                style="background-color:#ac8f53" role="button">
                 ? &nbsp;Help
             </a>
         </div>
@@ -69,9 +69,10 @@
             <!-- START BODY UI -->
             <div class="row">
                 <div class="col-md-6 col-12">
-                    <form id="dropArea" class="box">
-                        <div class="file-input-area rounded">
+                    <div class="file-input-area rounded" style="height:50vh">
+                        <form id="dropArea" style="width:100%; height:100%">
                             <input id="fileSelector" class="file-select" type="file" directory multiple />
+                            <input id="directorySelector" class="file-select" type="file" directory webkitdirectory />
 
                             <!-- Restyle file selector, since the input above is ugly. -->
                             <label for="fileSelector" class="btn btn-primary btn-md" style="background-color:#617c80"
@@ -79,9 +80,17 @@
                                 Select files
                             </label>
 
-                            &nbsp;or drag them here
-                        </div>
-                    </form>
+                            &nbsp;or a&nbsp;
+
+                            <label for="directorySelector" class="btn btn-primary btn-md" style="background-color:#617c80"
+                                role="button">
+                                directory
+                            </label>
+                            <br>
+                            You can also drag them here
+                        </form>
+                    </div>
+
                 </div>
 
                 <div class="col-md-6 col">
@@ -92,19 +101,28 @@
 
 
             <div class="row">
-                <div class="col">
+                <div class="col-8 col-md-9 col-xl-10">
                     <button id="analyzeBtn" type="button" class="btn btn-secondary wide-button" onclick="processFiles()">Analyze</button>
+
+                    <div id="analyzeProgParent" class="progress">
+                        <div id="analyzeProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                            aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%;transition:none"></div>
+                    </div>
+                </div>
+                
+                <div class="col-4 col-md-3 col-xl-2">
+                    <button id="settingsBtn" type="button" class="btn btn-secondary wide-button" data-toggle="modal"
+                        data-target="#settingsModal" style="background-color:#739b53">Settings</button>
                 </div>
             </div>
+
 
             <br>
             <hr class="showcase-divider">
 
-            <h2 class="main-header text-center">Overview</h2>
-
             <div class="row">
                 <div class="col-md-8 col-12">
-                    <div class="main-card-container" style="width:100%; height:40vh">
+                    <div class="main-card-container" style="width:100%; min-height:40vh">
                         <div class="text-contents">
                             <p id="summaryText"></p>
                         </div>
@@ -112,7 +130,7 @@
                 </div>
 
                 <div class="col-md-4 col">
-                    <h4 class="main-header text-center">File Type Distribution</h4>
+                    <h4 class="main-header text-center">File Size Distribution by Type</h4>
 
                     <div class="chart-container" style="width:100%; height:40vh">
                         <canvas id="distribChart"></canvas>
@@ -121,7 +139,7 @@
             </div>
 
             <hr class="showcase-divider">
-            <h2 class="main-header text-center">Details</h2>
+            <h2 class="main-header text-center">Detailed View</h2>
 
             <nav id="chartViewList" class="nav nav-pills nav-justified " role="tablist">
                 <a class="nav-item nav-link active" data-toggle="tab" role="tab" aria-controls="chart" aria-selected="true"
@@ -140,7 +158,23 @@
         </div> <!-- /project-body -->
     </main>
 
-    
+
+    <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                </div>
+
+                <div class="modal-body">
+                    <p></p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-centered" style="transition:-webkit-transform 0.2s" role="document">
             <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
@@ -167,11 +201,18 @@
     <script src="../../scripts/Chart.min.js"></script>
     <script src="scripts/text_cruncher.js"></script>
 
-    <!-- Fade done -->
     <script>
-        document.addEventListener("DOMContentLoaded", function (e) {
-            document.body.classList.remove('fade');
-        });
+        // Fade in page after done loading.
+        window.onload = function () {
+            // Hide analyze progress bar.
+            $("#analyzeProgParent").hide();
+            updateFileList();
+
+            setTimeout(function () {
+                // Fade in page.
+                document.body.classList.remove('fadeout');
+            }, 160);
+        };
     </script>
 
 </body>

@@ -16,9 +16,9 @@
 </head>
 
 <body>
-    <!-- Fade start -->
+    <!-- Content invisible -->
     <script>
-        document.body.classList.add('fade');
+        document.body.classList.add('fadeout');
     </script>
 
     <main role="main">
@@ -140,12 +140,11 @@
 
     <!-- Fade done -->
     <script>
-        // Initialize tooltips for these elements.
-        $('[data-toggle="tooltip"]').tooltip();
-
-        document.addEventListener("DOMContentLoaded", function (e) {
-            document.body.classList.remove('fade');
-        });
+        // Fade in page after done loading.
+        window.onload = function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            document.body.classList.remove('fadeout');
+        };
     </script>
 </body>
 

@@ -9,13 +9,14 @@ const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 
     'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
     'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
     'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
-    'zip', 'pdb', 'unity', 'unitypackage'];
+    'zip', 'pdb', 'unity', 'unitypackage', 'cso', 'asset', 'fbx', 'blend', 'tga', 'prefab', 'anim', 'mask', 'overridecontroller', 'controller', 'mat', 'physicmaterial', 'dylib', 'guiskin', 'bundle'];
 
 // Associate file-types to comment styling.
 const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
 const C_COMMENTS = 1; // C-styled comments (//, /* */).
-const MARKUP_COMMENTS = 2; // HTML/XML (<!-- -->)
+const MARKUP_COMMENTS = 2; // HTML/XML (//, <!-- -->)
 const CSS_COMMENTS = 3; // CSS (only /* */)
+const SH_COMMENTS = 4; // SH files (#)
 
 const SUPPORTED_TYPES = {
     'txt': NO_COMMENTS,
@@ -41,12 +42,16 @@ const SUPPORTED_TYPES = {
     'html': MARKUP_COMMENTS,
     'xml': MARKUP_COMMENTS,
     'css': CSS_COMMENTS,
+    'sh': SH_COMMENTS
 };
 
 // Chart visual constants
-const BASE_CHART_HEIGHT = 10; // in vh.
-const MIN_CHART_HEIGHT = 5;
-const BAR_SIZE = 3.5;
+const BASE_CHART_HEIGHT = 175; // in pixels.
+const BAR_SIZE = 28;
+const CHART_DATA_LIMIT = 500; // Limit canvas size.
+
+// Other constants.
+const ADD_ERROR_MSG_LIMIT = 15;
 
 
 // File collection
@@ -59,10 +64,6 @@ class FileInfo {
         // Per-file stats.
         this.lineCount = 0;
         this.avgCharsPerLine = 0;
-
-        if (!this.valid()) {
-            console.log(this.name() + ' is an invalid file! Ignoring it...');
-        }
     }
 
     // Public properties that access file data.
@@ -92,7 +93,6 @@ class FileInfo {
             return fileName.substring(lastPeriod + 1, fileName.length);
         }
 
-        console.log('No extension for file ' + fileName);
         return null;
     }
 
@@ -102,6 +102,12 @@ class FileInfo {
 
     _determineFileType() {
         var extensionName = this.getFileExtension();
+
+        if (!extensionName) {
+            this.type = TYPE_UNSUPPORTED; // No extension is unsupported, but allowed.
+            return;
+        }
+
         extensionName = extensionName.toLowerCase(); // case insensitive.
 
         // Check if it is valid or not.
@@ -129,9 +135,11 @@ var fileList = [];
 
 // Other elements.
 var fileSelector = document.getElementById('fileSelector');
+var dirSelector = document.getElementById('directorySelector');
 var listTitleUI = document.getElementById('fileListTitle');
 var fileListUI = document.getElementById('fileList');
 var analyzeButton = document.getElementById('analyzeBtn');
+var settingsButton = document.getElementById('settingsBtn');
 var summaryText = document.getElementById('summaryText');
 
 dropArea.addEventListener('drop', function (e) {
@@ -143,14 +151,21 @@ dropArea.addEventListener('drop', function (e) {
 
 // Event function called after selecting files.
 fileSelector.onchange = function () {
-    addFiles();
-
+    addFiles(fileSelector);
     // Clear the file selector value in case we remove and readd the same item.
     fileSelector.value = '';
 }
 
-function addFiles() {
-    var numFilesSelected = fileSelector.files.length;
+// Event function called after selecting directories.
+dirSelector.onchange = function () {
+    addFiles(dirSelector);
+    dirSelector.value = '';
+}
+
+var addErrorsDisplayed = 0;
+
+function addFiles(element) {
+    var numFilesSelected = element.files.length;
 
     if (numFilesSelected == 0) {
         return;
@@ -158,11 +173,11 @@ function addFiles() {
 
     // Add selected files to list (if they aren't already).
     for (var i = 0; i < numFilesSelected; i++) {
-        var file = fileSelector.files[i];
+        var file = element.files[i];
         var data = new FileInfo(file);
 
         // Limit size of files.
-        if(data.size >= 1000000000) {
+        if (data.size >= 1000000000) {
             displayAddError(file.name + ' because it is too large! Each file must be less than 1 GB.');
             continue;
         }
@@ -177,11 +192,17 @@ function addFiles() {
         }
     }
 
+    // Done adding. We can reset error count.
+    addErrorsDisplayed = 0;
+
     // Update UI reprentation.
     updateFileList();
 }
 
 function displayAddError(msg) {
+    if (addErrorsDisplayed >= ADD_ERROR_MSG_LIMIT) {
+        return; // Avoid these popups from lagging (adding 1000s of files).
+    }
 
     $.notify({ title: '<b>Failed to add:</b>', message: msg }, {
         type: 'danger',
@@ -198,6 +219,8 @@ function displayAddError(msg) {
             exit: 'animated faster fadeOutUp'
         }
     });
+
+    addErrorsDisplayed++;
 }
 
 function containedInFiles(toCheck) {
@@ -245,11 +268,28 @@ function updateFileList() {
         listContents += '<button id="' + i + styling + fileList[i].name() + '</button>';
     }
 
-    listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + '):</strong>';
+    var searchField = '<div class="form-group"><input id="fileListSearch" class="form-control" type="text" placeholder="(doesn\'t work yet)"></div>';
+
+    var buttons = '<button class="btn btn-primary btn-md ml-2" onclick="searchFilter()" style="background-color:#4286f4" role="button">Go</button>';
+    buttons += '<button class="btn btn-primary btn-md ml-4" onclick="removeAllUnsupported()" style="background-color:#9b7735" role="button">Remove Unsupported</button>';
+    buttons += '<button class="btn btn-primary btn-md ml-2" onclick="clearList()" style="background-color:#a03333" role="button">Clear All</button>';
+
+    listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + ')</strong><div class="form-inline">' + searchField + buttons + '</div>';
     fileListUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
 
     // Initialize tooltips for these elements.
     $('[data-toggle="tooltip"]').tooltip();
+}
+
+function searchFilter() {
+    var searchValue = $('#fileListSearch').val();
+
+    if(searchValue) {
+
+    }
+    else {
+
+    }
 }
 
 // Event function called after clicking on an item from the list.
@@ -266,8 +306,43 @@ function removeListItem(index) {
     updateFileList();
 }
 
-// Webpage loaded.
-this.updateFileList();
+// Event function called after clicking the clear all button.
+function clearList() {
+    if (fileList.length == 0) {
+        return;
+    }
+
+    // Dispose all tooltips.
+    for (var i = 0; i < fileList.length; i++) {
+        $('#' + i).tooltip('dispose');
+    }
+
+    // Clear all elements.
+    fileList.splice(0, fileList.length);
+    updateFileList();
+}
+
+// Event function called after clicking the remove all unsupported button.
+function removeAllUnsupported() {
+    if (fileList.length == 0) {
+        return;
+    }
+
+    var removedSomething = false;
+
+    for (var i = fileList.length - 1; i >= 0; i--) {
+        if (!fileList[i].supported()) {
+            // Dispose this tooltip and remove from list.
+            $('#' + i).tooltip('dispose');
+            fileList.splice(i, 1);
+            removedSomething = true;
+        }
+    }
+
+    if (removedSomething) {
+        updateFileList();
+    }
+}
 
 // THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
 var isReading = false;
@@ -286,6 +361,10 @@ processFiles = function () {
     avgCharsPerFile = 0;
     avgCharsTotalLines = 0;
     filesReadSoFar = 0;
+
+    // Start progress bar.
+    $("#analyzeProgParent").show();
+    $("#analyzeProgress").css('width', '0%').attr('aria-valuenow', 0);
 
     for (var i = 0; i < fileList.length; i++) {
         readFile(fileList[i])
@@ -322,14 +401,14 @@ function readFile(file) {
                 // Gets the length of the current line up to (but not including) this character.
                 var diff = i - lineStart;
 
-                if(windows) {
+                if (windows) {
                     i++; // Skip \n.
                 }
 
                 file.avgCharsPerLine += diff;
                 lineStart = i + 1; // Set the starting point of the next line.
             }
-            else if(isLastCharacter) {
+            else if (isLastCharacter) {
                 var lineLength = i - lineStart + 1;
                 file.avgCharsPerLine += lineLength;
             }
@@ -344,12 +423,19 @@ function readFile(file) {
 
         file.avgCharsPerLine = Math.round(file.avgCharsPerLine * 100.0) / 100.0;
 
+        // Update progress bar.
+        progress = (filesReadSoFar * (100.0 / fileList.length));
+        $("#analyzeProgress").css("width", progress + "%").attr("aria-valuenow", progress);
+
         if (filesReadSoFar == fileList.length) {
             // DONE READING. Show results and statistics.
             calculateExtraStats();
             displayDetailedStats();
             updateOverview();
             setIsReading(false);
+
+            // Fade out progress bar.
+            $("#analyzeProgParent").fadeOut(250);
         }
     };
 
@@ -360,7 +446,9 @@ function readFile(file) {
 function setIsReading(reading) {
     // Toggles button controls.
     fileSelector.disabled = reading;
+    dirSelector.disabled = reading;
     analyzeButton.disabled = reading;
+    settingsButton.disabled = reading;
 
     // Toggles removal of list items (click events).
     for (var i = 0; i < fileList.length; i++) {
@@ -398,10 +486,11 @@ var distribChart = new Chart(distribChartCtx, {
 
 function updateOverview() {
     var selectedFiles = fileList.length > 0;
+    var content = '<h4 class="main-header text-center">Summary</h4>'
 
     // Update summary box.
     if (selectedFiles) {
-        var content = '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
+        content += '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
         content += '<br>';
         content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines<br>';
         content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines<br>';
@@ -429,12 +518,12 @@ function updateOverview() {
             // Takes a day or more.
             content += " That's a long time!";
         }
-
-        summaryText.innerHTML = content;
     }
     else {
-        summaryText.innerHTML = '<b>You haven\'t analyzed any files yet... but that can be changed right now!</b>';
+        content += 'You haven\'t analyzed any files yet... but that can be changed right now!';
     }
+
+    summaryText.innerHTML = content;
 
     Chart.defaults.global.legend.labels.usePointStyle = true;
     var overview = retrieveOverviewData();
@@ -504,7 +593,15 @@ function retrieveOverviewData() {
 
     for (var i = 0; i < dataCount; i++) {
         // Accumulate total file size per file extension.
-        var ext = fileList[i].getFileExtension().toUpperCase();
+        var ext = fileList[i].getFileExtension();
+
+        if (ext) {
+            ext = ext.toUpperCase();
+        }
+        else {
+            ext = '<NULL>'; // Make it clear there is no extension.
+        }
+
         var indexInExtArr = extNames.indexOf(ext);
         var fileSize = fileList[i].size;
 
@@ -513,7 +610,6 @@ function retrieveOverviewData() {
             extSizes[indexInExtArr] += fileSize;
         }
         else {
-            // Create new pair.
             names.push('% of .' + ext + ' files');
             extNames.push(ext);
             extSizes.push(fileSize);
@@ -592,7 +688,7 @@ function displayDetailedStats() {
                 }
             }],
             yAxes: [{
-                barPercentage: 0.925,
+                barPercentage: 0.95,
                 categoryPercentage: 1.0,
                 ticks: {
                     fontColor: '#ffffff',
@@ -605,13 +701,13 @@ function displayDetailedStats() {
 
     dataChart.update();
 
-    var newHeight = Math.max(BASE_CHART_HEIGHT, MIN_CHART_HEIGHT + (fileList.length * BAR_SIZE));
-    dataChartParent.style.height = newHeight + 'vh';
+    var newHeight = Math.max(BASE_CHART_HEIGHT, chartData[0].length * BAR_SIZE);
+    dataChartParent.style.height = newHeight + 'px';
 }
 
 // Returns a JSON object: {items (list), max (float/int)}.
 function retrieveChartData() {
-    var dataCount = fileList.length;
+    var dataCount = Math.min(fileList.length, CHART_DATA_LIMIT);
 
     if (dataCount == 0) {
         return [[], [], [], [], 100];
