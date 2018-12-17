@@ -3,13 +3,13 @@ const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
 // Binary files are considered invalid types by default.
 const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 'dat',
-                       'db', 'dbf', 'deb', 'dll', 'dmg', 'dmp', 'doc', 'docx', 'drv', 'exe',
-                       'flv', 'fnt', 'gif', 'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg',
-                       'jpg', 'key', 'm4v', 'mdb', 'mid', 'midi', 'mov', 'mp3', 'mp4', 'mpa',
-                       'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
-                       'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
-                       'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
-                       'zip'];
+    'db', 'dbf', 'deb', 'dll', 'dmg', 'dmp', 'doc', 'docx', 'drv', 'exe',
+    'flv', 'fnt', 'gif', 'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg',
+    'jpg', 'key', 'm4v', 'mdb', 'mid', 'midi', 'mov', 'mp3', 'mp4', 'mpa',
+    'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
+    'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
+    'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
+    'zip'];
 
 const TYPE_TEXT = 0; // Regular text files.
 const TYPE_JS = 1; // JavaScript
@@ -293,26 +293,37 @@ function readFile(file) {
     // File reading is async, so add a callback for when it completes.
     reader.onload = function (data) {
         filesReadSoFar++;
-        file.lineCount = 1;
+        file.lineCount = 1; // Starts at one because we include the first line (even in empty files).
         file.avgCharsPerLine = 0;
 
         var text = data.target.result;
-        var lastNewLine = -1;
+        var lineStart = 0; // Used to count characters between lines.
 
         for (var i = 0; i < text.length; i++) {
-            // Handle windows carriage return.
-            if (i < text.length - 1 && text[i] == '\r' && text[i + 1] == '\n') {
-                i++;
-                lastNewLine++;
-            }
+            var isLastCharacter = (i == text.length - 1);
 
-            if (text[i] == '\n') {
+            var windows = (!isLastCharacter && text[i] == '\r' && text[i + 1] == '\n'); // CR LF
+            var unix = (text[i] == '\n'); // LF
+            var mac = (text[i] == '\r'); // CR
+            var isNewLine = (windows || unix || mac);
+
+            if (isNewLine) {
                 file.lineCount++;
 
-                // All characters in between the new lines are counted.
-                var diff = i - lastNewLine - 1;
+                // Gets the length of the current line up to (but not including) this character.
+                var diff = i - lineStart;
+
+                if(windows) {
+                    // Skip \n.
+                    i++;
+                }
+
                 file.avgCharsPerLine += diff;
-                lastNewLine = i;
+                lineStart = i + 1; // Set the starting point of the next line.
+            }
+            else if(isLastCharacter) {
+                var lineLength = i - lineStart + 1;
+                file.avgCharsPerLine += lineLength;
             }
         }
 
