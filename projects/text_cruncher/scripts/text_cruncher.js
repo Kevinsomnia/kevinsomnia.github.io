@@ -264,7 +264,7 @@ this.updateFileList();
 
 // THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
 var isReading = false;
-var totalLines, totalChars, filesReadSoFar;
+var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, filesReadSoFar;
 
 processFiles = function () {
     if (fileList.length == 0 || isReading) {
@@ -275,6 +275,8 @@ processFiles = function () {
     setIsReading(true);
     totalLines = 0;
     totalChars = 0;
+    avgLinesPerFile = 0;
+    avgCharsPerFile = 0;
     filesReadSoFar = 0;
 
     for (var i = 0; i < fileList.length; i++) {
@@ -351,9 +353,8 @@ setIsReading = function (reading) {
 }
 
 calculateExtraStats = function () {
-    console.log('total lines: ' + totalLines);
-    console.log('average lines per file: ' + (totalLines / (1.0 * fileList.length)));
-    console.log('total chars: ' + totalChars);
+    avgLinesPerFile = totalLines / (1.0 * fileList.length);
+    avgCharsPerFile = totalChars / (1.0 * fileList.length);
 }
 
 // Charts
@@ -377,14 +378,19 @@ updateOverview = function () {
     // Update summary box.
     if (selectedFiles) {
         var content = '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
-        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + '<br>';
-        content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + '<br>';
+        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines<br>';
+        content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters<br>';
+        content += '<b>Average Lines per File:</b> ' + (Math.round(avgLinesPerFile * 1000.0) / 1000.0) + ' lines<br>';
+        content += '<b>Average Characters per File:</b> ' + (Math.round(avgCharsPerFile * 1000.0) / 1000.0) + ' characters<br>';
 
+        // Replace with actual word count and user-set WPM.
         var avgCharsPerWord = 4.84;
         var wpm = 60.0;
         var charsPerMin = wpm * avgCharsPerWord;
 
-        content += '<br>If you were typing all of these files non-stop and consecutively, it would take you about ' + Math.ceil(totalChars / charsPerMin) + ' minute(s) to write it all!<br>';
+        content += '<br>If you were typing all of these files non-stop and consecutively, it would take you about ';
+        content += Math.ceil(totalChars / charsPerMin);
+        content += ' minute(s) to write it all! (from ' + wpm + ' words per minute)<br>';
 
         summaryText.innerHTML = content;
     }
