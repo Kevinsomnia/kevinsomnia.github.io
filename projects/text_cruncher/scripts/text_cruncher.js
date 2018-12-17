@@ -2,15 +2,14 @@ const TYPE_INVALID = -2; // Files that would absolutely not be suitable.
 const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
 // Binary files are considered invalid types by default.
-const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 'dat',
-    'db', 'dbf', 'deb', 'dll', 'dmg', 'dmp', 'doc', 'docx', 'drv', 'exe',
-    'flv', 'fnt', 'gif', 'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg',
-    'jpg', 'key', 'm4v', 'mdb', 'mid', 'midi', 'mov', 'mp3', 'mp4', 'mpa',
-    'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'pak', 'pdf', 'png', 'pps',
-    'ppt', 'pptx', 'psd', 'rar', 'sav', 'sql', 'svg', 'swf', 'sys', 'tar',
-    'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
-    'zip', 'pdb', 'unity', 'unitypackage', 'cso', 'asset', 'fbx', 'blend', 'tga', 'prefab', 'anim', 'mask', 'overridecontroller', 'controller', 'mat', 'physicmaterial', 'dylib', 'guiskin', 'bundle'];
-
+const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bin', 'blend', 'bmp',
+                'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'deb', 'dll',
+                'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
+                'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg', 'jpg', 'key', 'm4v', 'mask', 'mat', 'mdb', 'mid',
+                'midi', 'mov', 'mp3', 'mp4', 'mpa', 'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'overridecontroller',
+                'pak', 'pdb', 'pdf', 'physicmaterial', 'png', 'pps', 'ppt', 'pptx', 'prefab', 'psd', 'rar', 'resS',
+                'sav', 'so', 'svg', 'swf', 'sys', 'tar', 'tga', 'tif', 'tiff', 'tmp', 'toast', 'ttf', 'unity',
+                'unitypackage', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx', 'zip']
 // Associate file-types to comment styling.
 const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
 const C_COMMENTS = 1; // C-styled comments (//, /* */).
@@ -56,6 +55,7 @@ const ADD_ERROR_MSG_LIMIT = 15;
 // Global settings (default values).
 var allowEmptyFileExtensions = false;
 var allowDuplicateFiles = false;
+var allowBinaryFiles = false;
 
 // File collection
 class FileInfo {
@@ -116,7 +116,7 @@ class FileInfo {
 
         if (lastPeriod > -1) {
             // Return everything after last period.
-            this.extension = fileName.substring(lastPeriod + 1, fileName.length);
+            this.extension = fileName.substring(lastPeriod + 1, fileName.length).toLowerCase();
             return;
         }
 
@@ -143,6 +143,7 @@ function loadSettings() {
 
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
+    $('#allowDupFiles').attr('checked', allowBinaryFiles);
 };
 
 $('#allowEmptyExt').change(function(e) {
@@ -151,6 +152,10 @@ $('#allowEmptyExt').change(function(e) {
 
 $('#allowDupFiles').change(function(e) {
     allowDuplicateFiles = e.target.checked;
+});
+
+$('#allowBinFiles').change(function(e) {
+    allowBinaryFiles = e.target.checked;
 });
 
 // Drag and drop event.
@@ -194,7 +199,7 @@ function addFiles(element) {
             continue;
         }
         // Only add valid files (non-binary).
-        else if (!data.valid) {
+        else if (!allowBinaryFiles && !data.valid) {
             displayAddError(file.name + '. It\'s probably because it is a binary file.');
             continue;
         }
@@ -288,7 +293,7 @@ function updateFileList() {
 
     var buttons = '<button class="btn btn-primary btn-md ml-2" onclick="searchFilter()" style="background-color:#4286f4" role="button">Go</button>';
     buttons += '<button class="btn btn-primary btn-md ml-4" onclick="removeAllUnsupported()" style="background-color:#9b7735" role="button">Remove Unsupported</button>';
-    buttons += '<button class="btn btn-primary btn-md ml-2" onclick="clearList()" style="background-color:#a03333" role="button">Clear All</button>';
+    buttons += '<button class="btn btn-primary btn-md ml-2" onclick="clearList()" style="background-color:#a03333" role="button">Clear List</button>';
 
     listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + ')</strong><div class="form-inline">' + searchField + buttons + '</div>';
     fileListUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
@@ -506,14 +511,14 @@ function updateOverview() {
 
     // Update summary box.
     if (selectedFiles) {
-        content += '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
+        content += '<b>Files Analyzed:</b> ' + fileList.length.toLocaleString() + ' files.<br>';
         content += '<br>';
-        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines<br>';
-        content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines<br>';
+        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines.<br>';
+        content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines.<br>';
         content += '<br>';
-        content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters<br>';
-        content += '<b>Average Characters per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters<br>';
-        content += '<b>Average Characters per Lines:</b> ' + avgCharsTotalLines.toLocaleString() + ' characters<br>';
+        content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters.<br>';
+        content += '<b>Average Characters per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters.<br>';
+        content += '<b>Average Characters per Lines:</b> ' + avgCharsTotalLines.toLocaleString() + ' characters.<br>';
 
         // Replace with actual word count and user-set WPM.
         var avgCharsPerWord = 4.84;
