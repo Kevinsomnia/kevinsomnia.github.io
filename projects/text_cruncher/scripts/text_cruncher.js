@@ -414,7 +414,7 @@ function updateOverview() {
         summaryText.innerHTML = content;
     }
     else {
-        summaryText.innerHTML = '<b>Please select files using the dialog box above!</b>';
+        summaryText.innerHTML = '<b>You haven\'t analyzed any files yet... but that can be changed right now!</b>';
     }
 
     Chart.defaults.global.legend.labels.usePointStyle = true;
