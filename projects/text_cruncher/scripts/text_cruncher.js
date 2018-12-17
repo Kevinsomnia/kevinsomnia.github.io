@@ -44,6 +44,7 @@ const BAR_SIZE = 3.5;
 class FileInfo {
     constructor(file) {
         this.data = file;
+        this.size = file.size;
         this._determineFileType();
 
         // Per-file stats.
@@ -55,28 +56,13 @@ class FileInfo {
         }
     }
 
-    // Public properties.
+    // Public properties that access file data.
     name() {
-        if (this.data == null) {
-            return '';
-        }
-
         return this.data.name;
     }
 
     timestamp() {
-        if (this.data == null) {
-            return 0;
-        }
         return this.data.lastModified;
-    }
-
-    size() {
-        if (this.data == null) {
-            return 0;
-        }
-
-        return this.data.size;
     }
 
     // Helper functions.
@@ -99,6 +85,10 @@ class FileInfo {
 
         console.log('No extension for file ' + fileName);
         return null;
+    }
+
+    compare(other) {
+        return (this.name() == other.name() && this.timestamp() == other.timestamp() && this.size == other.size);
     }
 
     _determineFileType() {
@@ -150,7 +140,7 @@ fileSelector.onchange = function () {
     fileSelector.value = '';
 }
 
-addFiles = function () {
+function addFiles() {
     var numFilesSelected = fileSelector.files.length;
 
     if (numFilesSelected == 0) {
@@ -193,11 +183,11 @@ addFiles = function () {
     updateFileList();
 }
 
-containedInFiles = function (toCheck) {
+function containedInFiles(toCheck) {
     for (var i = 0; i < fileList.length; i++) {
         var thisFile = fileList[i];
 
-        if (thisFile.timestamp() == toCheck.timestamp() && thisFile.size() == toCheck.size()) {
+        if (thisFile.compare(toCheck)) {
             return true;
         }
     }
@@ -205,7 +195,7 @@ containedInFiles = function (toCheck) {
     return false;
 }
 
-updateFileList = function () {
+function updateFileList() {
     var fileCount = fileList.length;
     var noFiles = (fileCount == 0);
 
@@ -246,7 +236,7 @@ updateFileList = function () {
 }
 
 // Event function called after clicking on an item from the list.
-removeListItem = function (index) {
+function removeListItem(index) {
     if (fileList.length == 0) {
         return;
     }
@@ -264,7 +254,7 @@ this.updateFileList();
 
 // THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
 var isReading = false;
-var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, filesReadSoFar;
+var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, avgCharsTotalLines, filesReadSoFar;
 
 processFiles = function () {
     if (fileList.length == 0 || isReading) {
@@ -277,6 +267,7 @@ processFiles = function () {
     totalChars = 0;
     avgLinesPerFile = 0;
     avgCharsPerFile = 0;
+    avgCharsTotalLines = 0;
     filesReadSoFar = 0;
 
     for (var i = 0; i < fileList.length; i++) {
@@ -284,7 +275,7 @@ processFiles = function () {
     }
 }
 
-readFile = function (file) {
+function readFile(file) {
     if (!isReading) {
         return;
     }
@@ -339,7 +330,7 @@ readFile = function (file) {
     reader.readAsText(file.data);
 }
 
-setIsReading = function (reading) {
+function setIsReading(reading) {
     // Toggles button controls.
     fileSelector.disabled = reading;
     analyzeButton.disabled = reading;
@@ -352,9 +343,15 @@ setIsReading = function (reading) {
     isReading = reading;
 }
 
-calculateExtraStats = function () {
+function calculateExtraStats() {
     avgLinesPerFile = totalLines / (1.0 * fileList.length);
+    avgLinesPerFile = Math.round(avgLinesPerFile * 100.0) / 100.0;
+
     avgCharsPerFile = totalChars / (1.0 * fileList.length);
+    avgCharsPerFile = Math.round(avgCharsPerFile);
+
+    avgCharsTotalLines = totalChars / (1.0 * totalLines);
+    avgCharsTotalLines = Math.round(avgCharsTotalLines * 100.0) / 100.0;
 }
 
 // Charts
@@ -372,16 +369,19 @@ var distribChart = new Chart(distribChartCtx, {
     type: 'doughnut'
 });
 
-updateOverview = function () {
+function updateOverview() {
     var selectedFiles = fileList.length > 0;
 
     // Update summary box.
     if (selectedFiles) {
         var content = '<b>Files Analyzed:</b> ' + fileList.length + '<br>';
+        content += '<br>';
         content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines<br>';
+        content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines<br>';
+        content += '<br>';
         content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters<br>';
-        content += '<b>Average Lines per File:</b> ' + (Math.round(avgLinesPerFile * 1000.0) / 1000.0) + ' lines<br>';
-        content += '<b>Average Characters per File:</b> ' + (Math.round(avgCharsPerFile * 1000.0) / 1000.0) + ' characters<br>';
+        content += '<b>Average Characters per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters<br>';
+        content += '<b>Average Characters per Lines:</b> ' + avgCharsTotalLines.toLocaleString() + ' characters<br>';
 
         // Replace with actual word count and user-set WPM.
         var avgCharsPerWord = 4.84;
@@ -449,8 +449,7 @@ updateOverview = function () {
     distribChart.update();
 }
 
-// Returns a JSON object: {items (list), max (float/int)}.
-retrieveOverviewData = function () {
+function retrieveOverviewData() {
     var dataCount = fileList.length;
 
     if (dataCount == 0) {
@@ -469,7 +468,7 @@ retrieveOverviewData = function () {
         // Accumulate total file size per file extension.
         var ext = fileList[i].getFileExtension().toUpperCase();
         var indexInExtArr = extNames.indexOf(ext);
-        var fileSize = fileList[i].size();
+        var fileSize = fileList[i].size;
 
         if (indexInExtArr > -1) {
             // Exists already, accumulate.
@@ -501,12 +500,12 @@ retrieveOverviewData = function () {
     return [names, extNames, extSizes, fillCols, borderCols];
 }
 
-getRandomInt = function (min, max) {
+function getRandomInt(min, max) {
     var randomT = Math.random();
     return Math.floor(lerp(min, max + 1, randomT));
 }
 
-changeDetailedView = function (viewIndex) {
+function changeDetailedView(viewIndex) {
     if (viewIndex == activeChartView) {
         return;
     }
@@ -515,7 +514,7 @@ changeDetailedView = function (viewIndex) {
     displayDetailedStats();
 }
 
-displayDetailedStats = function () {
+function displayDetailedStats() {
     // BASE CHART WITH MULTIPLE VIEWS.
     var chartData = retrieveChartData();
 
@@ -560,7 +559,7 @@ displayDetailedStats = function () {
                 ticks: {
                     fontColor: '#ffffff',
                     mirror: true,
-                    padding: -5
+                    padding: -6
                 }
             }]
         }
@@ -573,7 +572,7 @@ displayDetailedStats = function () {
 }
 
 // Returns a JSON object: {items (list), max (float/int)}.
-retrieveChartData = function () {
+function retrieveChartData() {
     var dataCount = fileList.length;
 
     if (dataCount == 0) {
@@ -598,7 +597,7 @@ retrieveChartData = function () {
             val = sortedFiles[i].avgCharsPerLine;
         }
         else if (activeChartView == 2) {
-            val = sortedFiles[i].size();
+            val = sortedFiles[i].size;
         }
 
         // Set new maximum if applicable.
@@ -620,21 +619,21 @@ retrieveChartData = function () {
     return [names, vals, fillCols, borderCols, chartMax];
 }
 
-sortFilesBehavior = function (a, b) {
+function sortFilesBehavior(a, b) {
     if (activeChartView == 1) {
         // Sort by descending average characters per line.
         return (b.avgCharsPerLine - a.avgCharsPerLine);
     }
     else if (activeChartView == 2) {
         // Sort by descending file size.
-        return (b.size() - a.size());
+        return (b.size - a.size);
     }
 
     // Sort by descending line count.
     return (b.lineCount - a.lineCount);
 }
 
-lerp = function (a, b, t) {
+function lerp(a, b, t) {
     return Math.round(a + ((b - a) * t));
 }
 
