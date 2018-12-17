@@ -11,38 +11,36 @@ const INVALID_TYPES = ['7z', 'aif', 'apk', 'avi', 'bin', 'bytes', 'cab', 'cur', 
     'tif', 'tmp', 'toast', 'ttf', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx',
     'zip', 'pdb', 'unity', 'unitypackage'];
 
-const TYPE_TEXT = 0; // Regular text files.
-const TYPE_JS = 1; // JavaScript
-const TYPE_MARKUP = 2; // HTML/XML
-const TYPE_CSS = 3; // CSS
-const TYPE_CPP = 4; // C++
-const TYPE_CSHARP = 5; // C#
-const TYPE_JAVA = 6; // Java.
-const TYPE_UNISHADER = 7; // Unity Shaders.
+// Associate file-types to comment styling.
+const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
+const C_COMMENTS = 1; // C-styled comments (//, /* */).
+const MARKUP_COMMENTS = 2; // HTML/XML (<!-- -->)
+const CSS_COMMENTS = 3; // CSS (only /* */)
 
 const SUPPORTED_TYPES = {
-    'txt': TYPE_TEXT,
-    'log': TYPE_TEXT,
-    'csv': TYPE_TEXT,
-    'ini': TYPE_TEXT,
-    'cfg': TYPE_TEXT,
-    'rtf': TYPE_TEXT,
-    'xml': TYPE_TEXT,
-    'md': TYPE_TEXT,
-    'srt': TYPE_TEXT,
-    'json': TYPE_TEXT,
-    'gitignore': TYPE_TEXT,
+    'txt': NO_COMMENTS,
+    'log': NO_COMMENTS,
+    'csv': NO_COMMENTS,
+    'ini': NO_COMMENTS,
+    'cfg': NO_COMMENTS,
+    'rtf': NO_COMMENTS,
+    'xml': NO_COMMENTS,
+    'md': NO_COMMENTS,
+    'srt': NO_COMMENTS,
+    'json': NO_COMMENTS,
+    'gitignore': NO_COMMENTS,
+    'vdf': NO_COMMENTS,
 
-    'js': TYPE_JS,
-    'html': TYPE_MARKUP,
-    'xml': TYPE_MARKUP,
-    'css': TYPE_CSS,
-    'cpp': TYPE_CPP,
-    'cs': TYPE_CSHARP,
-    'java': TYPE_JAVA,
-    'shader': TYPE_UNISHADER,
-    'cginc': TYPE_UNISHADER,
-    'compute': TYPE_UNISHADER,
+    'js': C_COMMENTS,
+    'cpp': C_COMMENTS,
+    'shader': C_COMMENTS,
+    'cginc': C_COMMENTS,
+    'h': C_COMMENTS,
+    'java': C_COMMENTS,
+    'cs': C_COMMENTS,
+    'html': MARKUP_COMMENTS,
+    'xml': MARKUP_COMMENTS,
+    'css': CSS_COMMENTS,
 };
 
 // Chart visual constants
@@ -237,7 +235,7 @@ function updateFileList() {
             // If file type is not supported, color code it to distinguish that fact.
             styling += ' file-list-item-notsup" data-toggle="tooltip" data-placement="bottom" data-html="true" title="';
             styling += '.' + fileList[i].getFileExtension() + ' is not a natively supported file type, <b>but will still be processed</b>.' +
-                '<p>Some options will be limited.</p>Click to remove."';
+                '<p>Some options, like ignoring comments, will be limited.</p>Click to remove."';
         }
         else {
             styling += '" data-toggle="tooltip" data-placement="bottom" title="Click to remove"';
