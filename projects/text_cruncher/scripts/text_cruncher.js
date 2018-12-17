@@ -53,13 +53,19 @@ const CHART_DATA_LIMIT = 500; // Limit canvas size.
 // Other constants.
 const ADD_ERROR_MSG_LIMIT = 15;
 
+// Global settings (default values).
+var allowEmptyFileExtensions = false;
+var allowDuplicateFiles = false;
 
 // File collection
 class FileInfo {
     constructor(file) {
         this.data = file;
         this.size = file.size;
+        this._retrieveFileExtension();
         this._determineFileType();
+        this.valid = (this.type > TYPE_INVALID);
+        this.supported = (this.type > TYPE_UNSUPPORTED);
 
         // Per-file stats.
         this.lineCount = 0;
@@ -75,57 +81,46 @@ class FileInfo {
         return this.data.lastModified;
     }
 
-    // Helper functions.
-    valid() {
-        return (this.type > TYPE_INVALID);
-    }
-
-    supported() {
-        return (this.type > TYPE_UNSUPPORTED);
-    }
-
-    getFileExtension() {
-        var fileName = this.name();
-        var lastPeriod = fileName.lastIndexOf('.');
-
-        if (lastPeriod > -1) {
-            // Return everything after last period.
-            return fileName.substring(lastPeriod + 1, fileName.length);
-        }
-
-        return null;
-    }
 
     compare(other) {
         return (this.name() == other.name() && this.timestamp() == other.timestamp() && this.size == other.size);
     }
 
     _determineFileType() {
-        var extensionName = this.getFileExtension();
-
-        if (!extensionName) {
-            this.type = TYPE_UNSUPPORTED; // No extension is unsupported, but allowed.
+        if (!this.extension) {
+            this.type = TYPE_UNSUPPORTED;
             return;
         }
 
-        extensionName = extensionName.toLowerCase(); // case insensitive.
-
         // Check if it is valid or not.
         for (var i = 0; i < INVALID_TYPES.length; i++) {
-            if (extensionName == INVALID_TYPES[i]) {
+            if (this.extension == INVALID_TYPES[i]) {
                 this.type = TYPE_INVALID;
                 return;
             }
         }
 
         // Check for type ID if it is in supported list.
-        if (extensionName in SUPPORTED_TYPES) {
-            this.type = SUPPORTED_TYPES[extensionName];
+        if (this.extension in SUPPORTED_TYPES) {
+            this.type = SUPPORTED_TYPES[this.extension];
             return;
         }
 
         // Not supported.
         this.type = TYPE_UNSUPPORTED;
+    }
+    
+    _retrieveFileExtension() {
+        var fileName = this.name();
+        var lastPeriod = fileName.lastIndexOf('.');
+
+        if (lastPeriod > -1) {
+            // Return everything after last period.
+            this.extension = fileName.substring(lastPeriod + 1, fileName.length);
+            return;
+        }
+
+        this.extension = '';
     }
 }
 
@@ -142,6 +137,23 @@ var analyzeButton = document.getElementById('analyzeBtn');
 var settingsButton = document.getElementById('settingsBtn');
 var summaryText = document.getElementById('summaryText');
 
+// Settings events.
+function loadSettings() {
+    // Load setting values (web storage api).
+
+    $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
+    $('#allowDupFiles').attr('checked', allowDuplicateFiles);
+};
+
+$('#allowEmptyExt').change(function(e) {
+    allowEmptyFileExtensions = e.target.checked;
+});
+
+$('#allowDupFiles').change(function(e) {
+    allowDuplicateFiles = e.target.checked;
+});
+
+// Drag and drop event.
 dropArea.addEventListener('drop', function (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -182,12 +194,16 @@ function addFiles(element) {
             continue;
         }
         // Only add valid files (non-binary).
-        else if (!data.valid()) {
+        else if (!data.valid) {
             displayAddError(file.name + '. It\'s probably because it is a binary file.');
             continue;
         }
+        else if(!allowEmptyFileExtensions && data.extension == '') {
+            displayAddError(file.name + '. The file extension is empty (toggleable setting).');
+            continue;
+        }
 
-        if (!containedInFiles(data)) {
+        if (allowDuplicateFiles || !containedInFiles(data)) {
             fileList.push(data);
         }
     }
@@ -204,12 +220,12 @@ function displayAddError(msg) {
         return; // Avoid these popups from lagging (adding 1000s of files).
     }
 
-    $.notify({ title: '<b>Failed to add:</b>', message: msg }, {
+    $.notify({ title: '<b>Failed to add</b>', message: msg }, {
         type: 'danger',
         allow_dismiss: true,
         spacing: 5,
-        delay: 2000,
-        timer: 500,
+        delay: 3000,
+        timer: 250,
         placement: {
             from: "top",
             align: "center"
@@ -254,10 +270,10 @@ function updateFileList() {
     for (var i = 0; i < fileCount; i++) {
         var styling = '" onclick="removeListItem(' + i + ')" class="file-list-item';
 
-        if (!fileList[i].supported()) {
+        if (!fileList[i].supported) {
             // If file type is not supported, color code it to distinguish that fact.
             styling += ' file-list-item-notsup" data-toggle="tooltip" data-placement="bottom" data-html="true" title="';
-            styling += '.' + fileList[i].getFileExtension() + ' is not a natively supported file type, <b>but will still be processed</b>.' +
+            styling += '.' + fileList[i].extension + ' is not a natively supported file type, <b>but will still be processed</b>.' +
                 '<p>Some options, like ignoring comments, will be limited.</p>Click to remove."';
         }
         else {
@@ -331,7 +347,7 @@ function removeAllUnsupported() {
     var removedSomething = false;
 
     for (var i = fileList.length - 1; i >= 0; i--) {
-        if (!fileList[i].supported()) {
+        if (!fileList[i].supported) {
             // Dispose this tooltip and remove from list.
             $('#' + i).tooltip('dispose');
             fileList.splice(i, 1);
@@ -593,7 +609,7 @@ function retrieveOverviewData() {
 
     for (var i = 0; i < dataCount; i++) {
         // Accumulate total file size per file extension.
-        var ext = fileList[i].getFileExtension();
+        var ext = fileList[i].extension;
 
         if (ext) {
             ext = ext.toUpperCase();
