@@ -3,13 +3,13 @@ const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
 // Binary files are considered invalid types by default.
 const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bin', 'blend', 'bmp',
-                'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'deb', 'dll',
-                'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
-                'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg', 'jpg', 'key', 'm4v', 'mask', 'mat', 'mdb', 'mid',
-                'midi', 'mov', 'mp3', 'mp4', 'mpa', 'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'overridecontroller',
-                'pak', 'pdb', 'pdf', 'physicmaterial', 'png', 'pps', 'ppt', 'pptx', 'prefab', 'psd', 'rar', 'resS',
-                'sav', 'so', 'svg', 'swf', 'sys', 'tar', 'tga', 'tif', 'tiff', 'tmp', 'toast', 'ttf', 'unity',
-                'unitypackage', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx', 'zip']
+    'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'deb', 'dll',
+    'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
+    'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg', 'jpg', 'key', 'm4v', 'mask', 'mat', 'mdb', 'mid',
+    'midi', 'mov', 'mp3', 'mp4', 'mpa', 'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'overridecontroller',
+    'pak', 'pdb', 'pdf', 'physicmaterial', 'png', 'pps', 'ppt', 'pptx', 'prefab', 'psd', 'rar', 'resS',
+    'sav', 'so', 'svg', 'swf', 'sys', 'tar', 'tga', 'tif', 'tiff', 'tmp', 'toast', 'ttf', 'unity',
+    'unitypackage', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx', 'zip']
 // Associate file-types to comment styling.
 const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
 const C_COMMENTS = 1; // C-styled comments (//, /* */).
@@ -69,6 +69,7 @@ class FileInfo {
 
         // Per-file stats.
         this.lineCount = 0;
+        this.charCount = 0;
         this.avgCharsPerLine = 0;
     }
 
@@ -109,7 +110,7 @@ class FileInfo {
         // Not supported.
         this.type = TYPE_UNSUPPORTED;
     }
-    
+
     _retrieveFileExtension() {
         var fileName = this.name();
         var lastPeriod = fileName.lastIndexOf('.');
@@ -146,15 +147,15 @@ function loadSettings() {
     $('#allowDupFiles').attr('checked', allowBinaryFiles);
 };
 
-$('#allowEmptyExt').change(function(e) {
+$('#allowEmptyExt').change(function (e) {
     allowEmptyFileExtensions = e.target.checked;
 });
 
-$('#allowDupFiles').change(function(e) {
+$('#allowDupFiles').change(function (e) {
     allowDuplicateFiles = e.target.checked;
 });
 
-$('#allowBinFiles').change(function(e) {
+$('#allowBinFiles').change(function (e) {
     allowBinaryFiles = e.target.checked;
 });
 
@@ -179,7 +180,7 @@ dirSelector.onchange = function () {
     dirSelector.value = '';
 }
 
-var addErrorsDisplayed = 0;
+var errorsDisplayed = 0;
 
 function addFiles(element) {
     var numFilesSelected = element.files.length;
@@ -195,16 +196,16 @@ function addFiles(element) {
 
         // Limit size of files.
         if (data.size >= 1000000000) {
-            displayAddError(file.name + ' because it is too large! Each file must be less than 1 GB.');
+            displayError(file.name + ' is too large! Files must be less than 1 GB.');
             continue;
         }
         // Only add valid files (non-binary).
         else if (!allowBinaryFiles && !data.valid) {
-            displayAddError(file.name + '. It\'s probably because it is a binary file.');
+            displayError(file.name + ' is not a proper text file (toggleable setting).');
             continue;
         }
-        else if(!allowEmptyFileExtensions && data.extension == '') {
-            displayAddError(file.name + '. The file extension is empty (toggleable setting).');
+        else if (!allowEmptyFileExtensions && data.extension == '') {
+            displayError(file.name + '. The file extension is empty (toggleable setting).');
             continue;
         }
 
@@ -214,18 +215,18 @@ function addFiles(element) {
     }
 
     // Done adding. We can reset error count.
-    addErrorsDisplayed = 0;
+    errorsDisplayed = 0;
 
     // Update UI reprentation.
     updateFileList();
 }
 
-function displayAddError(msg) {
-    if (addErrorsDisplayed >= ADD_ERROR_MSG_LIMIT) {
+function displayError(msg) {
+    if (errorsDisplayed >= ADD_ERROR_MSG_LIMIT) {
         return; // Avoid these popups from lagging (adding 1000s of files).
     }
 
-    $.notify({ title: '<b>Failed to add</b>', message: msg }, {
+    $.notify({ title: '<b>Error:</b>', message: msg }, {
         type: 'danger',
         allow_dismiss: true,
         spacing: 5,
@@ -241,7 +242,7 @@ function displayAddError(msg) {
         }
     });
 
-    addErrorsDisplayed++;
+    errorsDisplayed++;
 }
 
 function containedInFiles(toCheck) {
@@ -305,7 +306,7 @@ function updateFileList() {
 function searchFilter() {
     var searchValue = $('#fileListSearch').val();
 
-    if(searchValue) {
+    if (searchValue) {
 
     }
     else {
@@ -382,14 +383,20 @@ processFiles = function () {
     avgCharsPerFile = 0;
     avgCharsTotalLines = 0;
     filesReadSoFar = 0;
+    filesSuccessfullyRead = 0;
 
     // Start progress bar.
     $("#analyzeProgParent").show();
     $("#analyzeProgress").css('width', '0%').attr('aria-valuenow', 0);
 
+    // Reset error alert count.
+    errorsDisplayed = 0;
+
     for (var i = 0; i < fileList.length; i++) {
         readFile(fileList[i])
     }
+
+    errorsDisplayed = 0;
 }
 
 function readFile(file) {
@@ -400,49 +407,59 @@ function readFile(file) {
     var reader = new FileReader;
 
     // File reading is async, so add a callback for when it completes.
-    reader.onload = function (data) {
+    reader.onloadend = function (event) {
         filesReadSoFar++;
-        file.lineCount = 1; // Starts at one because we include the first line (even in empty files).
-        file.avgCharsPerLine = 0;
 
-        var text = data.target.result;
-        var lineStart = 0; // Used to count characters between lines.
+        if (event.target.error != null) {
+            displayError('Cannot read ' + file.name() + ' :: ' + event.target.error.message);
+        }
+        else {
+            filesSuccessfullyRead++;
 
-        for (var i = 0; i < text.length; i++) {
-            var isLastCharacter = (i == text.length - 1);
+            file.lineCount = 1; // Starts at one because we include the first line (even in empty files).
+            file.charCount = 0;
 
-            var windows = (!isLastCharacter && text[i] == '\r' && text[i + 1] == '\n'); // CR LF
-            var unix = (text[i] == '\n'); // LF
-            var mac = (text[i] == '\r'); // CR
-            var isNewLine = (windows || unix || mac);
+            var text = event.target.result;
+            var lineStart = 0; // Used to count characters between lines.
 
-            if (isNewLine) {
-                file.lineCount++;
+            for (var i = 0; i < text.length; i++) {
+                var isLastCharacter = (i == text.length - 1);
 
-                // Gets the length of the current line up to (but not including) this character.
-                var diff = i - lineStart;
+                var windows = (!isLastCharacter && text[i] == '\r' && text[i + 1] == '\n'); // CR LF
+                var unix = (text[i] == '\n'); // LF
+                var mac = (text[i] == '\r'); // CR
+                var isNewLine = (windows || unix || mac);
 
-                if (windows) {
-                    i++; // Skip \n.
+                if (isNewLine) {
+                    file.lineCount++;
+
+                    // Gets the length of the current line up to (but not including) this character.
+                    var diff = i - lineStart;
+
+                    if (windows) {
+                        i++; // Skip \n.
+                    }
+
+                    file.charCount += diff;
+                    lineStart = i + 1; // Set the starting point of the next line.
                 }
-
-                file.avgCharsPerLine += diff;
-                lineStart = i + 1; // Set the starting point of the next line.
+                else if (isLastCharacter) {
+                    var lineLength = i - lineStart + 1;
+                    file.charCount += lineLength;
+                }
             }
-            else if (isLastCharacter) {
-                var lineLength = i - lineStart + 1;
-                file.avgCharsPerLine += lineLength;
+
+            // Calculate average characters per line.
+            if (file.lineCount > 0) {
+                file.avgCharsPerLine = file.charCount / (1.0 * file.lineCount);
             }
+
+            file.avgCharsPerLine = Math.round(file.avgCharsPerLine * 100.0) / 100.0;
+
+            // Accumulate total stats.
+            totalLines += file.lineCount;
+            totalChars += file.charCount;
         }
-
-        totalLines += file.lineCount;
-        totalChars += file.avgCharsPerLine;
-
-        if (file.lineCount > 0) {
-            file.avgCharsPerLine /= (1.0 * file.lineCount);
-        }
-
-        file.avgCharsPerLine = Math.round(file.avgCharsPerLine * 100.0) / 100.0;
 
         // Update progress bar.
         progress = (filesReadSoFar * (100.0 / fileList.length));
@@ -480,19 +497,23 @@ function setIsReading(reading) {
 }
 
 function calculateExtraStats() {
-    avgLinesPerFile = totalLines / (1.0 * fileList.length);
-    avgLinesPerFile = Math.round(avgLinesPerFile * 100.0) / 100.0;
+    if (fileList.length > 0) {
+        avgLinesPerFile = totalLines / (1.0 * fileList.length);
+        avgLinesPerFile = Math.round(avgLinesPerFile * 100.0) / 100.0;
 
-    avgCharsPerFile = totalChars / (1.0 * fileList.length);
-    avgCharsPerFile = Math.round(avgCharsPerFile);
+        avgCharsPerFile = totalChars / (1.0 * fileList.length);
+        avgCharsPerFile = Math.round(avgCharsPerFile);
+    }
 
-    avgCharsTotalLines = totalChars / (1.0 * totalLines);
-    avgCharsTotalLines = Math.round(avgCharsTotalLines * 100.0) / 100.0;
+    if (totalLines > 0) {
+        avgCharsTotalLines = totalChars / (1.0 * totalLines);
+        avgCharsTotalLines = Math.round(avgCharsTotalLines * 100.0) / 100.0;
+    }
 }
 
 // Charts
 var activeChartView = 0;
-var chartUnits = ['# of Lines', 'Avg. Characters per Line', 'File Size in Bytes'];
+var chartUnits = ['# of Lines', '# of Characters', 'Avg. Characters per Line'];
 
 var dataChartParent = document.getElementById('chartContainer');
 var dataChartCtx = document.getElementById('dataChart');
@@ -511,7 +532,7 @@ function updateOverview() {
 
     // Update summary box.
     if (selectedFiles) {
-        content += '<b>Files Analyzed:</b> ' + fileList.length.toLocaleString() + ' files.<br>';
+        content += '<b>Files Analyzed:</b> ' + filesSuccessfullyRead.toLocaleString() + ' files.<br>';
         content += '<br>';
         content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines.<br>';
         content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines.<br>';
@@ -640,9 +661,11 @@ function retrieveOverviewData() {
     }
 
     for (var i = 0; i < names.length; i++) {
-        extSizes[i] *= (100.0 / totalSize);
-        // Trim decimal places.
-        extSizes[i] = Math.round(extSizes[i] * 100.0) / 100.0;
+        if (totalSize > 0) {
+            extSizes[i] *= (100.0 / totalSize);
+            // Trim decimal places.
+            extSizes[i] = Math.round(extSizes[i] * 100.0) / 100.0;
+        }
 
         // Get random colors for each segment.
         var r = getRandomInt(0, 160);
@@ -742,17 +765,17 @@ function retrieveChartData() {
     var vals = [];
     var fillCols = [];
     var borderCols = [];
-    var chartMax = 0;
+    var chartMax = 1;
 
     for (var i = 0; i < dataCount; i++) {
         // Get the value depending on chart view.
         var val = sortedFiles[i].lineCount;
 
         if (activeChartView == 1) {
-            val = sortedFiles[i].avgCharsPerLine;
+            val = sortedFiles[i].charCount;
         }
         else if (activeChartView == 2) {
-            val = sortedFiles[i].size;
+            val = sortedFiles[i].avgCharsPerLine;
         }
 
         // Set new maximum if applicable.
@@ -770,18 +793,18 @@ function retrieveChartData() {
         borderCols.push('rgba(205,' + rg + ',105,0.8)');
     }
 
-    chartMax = Math.ceil(chartMax);
+    chartMax = Math.ceil(chartMax / 4) * 4;
     return [names, vals, fillCols, borderCols, chartMax];
 }
 
 function sortFilesBehavior(a, b) {
     if (activeChartView == 1) {
-        // Sort by descending average characters per line.
-        return (b.avgCharsPerLine - a.avgCharsPerLine);
+        // Sort by descending character count.
+        return (b.charCount - a.charCount);
     }
     else if (activeChartView == 2) {
-        // Sort by descending file size.
-        return (b.size - a.size);
+        // Sort by descending average characters per line.
+        return (b.avgCharsPerLine - a.avgCharsPerLine);
     }
 
     // Sort by descending line count.
