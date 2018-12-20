@@ -239,6 +239,13 @@ a:hover {
 	padding: 1.5rem;
 }
 
+.img-no-interact {
+	pointer-events: none;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
 /* TABS
 ------------------------- */
 .nav-pills .nav-link {
