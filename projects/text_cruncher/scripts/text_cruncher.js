@@ -167,17 +167,17 @@ function loadSettings() {
 
 $('#allowEmptyExt').change(function (e) {
     allowEmptyFileExtensions = e.target.checked;
-    localStorage.setItem('allowEmptyFileExt', allowEmptyFileExtensions);
+    localStorage.setItem('allowEmptyFileExt', allowEmptyFileExtensions.toString());
 });
 
 $('#allowDupFiles').change(function (e) {
     allowDuplicateFiles = e.target.checked;
-    localStorage.setItem('allowDupFiles', allowDuplicateFiles);
+    localStorage.setItem('allowDupFiles', allowDuplicateFiles.toString());
 });
 
 $('#allowBinFiles').change(function (e) {
     allowBinaryFiles = e.target.checked;
-    localStorage.setItem('allowBinFiles', allowBinaryFiles);
+    localStorage.setItem('allowBinFiles', allowBinaryFiles.toString());
 });
 
 // Drag and drop event.
