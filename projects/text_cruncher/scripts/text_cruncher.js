@@ -2,7 +2,7 @@ const TYPE_INVALID = -2; // Files that would absolutely not be suitable.
 const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
 // Binary files are considered invalid types by default.
-const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bin', 'blend', 'bmp',
+const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bin', 'blend', 'blend1', 'bmp',
     'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'deb', 'dll',
     'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
     'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg', 'jpg', 'key', 'm4v', 'mask', 'mat', 'mdb', 'mid',
@@ -50,6 +50,8 @@ const BAR_SIZE = 28;
 const CHART_DATA_LIMIT = 500; // Limit canvas size.
 
 // Other constants.
+const MAX_FILES_PROCESSED_PER_FRAME = 500;
+const FILE_PROCESS_INTERVAL = 10; // in milliseconds.
 const ADD_ERROR_MSG_LIMIT = 15;
 
 // Global settings (default values).
@@ -138,6 +140,11 @@ var analyzeButton = document.getElementById('analyzeBtn');
 var settingsButton = document.getElementById('settingsBtn');
 var summaryText = document.getElementById('summaryText');
 
+// Other global variables.
+var isBusy = false;
+var queuedAddErrors = [];
+var addErrorCount = 0;
+
 // Settings events.
 function loadSettings() {
     // Load setting values (web storage api).
@@ -169,43 +176,88 @@ dropArea.addEventListener('drop', function (e) {
 
 // Event function called after selecting files.
 fileSelector.onchange = function () {
-    addFiles(fileSelector);
-    // Clear the file selector value in case we remove and readd the same item.
-    fileSelector.value = '';
+    setupAddFiles(fileSelector);
 }
 
 // Event function called after selecting directories.
 dirSelector.onchange = function () {
-    addFiles(dirSelector);
-    dirSelector.value = '';
+    setupAddFiles(dirSelector);
 }
 
-var errorsDisplayed = 0;
-
-function addFiles(element) {
+function setupAddFiles(element) {
     var numFilesSelected = element.files.length;
 
     if (numFilesSelected == 0) {
         return;
     }
 
+    // Notify that it may take a while to add more than 1000 files.
+    var showNotification = (numFilesSelected >= 1000);
+    setIsBusy(true);
+
+    if (showNotification) {
+        var notify = $.notify({ title: '<b>Adding files:</b>', message: 'This may take a while...' }, {
+            type: 'info',
+            allow_dismiss: false,
+            spacing: 5,
+            timer: 0,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            animate: {
+                enter: 'animated faster fadeInDown',
+                exit: 'animated faster fadeOutUp'
+            }
+        });
+
+        addFiles(element, notify)
+    }
+    else {
+        addFiles(element, null);
+    }
+}
+
+function addFiles(element, notification) {
+    addFilesChunked(element, 0, MAX_FILES_PROCESSED_PER_FRAME, notification);
+}
+
+function addFilesChunked(element, start, end, notification) {
+    var numFilesSelected = element.files.length;
+
+    if (end > numFilesSelected) {
+        end = numFilesSelected;
+    }
+
     // Add selected files to list (if they aren't already).
-    for (var i = 0; i < numFilesSelected; i++) {
+    for (var i = start; i < end; i++) {
         var file = element.files[i];
         var data = new FileInfo(file);
 
-        // Limit size of files.
-        if (data.size >= 1000000000) {
-            displayError(file.name + ' is too large! Files must be less than 1 GB.');
+        // Limit size of files to 1 GiB (2^30).
+        if (data.size >= 1073741824) {
+            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
+                queuedAddErrors.push(file.name + ' is too large! Files must be less than 1 GiB.');
+            }
+
+            addErrorCount++;
             continue;
         }
         // Only add valid files (non-binary).
         else if (!allowBinaryFiles && !data.valid) {
-            displayError(file.name + ' is not a proper text file (toggleable setting).');
+            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
+                queuedAddErrors.push(file.name + ' is not a proper text file (toggleable setting).');
+            }
+
+            addErrorCount++;
             continue;
         }
         else if (!allowEmptyFileExtensions && data.extension == '') {
-            displayError(file.name + '. The file extension is empty (toggleable setting).');
+            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
+                queuedAddErrors.push(file.name + '. The file extension is empty (toggleable setting).');
+            }
+
+            addErrorCount++;
             continue;
         }
 
@@ -214,18 +266,41 @@ function addFiles(element) {
         }
     }
 
-    // Done adding. We can reset error count.
-    errorsDisplayed = 0;
+    if (end == numFilesSelected) {
+        // Update UI representation.
+        updateFileList();
+        setIsBusy(false);
 
-    // Update UI reprentation.
-    updateFileList();
+        // Clear the file selector value in case we remove and readd the same item.
+        element.value = '';
+
+        if (notification != null) {
+            // Close notification.
+            notification.close();
+        }
+
+        // Display errors, if there are any.
+        if (addErrorCount > ADD_ERROR_MSG_LIMIT) {
+            displayError('Failed to add <b>' + addErrorCount + '</b> files.');
+        }
+        else {
+            for (var i = 0; i < queuedAddErrors.length; i++) {
+                displayError(queuedAddErrors[i]);
+            }
+        }
+
+        queuedAddErrors.clear();
+        addErrorCount = 0;
+    }
+    else {
+        // Process the next chunk of files.
+        setTimeout(function () {
+            addFilesChunked(element, end, end + MAX_FILES_PROCESSED_PER_FRAME, notification);
+        }, FILE_PROCESS_INTERVAL);
+    }
 }
 
 function displayError(msg) {
-    if (errorsDisplayed >= ADD_ERROR_MSG_LIMIT) {
-        return; // Avoid these popups from lagging (adding 1000s of files).
-    }
-
     $.notify({ title: '<b>Error:</b>', message: msg }, {
         type: 'danger',
         allow_dismiss: true,
@@ -241,8 +316,6 @@ function displayError(msg) {
             exit: 'animated faster fadeOutUp'
         }
     });
-
-    errorsDisplayed++;
 }
 
 function containedInFiles(toCheck) {
@@ -299,7 +372,12 @@ function updateFileList() {
     listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + ')</strong><div class="form-inline">' + searchField + buttons + '</div>';
     fileListUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
 
-    // Initialize tooltips for these elements.
+    // Update disabled states of these buttons.
+    for (var i = 0; i < fileList.length; i++) {
+        $('#' + i).prop('disabled', isBusy);
+    }
+
+    // Initialize tooltips for these buttons.
     $('[data-toggle="tooltip"]').tooltip();
 }
 
@@ -367,16 +445,15 @@ function removeAllUnsupported() {
 }
 
 // THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
-var isReading = false;
 var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, avgCharsTotalLines, filesReadSoFar;
 
 processFiles = function () {
-    if (fileList.length == 0 || isReading) {
+    if (fileList.length == 0 || isBusy) {
         return;
     }
 
-    // Mark that we are reading, and reset statistics.
-    setIsReading(true);
+    // Mark that we are busy analyzing, and reset statistics.
+    setIsBusy(true);
     totalLines = 0;
     totalChars = 0;
     avgLinesPerFile = 0;
@@ -389,18 +466,14 @@ processFiles = function () {
     $("#analyzeProgParent").show();
     $("#analyzeProgress").css('width', '0%').attr('aria-valuenow', 0);
 
-    // Reset error alert count.
-    errorsDisplayed = 0;
-
+    // Begin reading.
     for (var i = 0; i < fileList.length; i++) {
         readFile(fileList[i])
     }
-
-    errorsDisplayed = 0;
 }
 
 function readFile(file) {
-    if (!isReading) {
+    if (!isBusy) {
         return;
     }
 
@@ -470,7 +543,7 @@ function readFile(file) {
             calculateExtraStats();
             displayDetailedStats();
             updateOverview();
-            setIsReading(false);
+            setIsBusy(false);
 
             // Fade out progress bar.
             $("#analyzeProgParent").fadeOut(250);
@@ -481,19 +554,20 @@ function readFile(file) {
     reader.readAsText(file.data);
 }
 
-function setIsReading(reading) {
+function setIsBusy(busy) {
     // Toggles button controls.
-    fileSelector.disabled = reading;
-    dirSelector.disabled = reading;
-    analyzeButton.disabled = reading;
-    settingsButton.disabled = reading;
+    $('#helpBtn').prop('disabled', busy);
+    fileSelector.disabled = busy;
+    dirSelector.disabled = busy;
+    analyzeButton.disabled = busy;
+    settingsButton.disabled = busy;
 
     // Toggles removal of list items (click events).
     for (var i = 0; i < fileList.length; i++) {
-        $('#' + i).prop('disabled', reading);
+        $('#' + i).prop('disabled', busy);
     }
 
-    isReading = reading;
+    isBusy = busy;
 }
 
 function calculateExtraStats() {
@@ -538,8 +612,8 @@ function updateOverview() {
         content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines.<br>';
         content += '<br>';
         content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters.<br>';
-        content += '<b>Average Characters per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters.<br>';
-        content += '<b>Average Characters per Lines:</b> ' + avgCharsTotalLines.toLocaleString() + ' characters.<br>';
+        content += '<b>Average Character Count per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters.<br>';
+        content += '<b>Average Character Count per Line:</b> ' + avgCharsTotalLines.toLocaleString() + ' characters.<br>';
 
         // Replace with actual word count and user-set WPM.
         var avgCharsPerWord = 4.84;

@@ -61,11 +61,13 @@ body.fadeout {
 	margin-left: -0.5rem;
 	margin-right: -0.5rem;
 	margin-bottom: 0.75rem;
+	border: solid 2px;
+	border-color: #444444;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 	border-bottom-left-radius: 15px;
 	border-bottom-right-radius: 15px;
-	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
+	box-shadow: 0 0.5rem 2rem #0000004d !important;
 }
 
 .main-card:hover {
@@ -162,7 +164,7 @@ a:hover {
 	width: 100%;
 	padding-left: 15px;
 	padding-right: 15px;
-	margin-top: 20px;
+	margin-top: 90px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -228,6 +230,8 @@ a:hover {
 	margin: 0.75rem;
 	border-radius: 10px;
 	text-align: left;
+	border: solid 2px;
+	border-color: #666666;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -235,6 +239,8 @@ a:hover {
 	padding: 1.5rem;
 }
 
+/* TABS
+------------------------- */
 .nav-pills .nav-link {
 	background-color: #272830;
 	border: solid 1px;
@@ -247,6 +253,8 @@ a:hover {
 	border-color: #6873b1;
 }
 
+/* PROJECT PAGES
+------------------------- */
 .switch {
 	position: relative;
 	display: inline-block;
@@ -255,7 +263,6 @@ a:hover {
 	height: 25px;
 }
 
-/* Hide default HTML checkbox */
 .switch input {
 	opacity: 0;
 	width: 0;
@@ -289,11 +296,13 @@ a:hover {
 }
 
 input:checked+.slider {
-	background-color: #2196F3;
+	background-color: #4346f3;
+	border: solid 1px;
+	border-color: #9c8eee;
 }
 
 input:checked+.slider:before {
-	-webkit-transform: translateX(20px);
-	-ms-transform: translateX(20px);
-	transform: translateX(20px);
+	-webkit-transform: translate(19px, 1px);
+	-ms-transform: translate(19px, 1px);
+	transform: translate(19px, 1px);
 }

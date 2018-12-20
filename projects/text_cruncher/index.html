@@ -21,7 +21,7 @@
     </script>
 
     <!-- NAVBAR START -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark main-shadow">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark main-shadow">
         <h3 class="main-header pr-3">Text Cruncher</h3>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -56,10 +56,10 @@
             </ul>
 
             <!-- Desktop help button (hide on mobile) -->
-            <a class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
+            <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
                 style="background-color:#ac8f53" role="button">
                 ? &nbsp;Help
-            </a>
+            </button>
         </div>
     </nav>
     <!-- NAVBAR END-->
@@ -169,7 +169,7 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-5">
+                        <div class="col-9 col-md-8 col-lg-5">
                             Allow Duplicate Files:
                         </div>
 
@@ -182,7 +182,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-5">
+                        <div class="col-9 col-md-8 col-lg-5">
                             Allow Empty File Extensions:
                         </div>
 
@@ -195,7 +195,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-5">
+                        <div class="col-9 col-md-8 col-lg-5">
                             Allow Binary Files (not recommended):
                         </div>
 
