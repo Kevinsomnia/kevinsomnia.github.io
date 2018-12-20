@@ -149,15 +149,15 @@ var addErrorCount = 0;
 function loadSettings() {
     // Load setting values from storage.
     if(localStorage.getItem('allowEmptyFileExt') !== null) {
-        allowEmptyFileExtensions = localStorage.getItem('allowEmptyFileExt');
+        allowEmptyFileExtensions = (localStorage.getItem('allowEmptyFileExt') === 'true');
     }
 
     if(localStorage.getItem('allowDupFiles') !== null) {
-        allowDuplicateFiles = localStorage.getItem('allowDupFiles');
+        allowDuplicateFiles = (localStorage.getItem('allowDupFiles') === 'true');
     }
 
     if(localStorage.getItem('allowBinFiles') !== null) {
-        allowBinaryFiles = localStorage.getItem('allowBinFiles');
+        allowBinaryFiles = (localStorage.getItem('allowBinFiles') === 'true');
     }
 
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
