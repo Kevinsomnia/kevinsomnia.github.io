@@ -148,31 +148,31 @@ var addErrorCount = 0;
 // Settings events.
 function loadSettings() {
     // Load setting values from storage.
-    if(localStorage.getItem('allowEmptyFileExt') !== null) {
-        allowEmptyFileExtensions = (localStorage.getItem('allowEmptyFileExt') === 'true');
-    }
+    allowDuplicateFiles = loadBoolean('allowDupFiles');
+    allowEmptyFileExtensions = loadBoolean('allowEmptyFileExt');
+    allowBinaryFiles = loadBoolean('allowBinFiles');
 
-    if(localStorage.getItem('allowDupFiles') !== null) {
-        allowDuplicateFiles = (localStorage.getItem('allowDupFiles') === 'true');
-    }
-
-    if(localStorage.getItem('allowBinFiles') !== null) {
-        allowBinaryFiles = (localStorage.getItem('allowBinFiles') === 'true');
-    }
-
-    $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
-    $('#allowDupFiles').attr('checked', allowBinaryFiles);
+    $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
+    $('#allowBinFiles').attr('checked', allowBinaryFiles);
 };
 
-$('#allowEmptyExt').change(function (e) {
-    allowEmptyFileExtensions = e.target.checked;
-    localStorage.setItem('allowEmptyFileExt', allowEmptyFileExtensions.toString());
-});
+function loadBoolean(key) {
+    if(localStorage.getItem(key) !== null && localStorage.getItem(key) === 'true') {
+        return true;
+    }
+
+    return false;
+}
 
 $('#allowDupFiles').change(function (e) {
     allowDuplicateFiles = e.target.checked;
     localStorage.setItem('allowDupFiles', allowDuplicateFiles.toString());
+});
+
+$('#allowEmptyExt').change(function (e) {
+    allowEmptyFileExtensions = e.target.checked;
+    localStorage.setItem('allowEmptyFileExt', allowEmptyFileExtensions.toString());
 });
 
 $('#allowBinFiles').change(function (e) {
