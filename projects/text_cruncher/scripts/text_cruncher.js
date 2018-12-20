@@ -148,21 +148,21 @@ var addErrorCount = 0;
 // Settings events.
 function loadSettings() {
     // Load setting values from storage.
-    allowDuplicateFiles = loadBoolean('allowDupFiles');
-    allowEmptyFileExtensions = loadBoolean('allowEmptyFileExt');
-    allowBinaryFiles = loadBoolean('allowBinFiles');
+    allowDuplicateFiles = loadBoolean('allowDupFiles', false);
+    allowEmptyFileExtensions = loadBoolean('allowEmptyFileExt', false);
+    allowBinaryFiles = loadBoolean('allowBinFiles', false);
 
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowBinFiles').attr('checked', allowBinaryFiles);
 };
 
-function loadBoolean(key) {
+function loadBoolean(key, defaultValue) {
     if(localStorage.getItem(key) !== null && localStorage.getItem(key) === 'true') {
         return true;
     }
 
-    return false;
+    return defaultValue;
 }
 
 $('#allowDupFiles').change(function (e) {
