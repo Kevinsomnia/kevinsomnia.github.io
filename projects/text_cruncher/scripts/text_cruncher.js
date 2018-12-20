@@ -147,7 +147,18 @@ var addErrorCount = 0;
 
 // Settings events.
 function loadSettings() {
-    // Load setting values (web storage api).
+    // Load setting values from storage.
+    if(localStorage.getItem('allowEmptyFileExt') !== null) {
+        allowEmptyFileExtensions = localStorage.getItem('allowEmptyFileExt');
+    }
+
+    if(localStorage.getItem('allowDupFiles') !== null) {
+        allowDuplicateFiles = localStorage.getItem('allowDupFiles');
+    }
+
+    if(localStorage.getItem('allowBinFiles') !== null) {
+        allowBinaryFiles = localStorage.getItem('allowBinFiles');
+    }
 
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
@@ -156,14 +167,17 @@ function loadSettings() {
 
 $('#allowEmptyExt').change(function (e) {
     allowEmptyFileExtensions = e.target.checked;
+    localStorage.setItem('allowEmptyFileExt', allowEmptyFileExtensions);
 });
 
 $('#allowDupFiles').change(function (e) {
     allowDuplicateFiles = e.target.checked;
+    localStorage.setItem('allowDupFiles', allowDuplicateFiles);
 });
 
 $('#allowBinFiles').change(function (e) {
     allowBinaryFiles = e.target.checked;
+    localStorage.setItem('allowBinFiles', allowBinaryFiles);
 });
 
 // Drag and drop event.
@@ -187,7 +201,7 @@ dirSelector.onchange = function () {
 function setupAddFiles(element) {
     var numFilesSelected = element.files.length;
 
-    if (numFilesSelected == 0) {
+    if (numFilesSelected === 0) {
         return;
     }
 
@@ -252,7 +266,7 @@ function addFilesChunked(element, start, end, notification) {
             addErrorCount++;
             continue;
         }
-        else if (!allowEmptyFileExtensions && data.extension == '') {
+        else if (!allowEmptyFileExtensions && data.extension === '') {
             if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
                 queuedAddErrors.push(file.name + '. The file extension is empty (toggleable setting).');
             }
@@ -266,7 +280,7 @@ function addFilesChunked(element, start, end, notification) {
         }
     }
 
-    if (end == numFilesSelected) {
+    if (end === numFilesSelected) {
         // Update UI representation.
         updateFileList();
         setIsBusy(false);
@@ -332,7 +346,7 @@ function containedInFiles(toCheck) {
 
 function updateFileList() {
     var fileCount = fileList.length;
-    var noFiles = (fileCount == 0);
+    var noFiles = (fileCount === 0);
 
     analyzeButton.disabled = noFiles;
 
@@ -394,7 +408,7 @@ function searchFilter() {
 
 // Event function called after clicking on an item from the list.
 function removeListItem(index) {
-    if (fileList.length == 0) {
+    if (fileList.length === 0) {
         return;
     }
 
@@ -408,7 +422,7 @@ function removeListItem(index) {
 
 // Event function called after clicking the clear all button.
 function clearList() {
-    if (fileList.length == 0) {
+    if (fileList.length === 0) {
         return;
     }
 
@@ -424,7 +438,7 @@ function clearList() {
 
 // Event function called after clicking the remove all unsupported button.
 function removeAllUnsupported() {
-    if (fileList.length == 0) {
+    if (fileList.length === 0) {
         return;
     }
 
@@ -448,7 +462,7 @@ function removeAllUnsupported() {
 var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, avgCharsTotalLines, filesReadSoFar;
 
 processFiles = function () {
-    if (fileList.length == 0 || isBusy) {
+    if (fileList.length === 0 || isBusy) {
         return;
     }
 
@@ -496,11 +510,11 @@ function readFile(file) {
             var lineStart = 0; // Used to count characters between lines.
 
             for (var i = 0; i < text.length; i++) {
-                var isLastCharacter = (i == text.length - 1);
+                var isLastCharacter = (i === text.length - 1);
 
-                var windows = (!isLastCharacter && text[i] == '\r' && text[i + 1] == '\n'); // CR LF
-                var unix = (text[i] == '\n'); // LF
-                var mac = (text[i] == '\r'); // CR
+                var windows = (!isLastCharacter && text[i] === '\r' && text[i + 1] === '\n'); // CR LF
+                var unix = (text[i] === '\n'); // LF
+                var mac = (text[i] === '\r'); // CR
                 var isNewLine = (windows || unix || mac);
 
                 if (isNewLine) {
@@ -538,7 +552,7 @@ function readFile(file) {
         progress = (filesReadSoFar * (100.0 / fileList.length));
         $("#analyzeProgress").css("width", progress + "%").attr("aria-valuenow", progress);
 
-        if (filesReadSoFar == fileList.length) {
+        if (filesReadSoFar === fileList.length) {
             // DONE READING. Show results and statistics.
             calculateExtraStats();
             displayDetailedStats();
@@ -695,7 +709,7 @@ function updateOverview() {
 function retrieveOverviewData() {
     var dataCount = fileList.length;
 
-    if (dataCount == 0) {
+    if (dataCount === 0) {
         return [['% of File Type'], ['File Type'], [100], ['rgba(255,200,125,0.8)'], ['rgba(255,255,255,1.0)']];
     }
 
@@ -758,7 +772,7 @@ function getRandomInt(min, max) {
 }
 
 function changeDetailedView(viewIndex) {
-    if (viewIndex == activeChartView) {
+    if (viewIndex === activeChartView) {
         return;
     }
 
@@ -827,7 +841,7 @@ function displayDetailedStats() {
 function retrieveChartData() {
     var dataCount = Math.min(fileList.length, CHART_DATA_LIMIT);
 
-    if (dataCount == 0) {
+    if (dataCount === 0) {
         return [[], [], [], [], 100];
     }
 
@@ -845,10 +859,10 @@ function retrieveChartData() {
         // Get the value depending on chart view.
         var val = sortedFiles[i].lineCount;
 
-        if (activeChartView == 1) {
+        if (activeChartView === 1) {
             val = sortedFiles[i].charCount;
         }
-        else if (activeChartView == 2) {
+        else if (activeChartView === 2) {
             val = sortedFiles[i].avgCharsPerLine;
         }
 
@@ -872,11 +886,11 @@ function retrieveChartData() {
 }
 
 function sortFilesBehavior(a, b) {
-    if (activeChartView == 1) {
+    if (activeChartView === 1) {
         // Sort by descending character count.
         return (b.charCount - a.charCount);
     }
-    else if (activeChartView == 2) {
+    else if (activeChartView === 2) {
         // Sort by descending average characters per line.
         return (b.avgCharsPerLine - a.avgCharsPerLine);
     }
