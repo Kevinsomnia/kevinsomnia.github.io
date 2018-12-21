@@ -14,7 +14,7 @@ const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bi
 // Associate file-types to comment styling.
 const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
 const C_COMMENTS = 1; // C-styled comments (//, /* */).
-const MARKUP_COMMENTS = 2; // HTML/XML (//, <!-- -->)
+const MARKUP_COMMENTS = 2; // HTML/XML (// (scripts), <!-- -->)
 const CSS_COMMENTS = 3; // CSS (only /* */)
 const SH_COMMENTS = 4; // SH files (#)
 
@@ -59,32 +59,30 @@ const ADD_ERROR_MSG_LIMIT = 15;
 var allowEmptyFileExtensions = false;
 var allowDuplicateFiles = false;
 var allowBinaryFiles = false;
+var ignoreCommentedLines = true;
+var ignoreEmptyLines = true;
 var invalidKeywords = [];
 
 // File collection
 class FileInfo {
     constructor(file) {
         this.data = file;
+        this.name = file.name;
+        this.timestamp = file.lastModified;
         this.size = file.size;
         this._retrieveFileExtension();
 
         // Per-file stats.
         this.lineCount = 0;
+        this.commentedLineCount = 0;
+        this.emptyLineCount = 0;
         this.charCount = 0;
         this.avgCharsPerLine = 0;
     }
 
-    // Public properties that access file data.
-    name() {
-        return this.data.name;
-    }
-
-    timestamp() {
-        return this.data.lastModified;
-    }
-
+    // Compares files by name, timestamp, and size.
     compare(other) {
-        return (this.name() == other.name() && this.timestamp() == other.timestamp() && this.size == other.size);
+        return (this.name == other.name && this.timestamp == other.timestamp && this.size == other.size);
     }
 
     // After all the inexpensive validity checks are done, this is finally called to determine the file type and if it's accepted or not.
@@ -97,7 +95,7 @@ class FileInfo {
     // Returns true if file name is contains a keyword in the invalid keywords list.
     invalidByUser() {
         if (invalidKeywords.length > 0) {
-            var fileName = this.name();
+            var fileName = this.name;
 
             for (var i = 0; i < invalidKeywords.length; i++) {
                 if (fileName.includes(invalidKeywords[i])) {
@@ -107,6 +105,41 @@ class FileInfo {
         }
 
         return false;
+    }
+
+    isComment(text, start) {
+        if (this.type != TYPE_UNSUPPORTED && this.type != NO_COMMENTS) {
+            var textLength = text.length;
+            var comment = this.getLineCommentString();
+
+            for (var i = 0; i < comment.length; i++) {
+                var absIndex = start + i;
+
+                if (absIndex >= textLength) {
+                    break; // Going out of text bounds.
+                }
+
+                if (text[absIndex] != comment[i]) {
+                    return false; // Found a non-matching character from comment.
+                }
+            }
+
+            return true;
+        }
+
+        // Does not support comments.
+        return false;
+    }
+
+    getLineCommentString() {
+        switch (this.type) {
+            case C_COMMENTS:
+                return '//';
+            case SH_COMMENTS:
+                return '#';
+        }
+
+        return null;
     }
 
     _determineFileType() {
@@ -134,7 +167,7 @@ class FileInfo {
     }
 
     _retrieveFileExtension() {
-        var fileName = this.name();
+        var fileName = this.name;
         var lastPeriod = fileName.lastIndexOf('.');
 
         if (lastPeriod > -1) {
@@ -171,12 +204,16 @@ function loadSettings() {
     allowDuplicateFiles = loadBoolean('allowDupFiles', false);
     allowEmptyFileExtensions = loadBoolean('allowEmptyFileExt', false);
     allowBinaryFiles = loadBoolean('allowBinFiles', false);
+    ignoreCommentedLines = loadBoolean('ignoreComments', true);
+    ignoreEmptyLines = loadBoolean('ignoreEmptyLines', true);
     invalidKeywords = loadArray('invalidKeywords');
 
     // Update UI.
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowBinFiles').attr('checked', allowBinaryFiles);
+    $('#ignoreComments').attr('checked', ignoreCommentedLines);
+    $('#ignoreEmptyLines').attr('checked', ignoreEmptyLines);
 
     for (var i = 0; i < invalidKeywords.length; i++) {
         $("#invalidKeywords").tagit('createTag', invalidKeywords[i]);
@@ -186,8 +223,8 @@ function loadSettings() {
 function loadBoolean(key, defaultValue) {
     var value = localStorage.getItem(key);
 
-    if (value !== null && value === 'true') {
-        return true;
+    if (value !== null) {
+        return (value === 'true');
     }
 
     return defaultValue;
@@ -216,6 +253,16 @@ $('#allowEmptyExt').change(function (e) {
 $('#allowBinFiles').change(function (e) {
     allowBinaryFiles = e.target.checked;
     localStorage.setItem('allowBinFiles', allowBinaryFiles.toString());
+});
+
+$('#ignoreComments').change(function (e) {
+    ignoreCommentedLines = e.target.checked;
+    localStorage.setItem('ignoreComments', ignoreCommentedLines.toString());
+});
+
+$('#ignoreEmptyLines').change(function (e) {
+    ignoreEmptyLines = e.target.checked;
+    localStorage.setItem('ignoreEmptyLines', ignoreEmptyLines.toString());
 });
 
 $('#closeSettings').click(function (e) {
@@ -431,7 +478,7 @@ function updateFileList() {
         }
 
         styling += '>';
-        listContents += '<button id="' + i + styling + fileList[i].name() + '</button>';
+        listContents += '<button id="' + i + styling + fileList[i].name + '</button>';
     }
 
     var searchField = '<div class="form-group"><input id="fileListSearch" class="form-control" type="text" placeholder="(doesn\'t work yet)"></div>';
@@ -516,7 +563,7 @@ function removeAllUnsupported() {
 }
 
 // THIS IS WHERE THE REAL STUFF HAPPENS (file reading and chart updating).
-var totalLines, totalChars, avgLinesPerFile, avgCharsPerFile, avgCharsTotalLines, filesReadSoFar;
+var totalCountedLines, totalCommentedLines, totalEmptyLines, totalChars, avgLinesPerFile, avgCharsPerFile, avgCharsTotalLines, filesReadSoFar;
 
 processFiles = function () {
     if (fileList.length === 0 || isBusy) {
@@ -525,7 +572,9 @@ processFiles = function () {
 
     // Mark that we are busy analyzing, and reset statistics.
     setIsBusy(true);
-    totalLines = 0;
+    totalCountedLines = 0;
+    totalCommentedLines = 0;
+    totalEmptyLines = 0;
     totalChars = 0;
     avgLinesPerFile = 0;
     avgCharsPerFile = 0;
@@ -555,27 +604,43 @@ function readFile(file) {
         filesReadSoFar++;
 
         if (event.target.error != null) {
-            displayError('Cannot read ' + file.name() + ' :: ' + event.target.error.message);
+            displayError('Cannot read ' + file.name + ' :: ' + event.target.error.message);
         }
         else {
             filesSuccessfullyRead++;
 
-            file.lineCount = 1; // Starts at one because we include the first line (even in empty files).
+            var curLineNum = 1;
+            file.lineCount = 1; // Starts at one because we include the first line (even in empty files) (except for comments).
             file.charCount = 0;
+            file.commentedLineCount = 0;
+            file.emptyLineCount = 0;
 
             var text = event.target.result;
             var lineStart = 0; // Used to count characters between lines.
 
-            for (var i = 0; i < text.length; i++) {
-                var isLastCharacter = (i === text.length - 1);
+            var searchingForComment = ignoreCommentedLines; // Only search when we need to ignore commented lines.
+            var isCommentedLine = false;
+            var isEmptyLine = true; // Line is empty until we find a non-whitespace character.
+            var isFirstLine = true;
 
-                var windows = (!isLastCharacter && text[i] === '\r' && text[i + 1] === '\n'); // CR LF
+            for (var i = 0; i < text.length; i++) {
+                var isLastCharacterInFile = (i === text.length - 1);
+
+                var windows = (!isLastCharacterInFile && text[i] === '\r' && text[i + 1] === '\n'); // CR LF
                 var unix = (text[i] === '\n'); // LF
                 var mac = (text[i] === '\r'); // CR
                 var isNewLine = (windows || unix || mac);
 
                 if (isNewLine) {
-                    file.lineCount++;
+                    if (ignoreEmptyLines && isEmptyLine) {
+                        file.emptyLineCount++;
+                    }
+                    else if (ignoreCommentedLines && isCommentedLine) {
+                        file.commentedLineCount++;
+                    }
+                    else {
+                        file.lineCount++;
+                    }
 
                     // Gets the length of the current line up to (but not including) this character.
                     var diff = i - lineStart;
@@ -584,12 +649,43 @@ function readFile(file) {
                         i++; // Skip \n.
                     }
 
+                    curLineNum++;
                     file.charCount += diff;
                     lineStart = i + 1; // Set the starting point of the next line.
+
+                    isFirstLine = false;
+                    searchingForComment = ignoreCommentedLines;
+                    isEmptyLine = true;
                 }
-                else if (isLastCharacter) {
-                    var lineLength = i - lineStart + 1;
-                    file.charCount += lineLength;
+                else {
+                    if (isLastCharacterInFile) {
+                        // Accumulate character count for the final line.
+                        var lineLength = i - lineStart + 1;
+                        file.charCount += lineLength;
+                    }
+                    else {
+                        // The file reading and current line is not over.
+
+                        if (isEmptyLine) {
+                            if (!isWhiteSpace(text[i])) {
+                                // We hit something that is not whitespace.
+
+                                if (searchingForComment) {
+                                    // The first non-whitespace character of this line. This line is either a comment or not.
+                                    isCommentedLine = file.isComment(text, i);
+
+                                    if (isCommentedLine && isFirstLine) {
+                                        file.lineCount = 0; // Don't count the first line anymore, since the first line is commented.
+                                        file.commentedLineCount = 1;
+                                    }
+
+                                    searchingForComment = false;
+                                }
+
+                                isEmptyLine = false;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -601,7 +697,9 @@ function readFile(file) {
             file.avgCharsPerLine = Math.round(file.avgCharsPerLine * 100.0) / 100.0;
 
             // Accumulate total stats.
-            totalLines += file.lineCount;
+            totalCountedLines += file.lineCount;
+            totalCommentedLines += file.commentedLineCount;
+            totalEmptyLines += file.emptyLineCount;
             totalChars += file.charCount;
         }
 
@@ -643,15 +741,15 @@ function setIsBusy(busy) {
 
 function calculateExtraStats() {
     if (fileList.length > 0) {
-        avgLinesPerFile = totalLines / (1.0 * fileList.length);
+        avgLinesPerFile = totalCountedLines / (1.0 * fileList.length);
         avgLinesPerFile = Math.round(avgLinesPerFile * 100.0) / 100.0;
 
         avgCharsPerFile = totalChars / (1.0 * fileList.length);
         avgCharsPerFile = Math.round(avgCharsPerFile);
     }
 
-    if (totalLines > 0) {
-        avgCharsTotalLines = totalChars / (1.0 * totalLines);
+    if (totalCountedLines > 0) {
+        avgCharsTotalLines = totalChars / (1.0 * totalCountedLines);
         avgCharsTotalLines = Math.round(avgCharsTotalLines * 100.0) / 100.0;
     }
 }
@@ -677,10 +775,29 @@ function updateOverview() {
 
     // Update summary box.
     if (selectedFiles) {
+        var actualTotalLineCount = totalCountedLines + totalCommentedLines + totalEmptyLines;
+
         content += '<b>Files Analyzed:</b> ' + filesSuccessfullyRead.toLocaleString() + ' files.<br>';
         content += '<br>';
-        content += '<b>Total Line Count:</b> ' + totalLines.toLocaleString() + ' lines.<br>';
+        content += '<b>Total Line Count:</b> ' + totalCountedLines.toLocaleString() + ' lines.<br>';
         content += '<b>Average Lines per File:</b> ' + avgLinesPerFile.toLocaleString() + ' lines.<br>';
+
+        if (ignoreCommentedLines || ignoreEmptyLines) {
+            content += '<br>';
+        }
+
+        if (ignoreCommentedLines) {
+            var percentOfTotal = (totalCommentedLines * 100.0) / actualTotalLineCount;
+            percentOfTotal = Math.round(percentOfTotal * 100.0) / 100.0;
+            content += '<b>Commented Line Count:</b> ' + totalCommentedLines.toLocaleString() + ' lines (' + percentOfTotal + '% of total).<br>';
+        }
+
+        if (ignoreEmptyLines) {
+            var percentOfTotal = (totalEmptyLines * 100.0) / actualTotalLineCount;
+            percentOfTotal = Math.round(percentOfTotal * 100.0) / 100.0;
+            content += '<b>Empty Line Count:</b> ' + totalEmptyLines.toLocaleString() + ' lines (' + percentOfTotal + '% of total).<br>';
+        }
+
         content += '<br>';
         content += '<b>Total Character Count:</b> ' + totalChars.toLocaleString() + ' characters.<br>';
         content += '<b>Average Character Count per File:</b> ' + avgCharsPerFile.toLocaleString() + ' characters.<br>';
@@ -928,7 +1045,7 @@ function retrieveChartData() {
             chartMax = val;
         }
 
-        names.push(sortedFiles[i].name());
+        names.push(sortedFiles[i].name);
         vals.push(val);
 
         // Create a gradient from colors
@@ -954,6 +1071,11 @@ function sortFilesBehavior(a, b) {
 
     // Sort by descending line count.
     return (b.lineCount - a.lineCount);
+}
+
+// HELPERS
+function isWhiteSpace(char) {
+    return (char === ' ' || char === '\t'); // Spaces and tabs.
 }
 
 function lerp(a, b, t) {

@@ -211,6 +211,34 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="When enabled, lines that begin with comments will be ignored. This only applies to file types that are supported (not yellow in file list).<br><br>Currently doesn't support block comments.">
+                            Ignore Commented Lines:
+                        </div>
+
+                        <div class="col">
+                            <label class="switch">
+                                <input id="ignoreComments" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="When enabled, lines that have <b>whitespace only</b> will be ignored.">
+                            Ignore Empty Lines:
+                        </div>
+
+                        <div class="col">
+                            <label class="switch">
+                                <input id="ignoreEmptyLines" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-12" style="max-width: 15rem" data-toggle="tooltip" data-placement="bottom"
                             title="Files containing these keywords in their names (including extension) will not be added (case-sensitive).">
                             Invalid File Name Keywords:
