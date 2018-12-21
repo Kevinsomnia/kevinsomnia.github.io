@@ -92,13 +92,13 @@ body.fadeout {
 }
 
 .progress {
-	background-color: #30324b;
+	background-color: #30364b;
 	margin-top: 4px;
 	margin-bottom: 4px;
 }
 
 .progress-bar {
-	background-color: #3f4377;
+	background-color: #3f4c77;
 	margin: 2px;
 }
 
@@ -313,4 +313,92 @@ input:checked+.slider:before {
 	-webkit-transform: translate(19px, 1px);
 	-ms-transform: translate(19px, 1px);
 	transform: translate(19px, 1px);
+}
+
+/* TAG-IT STYLING
+------------------------- */
+ul.tagit {
+	background-color: #161616;
+	color: #efefef;
+	border-radius: 3px;
+    padding: 3px 5px;
+    overflow: auto;
+    margin-left: inherit;
+    margin-right: inherit;
+}
+
+ul.tagit li {
+    display: block;
+	float: left;
+    margin: 2px 5px 2px 0;
+}
+
+ul.tagit li.tagit-choice {    
+    position: relative;
+	line-height: inherit;
+	background-color: #272830;
+	border:solid 1px;
+	border-color: #2c335f;
+	border-radius: 3px;
+	color: #efefef;
+}
+
+input.tagit-hidden-field {
+    display: none;
+}
+
+ul.tagit li.tagit-choice-read-only { 
+    padding: .2em .5em .2em .5em; 
+} 
+
+ul.tagit li.tagit-choice-editable { 
+    padding: .2em 18px .2em .5em; 
+} 
+
+ul.tagit li.tagit-new {
+    padding: .2em 4px .2em 0;
+}
+
+ul.tagit li.tagit-choice a.tagit-label {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+ul.tagit li.tagit-choice .tagit-close {
+    cursor: pointer;
+    position: absolute;
+    right: .1em;
+    top: 50%;
+    margin-top: -8px;
+    line-height: 17px;
+}
+
+ul.tagit li.tagit-choice .tagit-close .text-icon {
+	float: right;
+	color: #999999;
+	padding-right: 3px;
+}
+
+ul.tagit li.tagit-choice input {
+    display: block;
+    float: right;
+    margin: 2px 5px 2px 0;
+}
+
+ul.tagit input[type="text"] {
+    -moz-box-sizing:    border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing:         border-box;
+
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: inherit;
+	background-color: inherit;
+	color: #efefef;
+    outline: none;
 }

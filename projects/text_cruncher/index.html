@@ -169,7 +169,8 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-9 col-md-8 col-lg-5">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="When enabled, you can add the same file as many times as you want.<br><br>If you can't add a unique file (without errors), then you can try enabling this and add it again.<br><br>Additionally, enabling this will make adding thousands of files much faster.">
                             Allow Duplicate Files:
                         </div>
 
@@ -182,7 +183,8 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-9 col-md-8 col-lg-5">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="When enabled, you can add files with an empty extension.<br><br>For example, some readme and license files won't have extensions.">
                             Allow Empty File Extensions:
                         </div>
 
@@ -195,7 +197,8 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-9 col-md-8 col-lg-5">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="When enabled, non-text files can be added.<br><br>This basically defeats the whole purpose of this project, but can still be used to view the file size distribution.">
                             Allow Binary Files (not recommended):
                         </div>
 
@@ -206,9 +209,20 @@
                             </label>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-12" style="max-width: 15rem" data-toggle="tooltip" data-placement="bottom"
+                            title="Files containing these keywords in their names (including extension) will not be added (case-sensitive).">
+                            Invalid File Name Keywords:
+                        </div>
+
+                        <div class="col-12">
+                            <ul id="invalidKeywords" class="tagit"></ul>
+                        </div>
+                    </div>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="closeSettings" type="button" class="btn btn-secondary" data-dismiss="modal">Done</button>
             </div>
         </div>
     </div>
@@ -232,20 +246,33 @@
 
     <script src="../../scripts/popper.min.js"></script>
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../../scripts/jquery-ui.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/bootstrap-notify.min.js"></script>
     <script src="../../scripts/parallax/parallax.min.js"></script>
-    <script src="../../scripts/modernizr-min.js"></script>
     <script src="../../scripts/Chart.min.js"></script>
+    <script src="../../scripts/tag-it.min.js"></script>
     <script src="scripts/text_cruncher.js"></script>
 
     <script>
         // Fade in page after done loading.
         window.onload = function () {
+            // Initialize tag list (used in settings menu).
+            $("#invalidKeywords").tagit();
+
+            // Initialize tooltips for the entire page.
+            $('[data-toggle="tooltip"]').tooltip();
+
             // Hide analyze progress bar.
             $("#analyzeProgParent").hide();
+
+            // Initialize file list and settings.
             updateFileList();
             loadSettings();
+
+            // Enable visibility of graphs and fill with dummy data.
+            displayDetailedStats();
+            updateOverview();
 
             setTimeout(function () {
                 // Fade in page.

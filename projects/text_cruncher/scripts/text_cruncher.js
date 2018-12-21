@@ -48,7 +48,7 @@ const SUPPORTED_TYPES = {
 // Chart visual constants
 const BASE_CHART_HEIGHT = 175; // in pixels.
 const BAR_SIZE = 28;
-const CHART_DATA_LIMIT = 500; // Limit canvas size.
+const CHART_ENTRIES_PER_PAGE = 100; // Limit data displayed on chart at once.
 
 // Other constants.
 const MAX_FILES_PROCESSED_PER_FRAME = 500;
@@ -59,6 +59,7 @@ const ADD_ERROR_MSG_LIMIT = 15;
 var allowEmptyFileExtensions = false;
 var allowDuplicateFiles = false;
 var allowBinaryFiles = false;
+var invalidKeywords = [];
 
 // File collection
 class FileInfo {
@@ -66,9 +67,6 @@ class FileInfo {
         this.data = file;
         this.size = file.size;
         this._retrieveFileExtension();
-        this._determineFileType();
-        this.valid = (this.type > TYPE_INVALID);
-        this.supported = (this.type > TYPE_UNSUPPORTED);
 
         // Per-file stats.
         this.lineCount = 0;
@@ -85,29 +83,50 @@ class FileInfo {
         return this.data.lastModified;
     }
 
-
     compare(other) {
         return (this.name() == other.name() && this.timestamp() == other.timestamp() && this.size == other.size);
     }
 
-    _determineFileType() {
-        if (!this.extension) {
-            this.type = TYPE_UNSUPPORTED;
-            return;
-        }
+    // After all the inexpensive validity checks are done, this is finally called to determine the file type and if it's accepted or not.
+    completeInit() {
+        this._determineFileType();
+        this.valid = (this.type > TYPE_INVALID);
+        this.supported = (this.type > TYPE_UNSUPPORTED);
+    }
 
-        // Check if it is valid or not.
-        for (var i = 0; i < INVALID_TYPES.length; i++) {
-            if (this.extension == INVALID_TYPES[i]) {
-                this.type = TYPE_INVALID;
-                return;
+    // Returns true if file name is contains a keyword in the invalid keywords list.
+    invalidByUser() {
+        if (invalidKeywords.length > 0) {
+            var fileName = this.name();
+
+            for (var i = 0; i < invalidKeywords.length; i++) {
+                if (fileName.includes(invalidKeywords[i])) {
+                    return true;
+                }
             }
         }
 
-        // Check for type ID if it is in supported list.
-        if (this.extension in SUPPORTED_TYPES) {
-            this.type = SUPPORTED_TYPES[this.extension];
-            return;
+        return false;
+    }
+
+    _determineFileType() {
+        if (!allowBinaryFiles) {
+            // Check if it is a binary file or not.
+            // TODO: Use binary search.
+            for (var i = 0; i < INVALID_TYPES.length; i++) {
+                if (this.extension == INVALID_TYPES[i]) {
+                    this.type = TYPE_INVALID;
+                    return;
+                }
+            }
+        }
+
+        // Check for supported type ID if the extension is not empty.
+        if (this.extension) {
+            if (this.extension in SUPPORTED_TYPES) {
+                this.type = SUPPORTED_TYPES[this.extension];
+                return;
+            }
         }
 
         // Not supported.
@@ -152,18 +171,36 @@ function loadSettings() {
     allowDuplicateFiles = loadBoolean('allowDupFiles', false);
     allowEmptyFileExtensions = loadBoolean('allowEmptyFileExt', false);
     allowBinaryFiles = loadBoolean('allowBinFiles', false);
+    invalidKeywords = loadArray('invalidKeywords');
 
+    // Update UI.
     $('#allowDupFiles').attr('checked', allowDuplicateFiles);
     $('#allowEmptyExt').attr('checked', allowEmptyFileExtensions);
     $('#allowBinFiles').attr('checked', allowBinaryFiles);
+
+    for (var i = 0; i < invalidKeywords.length; i++) {
+        $("#invalidKeywords").tagit('createTag', invalidKeywords[i]);
+    }
 };
 
 function loadBoolean(key, defaultValue) {
-    if (localStorage.getItem(key) !== null && localStorage.getItem(key) === 'true') {
+    var value = localStorage.getItem(key);
+
+    if (value !== null && value === 'true') {
         return true;
     }
 
     return defaultValue;
+}
+
+function loadArray(key) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null && value.length > 0) {
+        return value.split(',');
+    }
+
+    return [];
 }
 
 $('#allowDupFiles').change(function (e) {
@@ -179,6 +216,12 @@ $('#allowEmptyExt').change(function (e) {
 $('#allowBinFiles').change(function (e) {
     allowBinaryFiles = e.target.checked;
     localStorage.setItem('allowBinFiles', allowBinaryFiles.toString());
+});
+
+$('#closeSettings').click(function (e) {
+    // Save invalid keyword list into one string.
+    invalidKeywords = $('#invalidKeywords').tagit('assignedTags');
+    localStorage.setItem('invalidKeywords', invalidKeywords.join(','));
 });
 
 // Drag and drop event.
@@ -216,6 +259,7 @@ function setupAddFiles(element) {
             allow_dismiss: false,
             spacing: 5,
             timer: 0,
+            showProgressbar: true,
             placement: {
                 from: "top",
                 align: "center"
@@ -251,28 +295,27 @@ function addFilesChunked(element, start, end, notification) {
 
         // Limit size of files to 1 GiB (2^30).
         if (data.size >= 1073741824) {
-            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
-                queuedAddErrors.push(file.name + ' is too large! Files must be less than 1 GiB.');
-            }
-
-            addErrorCount++;
+            addErrorToQueue(file.name + ' is too large! Files must be less than 1 GiB.');
             continue;
         }
+
+        // Ignore empty file extensions (if active).
+        if (!allowEmptyFileExtensions && data.extension === '') {
+            addErrorToQueue(file.name + '. The file extension is empty (toggleable setting).');
+            continue;
+        }
+
+        data.completeInit();
+
         // Only add valid files (non-binary).
-        else if (!allowBinaryFiles && !data.valid) {
-            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
-                queuedAddErrors.push(file.name + ' is not a proper text file (toggleable setting).');
-            }
-
-            addErrorCount++;
+        if (!data.valid) {
+            addErrorToQueue(file.name + ' is not a text file (toggleable setting).');
             continue;
         }
-        else if (!allowEmptyFileExtensions && data.extension === '') {
-            if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
-                queuedAddErrors.push(file.name + '. The file extension is empty (toggleable setting).');
-            }
 
-            addErrorCount++;
+        // This file is marked contains a invalid keyword definition.
+        if (data.invalidByUser()) {
+            addErrorToQueue(file.name + ' contains an invalid keyword (user-defined).');
             continue;
         }
 
@@ -304,15 +347,28 @@ function addFilesChunked(element, start, end, notification) {
             }
         }
 
-        queuedAddErrors.clear();
+        queuedAddErrors.length = 0;
         addErrorCount = 0;
     }
     else {
+        if (notification != null) {
+            // Update progress bar on notification.
+            notification.update('progress', (end * 100.0) / numFilesSelected);
+        }
+
         // Process the next chunk of files.
         setTimeout(function () {
             addFilesChunked(element, end, end + MAX_FILES_PROCESSED_PER_FRAME, notification);
         }, FILE_PROCESS_INTERVAL);
     }
+}
+
+function addErrorToQueue(msg) {
+    if (queuedAddErrors.length < ADD_ERROR_MSG_LIMIT) {
+        queuedAddErrors.push(msg);
+    }
+
+    addErrorCount++;
 }
 
 function displayError(msg) {
@@ -840,7 +896,7 @@ function displayDetailedStats() {
 
 // Returns a JSON object: {items (list), max (float/int)}.
 function retrieveChartData() {
-    var dataCount = Math.min(fileList.length, CHART_DATA_LIMIT);
+    var dataCount = Math.min(fileList.length, CHART_ENTRIES_PER_PAGE);
 
     if (dataCount === 0) {
         return [[], [], [], [], 100];
@@ -903,7 +959,3 @@ function sortFilesBehavior(a, b) {
 function lerp(a, b, t) {
     return Math.round(a + ((b - a) * t));
 }
-
-// On page load: Enable visibility of graphs and fill with dummy data.
-displayDetailedStats();
-updateOverview();

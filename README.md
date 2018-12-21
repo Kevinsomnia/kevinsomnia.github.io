@@ -6,7 +6,7 @@ This is my personal website for web projects.
 
 **Libraries used in projects:**
 - [Chart.js](https://www.chartjs.org/)
-- [Modernizr](https://modernizr.com/)
+- [Tag-it](https://github.com/fagianijunior/tag-it)
 
 **Other resources used in website:**
 - [Bootstrap](https://getbootstrap.com/)
