@@ -3,13 +3,14 @@ const TYPE_UNSUPPORTED = -1; // Not natively supported, but it will still read.
 
 // Binary files are considered invalid types by default.
 const INVALID_TYPES = ['7z', 'aif', 'anim', 'apk', 'asset', 'assets', 'avi', 'bin', 'blend', 'blend1', 'bmp',
-    'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'deb', 'dll',
-    'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
+    'bsa', 'bsp', 'bundle', 'bytes', 'cab', 'controller', 'cso', 'cur', 'dat', 'db', 'dbf', 'dds', 'deb', 'dll',
+    'dmg', 'dmp', 'doc', 'docx', 'drv', 'dylib', 'esm', 'esp', 'exe', 'fbx', 'flv', 'fnt', 'gif', 'guiskin',
     'gz', 'h264', 'icns', 'ico', 'iso', 'jpeg', 'jpg', 'key', 'm4v', 'mask', 'mat', 'mdb', 'mid',
     'midi', 'mov', 'mp3', 'mp4', 'mpa', 'mpeg', 'mpg', 'msi', 'ods', 'ogg', 'otf', 'overridecontroller',
     'pak', 'pdb', 'pdf', 'physicmaterial', 'png', 'pps', 'ppt', 'pptx', 'prefab', 'psd', 'rar', 'resS',
     'sav', 'so', 'svg', 'swf', 'sys', 'tar', 'tga', 'tif', 'tiff', 'tmp', 'toast', 'ttf', 'unity',
     'unitypackage', 'wav', 'wma', 'wmv', 'xlr', 'xls', 'xlsx', 'zip']
+
 // Associate file-types to comment styling.
 const NO_COMMENTS = 0; // Regular text files. Doesn't support comments.
 const C_COMMENTS = 1; // C-styled comments (//, /* */).
@@ -158,7 +159,7 @@ function loadSettings() {
 };
 
 function loadBoolean(key, defaultValue) {
-    if(localStorage.getItem(key) !== null && localStorage.getItem(key) === 'true') {
+    if (localStorage.getItem(key) !== null && localStorage.getItem(key) === 'true') {
         return true;
     }
 
