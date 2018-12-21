@@ -1,13 +1,10 @@
 /* Main styling for website */
 
 body {
-	padding-bottom: 3rem;
-	/* footer */
 	color: #ebebeb;
 	background-color: #161616;
 	background-image: url(../images/noise_bg.jpg);
 	background-repeat: repeat;
-	/* fade in*/
 	opacity: 1;
 	transition: 0.35s opacity;
 }

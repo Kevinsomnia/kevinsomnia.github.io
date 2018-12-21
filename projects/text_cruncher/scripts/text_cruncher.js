@@ -933,7 +933,7 @@ function retrieveChartData() {
 
         // Create a gradient from colors
         var factor = i / (1.0 * dataCount);
-        var rg = lerp(180, 80, factor);
+        var rg = Math.round(lerp(180, 80, factor));
         fillCols.push('rgba(255,' + rg + ',56,0.125)');
         borderCols.push('rgba(205,' + rg + ',105,0.8)');
     }
@@ -957,5 +957,5 @@ function sortFilesBehavior(a, b) {
 }
 
 function lerp(a, b, t) {
-    return Math.round(a + ((b - a) * t));
+    return a + ((b - a) * t);
 }
