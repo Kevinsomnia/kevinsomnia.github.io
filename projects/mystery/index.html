@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="images/favicon.png">
+
+    <title>Mystery | Kevin's Web Portfolio</title>
+
+    <!-- Bootstrap and page CSS -->
+    <link href="../../styles/bootstrap.min.css" rel="stylesheet">
+    <link href="../../styles/animate.min.css" rel="stylesheet">
+    <link href="../../styles/main.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Content invisible. -->
+    <script>
+        document.body.classList.add('fadeout');
+    </script>
+
+    <!-- NAVBAR START -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark main-shadow">
+        <h3 class="main-header pr-3">?????</h3>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active pr-1">
+                    <a class="nav-link" href="../..">
+                        Home
+                    </a>
+                </li>
+
+                <div class="d-none d-lg-inline-flex pr-1 v-divide"></div>
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/mystery"
+                        target="_blank">
+                        View source on &nbsp;<img src="../../images/github.png">
+                    </a>
+                </li>
+
+                <!-- Mobile help link (hide on desktop) -->
+                <li class="nav-item active">
+                    <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
+                        Help
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Desktop help button (hide on mobile) -->
+            <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
+                style="background-color:#ac8f53" role="button">
+                ? &nbsp;Help
+            </button>
+        </div>
+    </nav>
+    <!-- NAVBAR END-->
+
+    <main role="main">
+        <div class="project-container">
+            <!-- START BODY UI -->
+
+
+            
+            <!-- END UI -->
+        </div> <!-- /project-body -->
+    </main>
+
+    <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">How To Use Mystery</h5>
+                </div>
+
+                <div class="modal-body">
+                    <p>you have five seconds to close this window</p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../scripts/popper.min.js"></script>
+    <script src="../../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../../scripts/bootstrap.min.js"></script>
+    <script src="../../scripts/bootstrap-notify.min.js"></script>
+
+    <script>
+        // Fade in page after done loading.
+        window.onload = function () {
+            setTimeout(function () {
+                // Fade in page.
+                document.body.classList.remove('fadeout');
+            }, 50);
+        };
+    </script>
+
+</body>
+
+</html>
