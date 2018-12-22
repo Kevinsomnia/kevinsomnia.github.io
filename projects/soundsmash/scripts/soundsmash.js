@@ -1,3 +1,6 @@
+// Constants
+const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
+
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
 var gameView = document.getElementById('gameView');
@@ -5,19 +8,24 @@ var gameView = document.getElementById('gameView');
 // Audio controller variables.
 var scController = {};
 var audioCtx = null;
+var songDuration = 0.0;
 var sampleRate = 44100;
 
 // Game variables.
 var curTime = 0.0;
 var lastTime = 0.0;
-var unitScale = 500.0;
+var unitScale = 500.0; // The number of pixels per second.
 var offsetX = 0.0;
+var leftGameBounds = 0.0;
+var rightGameBounds = 1.0;
 
 function initController() {
     // Create controller object for this session.
     scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', track: null, onRetrieved: null, onFailed: null };
     SC.initialize({ client_id: scController.clientID });
 
+    //DEBUG.
+    renderGame();
 }
 
 function getStreamUrl() {
@@ -87,6 +95,7 @@ function startSamplingTrack() {
 
     request.onload = function () {
         audioCtx.decodeAudioData(request.response, function (data) {
+            console.log(data);
             initializeGame(audioCtx, data);
         }, null);
     }
@@ -112,7 +121,7 @@ function initializeGame(audioCtx, data) {
     renderGame();
 }
 
-var peaks = []; // Array of samples indices.
+var peaks = null; // Array of timestamps of audio peaks.
 
 function createBeatmap(data) {
     var numChannels = data.numberOfChannels;
@@ -122,6 +131,7 @@ function createBeatmap(data) {
     }
 
     sampleRate = data.sampleRate;
+    songDuration = data.length * 1.0 / sampleRate;
 
     var leftChannel = data.getChannelData(0);
     var rightChannel = data.getChannelData(1);
@@ -131,7 +141,7 @@ function createBeatmap(data) {
     console.log(peaks);
 }
 
-// Pretty dumb way to get beats, but just get the peak amplitude in the samples.
+// Pretty dumb way to get the peaks, but just get the peak amplitude in the samples.
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
@@ -141,7 +151,7 @@ function calculatePeaks(lChannel, rChannel) {
         var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
 
         if (avgAmplitude > 0.5) {
-            results.push(i);
+            results.push(i * 1.0 / sampleRate); // Convert sample index to seconds.
         }
     }
 
@@ -159,30 +169,41 @@ function renderGame() {
 
     gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
-    // Draw vertical lines
-    var lineCount = Math.ceil(gameView.width / unitScale);
+    // Draw vertical lines in intervals.
+    const bpm = 120.0; // Make adjustable later.
+    var lineStep = 60.0 / bpm; // Time interval per beat.
+    var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
+
     gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
     gameCtx.lineWidth = 2;
 
-    for (var i = 0; i < lineCount; i++) {
+    while(curLineTime < rightGameBounds) {
         gameCtx.beginPath();
-        var x = (i + 1) * unitScale;
-        gameCtx.moveTo(x + offsetX, 0);
-        gameCtx.lineTo(x + offsetX, gameView.height);
+        var x = convertSecondsToPixel(curLineTime);
+        gameCtx.moveTo(x, 0);
+        gameCtx.lineTo(x, gameView.height);
         gameCtx.stroke();
+
+        // Step to next line.
+        curLineTime += lineStep;
     }
+
+    // Draw beat "notes"
+
+}
+
+function convertSecondsToPixel(time) {
+    var inverseLerp = (time - leftGameBounds) / (rightGameBounds - leftGameBounds); // Map from 0 to 1.
+    return inverseLerp * gameView.width; // 0 to game view width.
 }
 
 function gameLoop() {
     curTime = audioCtx.currentTime;
-    var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
-    console.log(dt);
+    //var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
 
-    offsetX -= dt * unitScale;
-
-    if (offsetX < -unitScale) {
-        offsetX += unitScale; // Loop.
-    }
+    // Update bounds.
+    leftGameBounds = curTime;
+    rightGameBounds = curTime + GAME_VIEW_WIDTH;
 
     lastTime = curTime;
 }
