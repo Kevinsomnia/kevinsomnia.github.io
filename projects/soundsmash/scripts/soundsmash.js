@@ -207,16 +207,18 @@ function renderGame() {
     var amplIndex = Math.min(Math.floor(leftGameBounds * 20.0), amplitudes.length - 1);
     drawVerticalLine(gameCtx, rightGameBounds - 0.33, amplitudes[amplIndex]);
 
-    // Draw vertical lines in intervals.
+    // Draw vertical lines and time labels in intervals.
     const bpm = 120.0; // Make adjustable later.
     var lineStep = 60.0 / bpm; // Time interval per beat.
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
     gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
     gameCtx.lineWidth = 2;
+    gameCtx.font = '12px Verdana';
 
     while (curLineTime < rightGameBounds) {
         drawVerticalLine(gameCtx, curLineTime, 1.0);
+        drawTimestamp(gameCtx, curLineTime);
         curLineTime += lineStep;
     }
 
@@ -247,6 +249,11 @@ function drawVerticalLine(ctx, time, heightPercent) {
     ctx.moveTo(x, 0);
     ctx.lineTo(x, gameView.height * heightPercent);
     ctx.stroke();
+}
+
+function drawTimestamp(ctx, time) {
+    var x = convertSecondsToPixel(time);
+    ctx.fillText(time.toString(), x, gameView.height - 15);
 }
 
 function convertSecondsToPixel(time) {
