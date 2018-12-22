@@ -14,6 +14,7 @@ var songDuration = 0.0;
 var sampleRate = 44100;
 
 // Game variables.
+var startTime = 0.0;
 var curTime = 0.0;
 var lastTime = 0.0;
 var unitScale = 500.0; // The number of pixels per second.
@@ -116,6 +117,7 @@ function initializeGame(audioCtx, data) {
     createBeatmap(bufferSrc.buffer);
 
     // Reset time to start of clip.
+    startTime = audioCtx.currentTime;
     curTime = 0.0;
     lastTime = curTime;
 
@@ -212,8 +214,10 @@ function renderGame() {
     var lineStep = 60.0 / bpm; // Time interval per beat.
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
-    gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
+    gameCtx.strokeStyle = '#ffffff33'; // translucent white.
     gameCtx.lineWidth = 2;
+    gameCtx.fillStyle = '#ffffff66'; // translucent white.
+    gameCtx.textAlign = 'center';
     gameCtx.font = '12px Verdana';
 
     while (curLineTime < rightGameBounds) {
@@ -253,7 +257,7 @@ function drawVerticalLine(ctx, time, heightPercent) {
 
 function drawTimestamp(ctx, time) {
     var x = convertSecondsToPixel(time);
-    ctx.fillText(time.toString(), x, gameView.height - 15);
+    ctx.fillText(time.toString(), x, gameView.height);
 }
 
 function convertSecondsToPixel(time) {
@@ -262,7 +266,7 @@ function convertSecondsToPixel(time) {
 }
 
 function gameLoop() {
-    curTime = audioCtx.currentTime;
+    curTime = audioCtx.currentTime - startTime;
     //var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
 
     // Update bounds.
