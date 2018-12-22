@@ -109,8 +109,9 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel, sampleRate) {
     var results = [];
     var dataLength = lChannel.length;
+    var stepSize = Math.ceil(0.01 * sampleRate); // Sample every 0.01 second interval.
 
-    for(var i = 0; i < dataLength; i++) {
+    for(var i = 0; i < dataLength; i += stepSize) {
         var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
 
         if(avgAmplitude > 0.5) {
