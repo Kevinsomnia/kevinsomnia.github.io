@@ -78,7 +78,6 @@ function startSamplingTrack() {
     var streamUrl = getStreamUrl();
 
     // Create audio context and buffer.
-    var AudioContext = AudioContext || webkitAudioContext;
     audioCtx = new AudioContext();
 
     // Get the audio data through AJAX.
