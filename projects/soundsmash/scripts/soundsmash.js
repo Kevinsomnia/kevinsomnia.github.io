@@ -143,9 +143,8 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
-    var stepSize = Math.ceil(0.01 * sampleRate); // Sample every 0.01 second interval.
+    var stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
     var sampleStartIndex = 0;
-    var sampleEndIndex = stepSize;
     var prevAvgAmp = 0.0;
 
     while (sampleStartIndex < dataLength) {
