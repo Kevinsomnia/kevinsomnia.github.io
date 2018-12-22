@@ -105,7 +105,7 @@ function initializeGame(audioCtx, data) {
     // Create audio buffer.
     var bufferSrc = audioCtx.createBufferSource();
     bufferSrc.buffer = data;
-    
+
     // Apply low pass filter to get the bass drum hits.
     var lowPassFilter = audioCtx.createBiquadFilter();
     lowPassFilter.type = 'lowpass';
@@ -163,12 +163,16 @@ function calculatePeaks(lChannel, rChannel) {
         for (var i = 0; i < stepSize; i++) {
             var absIndex = sampleStartIndex + i;
 
-            if(absIndex >= dataLength) {
+            if (absIndex >= dataLength) {
                 break;
             }
 
             // Accumulate the greater amplitude from both channels.
             avgAmplitude += Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
+
+            if (i == 0) {
+                amplitudes.push({ time: (sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude });
+            }
         }
 
         if (stepSize > 1) {
@@ -179,8 +183,6 @@ function calculatePeaks(lChannel, rChannel) {
         if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
             results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
         }
-
-        amplitudes.push({time:(sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude});
 
         prevAvgAmp = avgAmplitude;
         sampleStartIndex += stepSize;
@@ -204,8 +206,8 @@ function renderGame() {
     gameCtx.strokeStyle = '#77db25'; // lime green.
     gameCtx.lineWidth = 8;
     var amplIndex = Math.min(Math.floor(leftGameBounds / stepSize), amplitudes.length - 1);
-    drawVerticalLine(gameCtx, rightGameBounds - 0.1, amplitudes[amplIndex] * 0.5);
-    
+    drawVerticalLine(gameCtx, rightGameBounds - 0.33, amplitudes[amplIndex]);
+
     // Draw vertical lines in intervals.
     const bpm = 120.0; // Make adjustable later.
     var lineStep = 60.0 / bpm; // Time interval per beat.
