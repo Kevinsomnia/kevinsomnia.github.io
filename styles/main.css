@@ -132,6 +132,22 @@ body.fadeout {
 	border-radius: 15px;
 }
 
+.form-control {
+	background-color: #444444;
+	border-color: #2c335f;
+	color: #efefef;
+}
+
+.form-control:focus {
+	background-color: #444444;
+	border-color: #2c335f;
+	color: #efefef;
+}
+
+.form-control::placeholder {
+	color: #999999;
+}
+
 /* LINK STYLING
 ------------------------- */
 a {

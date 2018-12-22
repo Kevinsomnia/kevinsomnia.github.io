@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" href="images/favicon.png">
 
-    <title>Mystery | Kevin's Web Portfolio</title>
+    <title>SoundMash | Kevin's Web Portfolio</title>
 
     <!-- Bootstrap and page CSS -->
     <link href="../../styles/bootstrap.min.css" rel="stylesheet">
@@ -22,7 +22,7 @@
 
     <!-- NAVBAR START -->
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark main-shadow">
-        <h3 class="main-header pr-3">?????</h3>
+        <h3 class="main-header pr-3">SoundMash</h3>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@
                 <div class="d-none d-lg-inline-flex pr-1 v-divide"></div>
 
                 <li class="nav-item active">
-                    <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/mystery"
+                    <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/soundmash"
                         target="_blank">
                         View source on &nbsp;<img src="../../images/github.png">
                     </a>
@@ -68,8 +68,20 @@
         <div class="project-container">
             <!-- START BODY UI -->
 
+            <h5 class="main-header">This game is intended to be played with a keyboard. This means no mobile users!</h5>
 
-            
+            <div class="row">
+                <div class="col-9">
+                    <div class="form-group">
+                        <input id="scLink" class="form-control" type="text" placeholder="Paste the SoundCloud link here">
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <button class="btn btn-primary btn-md" onclick="play()" style="background-color:#3421df" role="button">Play</button>
+                </div>
+            </div>
+
             <!-- END UI -->
         </div> <!-- /project-body -->
     </main>
@@ -78,14 +90,14 @@
         <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
             <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
                 <div class="modal-header">
-                    <h5 class="modal-title">How To Use Mystery</h5>
+                    <h5 class="modal-title">How To Play SoundMash</h5>
                 </div>
 
                 <div class="modal-body">
-                    <p>you have five seconds to close this window</p>
+                    <p>Hear sound? Press keys.</p>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Awesome</button>
             </div>
         </div>
     </div>
@@ -94,10 +106,14 @@
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/bootstrap-notify.min.js"></script>
+    <script src="https://connect.soundcloud.com/sdk.js"></script>
+    <script src="scripts/soundmash.js"></script>
 
     <script>
         // Fade in page after done loading.
         window.onload = function () {
+            initController();
+
             setTimeout(function () {
                 // Fade in page.
                 document.body.classList.remove('fadeout');
