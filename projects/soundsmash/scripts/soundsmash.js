@@ -171,7 +171,7 @@ function calculatePeaks(lChannel, rChannel) {
             avgAmplitude += Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
 
             if (i == 0) {
-                amplitudes.push({ time: (sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude });
+                amplitudes.push(avgAmplitude);
             }
         }
 
