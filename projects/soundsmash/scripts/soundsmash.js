@@ -1,7 +1,7 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const NOTE_RADIUS = 10;
-const PEAK_THRESHOLD = 0.1;
+const PEAK_THRESHOLD = 0.225;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -159,12 +159,14 @@ function calculatePeaks(lChannel, rChannel) {
             }
 
             // Accumulate average amplitude from both channels.
-            avgAmplitude += (lChannel[absIndex] + rChannel[absIndex]) * 0.5;
+            avgAmplitude += (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
         }
 
         if (stepSize > 1) {
             avgAmplitude /= stepSize;
         }
+
+        console.log(sampleStartIndex + ': ' + avgAmplitude);
 
         // The average sampled amplitude is greater than the previous sample's by a threshold.
         if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
