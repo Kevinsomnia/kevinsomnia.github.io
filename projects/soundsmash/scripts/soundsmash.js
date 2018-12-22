@@ -134,7 +134,7 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
-    var stepSize = Math.ceil(0.001 * secondToSample); // Sample every 0.001 second interval.
+    var stepSize = Math.ceil(0.001 * sampleRate); // Sample every 0.001 second interval.
 
     for (var i = 0; i < dataLength; i += stepSize) {
         var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
@@ -176,7 +176,7 @@ function gameLoop() {
     curTime = audioPlayer.currentTime;
     var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
     console.log(dt);
-    
+
     offsetX -= dt * unitScale;
 
     if (offsetX < -unitScale) {
