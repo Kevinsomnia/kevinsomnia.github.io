@@ -52,14 +52,39 @@ function onPressPlay() {
 }
 
 function onTrackLoadSuccess() {
-    console.log('track url load success. attempting to play');
-    var streamUrl = getStreamUrl();
-
-    var audioPlayer = $('#audioPlayer');
-    audioPlayer.attr('src', streamUrl);
-    audioPlayer[0].play(); // Play loaded clip.
+    console.log('Track load successful. Start sampling');
+    startSamplingTrack();
 }
 
 function onTrackLoadFail(errorMsg) {
-    console.log('track failed: ' + errorMsg);
+    console.log('Track failed to load: ' + errorMsg);
+}
+
+function startSamplingTrack() {
+    // Get the URL of audio content.
+    var streamUrl = getStreamUrl();
+
+    // Create audio context and buffer.
+    var audioCtx = new AudioContext();
+    var bufferSrc = audioCtx.createBufferSource();
+
+    // Get the audio data through AJAX.
+    var request = new XMLHttpRequest();
+    request.open('GET', streamUrl, true);
+    request.responseType = 'arraybuffer';
+
+    request.onload = function() {
+        console.log('onload');
+
+        context.decodeAudioData(request.response, function(data) {
+            console.log(data);
+            bufferSrc.buffer = data;
+        }, null);
+    }
+
+    request.send();
+    
+    var audioPlayer = $('#audioPlayer');
+    audioPlayer.attr('src', streamUrl);
+    audioPlayer[0].play(); // Play loaded clip.
 }

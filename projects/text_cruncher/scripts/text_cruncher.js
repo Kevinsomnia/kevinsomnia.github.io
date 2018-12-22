@@ -184,7 +184,7 @@ class FileInfo {
 var dropArea = document.getElementById('dropArea');
 var fileList = [];
 
-// Other elements.
+// HTML elements.
 var fileSelector = document.getElementById('fileSelector');
 var dirSelector = document.getElementById('directorySelector');
 var listTitleUI = document.getElementById('fileListTitle');
