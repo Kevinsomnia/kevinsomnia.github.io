@@ -141,24 +141,12 @@ function createBeatmap(data) {
     songDuration = data.duration;
 
     // Get channel data and downsample them to nyquist.
-    var leftChannel = downsample(data.getChannelData(0));
-    var rightChannel = downsample(data.getChannelData(1));
-    var dataLength = leftChannel.length / 2;
-    sampleRate /= 2;
+    var leftChannel = data.getChannelData(0);
+    var rightChannel = data.getChannelData(1);
 
-    peaks = calculatePeaks(leftChannel, rightChannel, dataLength);
+    peaks = calculatePeaks(leftChannel, rightChannel, leftChannel.length);
 
     console.log(peaks);
-}
-
-function downsample(channel) {
-    var newLength = channel.length / 2;
-
-    for(var i = 1; i < newLength; i++) {
-        channel[i] = channel[2*i];
-    }
-
-    return channel;
 }
 
 // Pretty dumb way to get the peaks, but just get the peak amplitude in the samples.
