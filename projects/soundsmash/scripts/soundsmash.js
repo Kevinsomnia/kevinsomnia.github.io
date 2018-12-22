@@ -4,11 +4,12 @@ var gameView = document.getElementById('gameView');
 
 // Audio controller variables.
 var scController = {};
+var audioCtx = null;
+var sampleRate = 44100;
 
 // Game variables.
 var curTime = 0.0;
 var lastTime = 0.0;
-var sampleRate = 44100;
 var unitScale = 500.0;
 var offsetX = 0.0;
 
@@ -77,7 +78,8 @@ function startSamplingTrack() {
     var streamUrl = getStreamUrl();
 
     // Create audio context and buffer.
-    var audioCtx = new AudioContext();
+    var AudioContext = AudioContext || webkitAudioContext;
+    audioCtx = new AudioContext();
 
     // Get the audio data through AJAX.
     var request = new XMLHttpRequest();
@@ -173,7 +175,7 @@ function renderGame() {
 }
 
 function gameLoop() {
-    curTime = audioPlayer.currentTime;
+    curTime = audioCtx.currentTime;
     var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
     console.log(dt);
 
