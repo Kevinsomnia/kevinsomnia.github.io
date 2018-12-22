@@ -1,11 +1,13 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
-const NOTE_RADIUS = 10;
-const PEAK_THRESHOLD = 0.075;
+const NOTE_RADIUS = 9;
+const PEAK_THRESHOLD = 0.07;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
 var gameView = document.getElementById('gameView');
+var helpButton = document.getElementById('helpBtn');
+var playButton = document.getElementById('playBtn');
 
 // Audio controller variables.
 var scController = {};
@@ -14,6 +16,9 @@ var songDuration = 0.0;
 var sampleRate = 44100;
 
 // Game variables.
+var loadingNotification = null;
+var isBusy = false;
+var isPlaying = false;
 var startTime = 0.0;
 var curTime = 0.0;
 var lastTime = 0.0;
@@ -69,15 +74,68 @@ function tryGetSound(link, onRetrieved, onFailed) {
 function onPressPlay() {
     var link = $('#scLink').val();
     tryGetSound(link, onTrackLoadSuccess, onTrackLoadFail);
+    setIsBusy(true);
+
+    loadingNotification = $.notify({ title: '<b>Getting sound:</b>', message: 'Please be patient while the sound loads.' }, {
+        type: 'info',
+        allow_dismiss: false,
+        spacing: 5,
+        timer: 0,
+        showProgressbar: true,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        animate: {
+            enter: 'animated faster fadeInDown',
+            exit: 'animated faster fadeOutUp'
+        }
+    });
 }
 
 function onTrackLoadSuccess() {
     console.log('Track load successful. Start sampling');
     startSamplingTrack();
+
+    if(loadingNotification != null) {
+        loadingNotification.close();
+    }
 }
 
 function onTrackLoadFail(errorMsg) {
     console.log('Track failed to load: ' + errorMsg);
+    setIsBusy(false);
+    
+    if(loadingNotification != null) {
+        loadingNotification.close();
+    }
+
+    displayError('Failed to load sound! Make sure the URL is correct, and that it is not a playlist.')
+}
+
+function displayError(msg) {
+    $.notify({ title: '<b>Error:</b>', message: msg }, {
+        type: 'danger',
+        allow_dismiss: true,
+        spacing: 5,
+        delay: 5000,
+        timer: 250,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        animate: {
+            enter: 'animated faster fadeInDown',
+            exit: 'animated faster fadeOutUp'
+        }
+    });
+}
+
+function setIsBusy(busy) {
+    helpButton.disabled = busy;
+    playButton.disabled = busy;
+
+    isBusy = busy;
 }
 
 function startSamplingTrack() {
@@ -125,6 +183,7 @@ function initializeGame(audioCtx, data) {
     bufferSrc.start(0);
 
     // Start drawing the game.
+    isPlaying = true;
     renderGame();
 }
 
@@ -221,7 +280,7 @@ function renderGame() {
     gameCtx.font = '12px Verdana';
 
     while (curLineTime < rightGameBounds) {
-        drawVerticalLine(gameCtx, curLineTime, 1.0);
+        drawVerticalLine(gameCtx, curLineTime, 0.96);
         drawTimestamp(gameCtx, curLineTime);
         curLineTime += lineStep;
     }

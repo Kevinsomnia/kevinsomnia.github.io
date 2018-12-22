@@ -380,7 +380,6 @@ function addFilesChunked(element, start, end, notification) {
         element.value = '';
 
         if (notification != null) {
-            // Close notification.
             notification.close();
         }
 
