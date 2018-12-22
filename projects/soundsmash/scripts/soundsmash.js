@@ -1,6 +1,7 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const NOTE_RADIUS = 10;
+const PEAK_THRESHOLD = 0.25;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -143,13 +144,35 @@ function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
     var stepSize = Math.ceil(0.01 * sampleRate); // Sample every 0.01 second interval.
+    var sampleStartIndex = 0;
+    var sampleEndIndex = stepSize;
+    var prevAvgAmp = 0.0;
 
-    for (var i = 0; i < dataLength; i += stepSize) {
-        var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
+    while (sampleStartIndex < dataLength) {
+        var avgAmplitude = 0.0;
 
-        if (avgAmplitude > 0.4) {
-            results.push(i * 1.0 / sampleRate); // Convert sample index to seconds.
+        for (var i = 0; i < stepSize; i++) {
+            var absIndex = sampleStartIndex + i;
+
+            if(absIndex >= dataLength) {
+                break;
+            }
+
+            // Accumulate average amplitude from both channels.
+            avgAmplitude += (lChannel[absIndex] + rChannel[absIndex]) * 0.5;
         }
+
+        if (stepSize > 1) {
+            avgAmplitude /= stepSize;
+        }
+
+        // The average sampled amplitude is greater than the previous sample's by a threshold.
+        if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
+            results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
+        }
+
+        prevAvgAmp = avgAmplitude;
+        sampleStartIndex += stepSize;
     }
 
     return results;
@@ -174,7 +197,7 @@ function renderGame() {
     gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
     gameCtx.lineWidth = 2;
 
-    while(curLineTime < rightGameBounds) {
+    while (curLineTime < rightGameBounds) {
         drawVerticalLine(gameCtx, curLineTime);
         curLineTime += lineStep;
     }
@@ -184,7 +207,7 @@ function renderGame() {
     gameCtx.strokeStyle = '#9b2812'; // darker red orange.
     gameCtx.lineWidth = 2; // outline width.
 
-    for(var i = 0; i < peaks.length; i++) {
+    for (var i = 0; i < peaks.length; i++) {
         drawNote(gameCtx, peaks[i]);
     }
 }
@@ -192,7 +215,7 @@ function renderGame() {
 function drawNote(ctx, time) {
     var x = convertSecondsToPixel(time);
     var centerY = gameView.height * 0.5;
-    
+
     ctx.beginPath();
     ctx.arc(x, centerY, NOTE_RADIUS, 0, 2 * Math.PI, false);
     ctx.fill();
