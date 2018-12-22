@@ -6,7 +6,8 @@ class SoundCloudController {
         this.clientID = 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH';
         this.streamUrl = null;
 
-        console.log('init SC controller: ' + this);
+        console.log('Initializing SC controller...');
+        console.log(this);
 
         SC.initialize({client_id: this.clientID});
     }
@@ -21,7 +22,7 @@ class SoundCloudController {
 
         // Resolve to get track ID from link.
         SC.get('/resolve', { url: link }, function(result) {
-            if(result.errors === null) {
+            if(!result.errors) {
                 if(result.kind == 'track') {
                     // We need to provide the client ID to use the API and access the sound.
                     this.streamUrl = result.stream_url + '?client_id=' + this.clientID;
