@@ -1,5 +1,6 @@
 // HTML elements
-var gameCanvas = document.getElementById('gameView');
+var audioPlayer = document.getElementById('audioPlayer');
+var gameView = document.getElementById('gameView');
 
 // Audio controller variables.
 var scController = {};
@@ -7,6 +8,7 @@ var scController = {};
 // Game variables.
 var curTime = 0.0;
 var lastTime = 0.0;
+var sampleRate = 44100;
 var unitScale = 500.0;
 var offsetX = 0.0;
 
@@ -95,9 +97,8 @@ function initializeGame(audioCtx, data) {
     // Generate beatmap.
     createBeatmap(data);
 
-    // Initialize time.
-    var now = new Date();
-    curTime = now.getTime();
+    // Reset time to start of clip.
+    curTime = 0.0;
     lastTime = curTime;
 
     // Connect audio data to player and start playing.
@@ -119,26 +120,26 @@ function createBeatmap(data) {
         return; // Channel count is not supported.
     }
 
-    var sampleRate = data.sampleRate;
+    sampleRate = data.sampleRate;
+
     var leftChannel = data.getChannelData(0);
     var rightChannel = data.getChannelData(1);
 
-    peaks = calculatePeaks(leftChannel, rightChannel, sampleRate);
+    peaks = calculatePeaks(leftChannel, rightChannel);
 
     console.log(peaks);
 }
 
 // Pretty dumb way to get beats, but just get the peak amplitude in the samples.
-function calculatePeaks(lChannel, rChannel, sampleRate) {
+function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
-    var stepSize = Math.ceil(0.001 * sampleRate); // Sample every 0.001 second interval.
+    var stepSize = Math.ceil(0.001 * secondToSample); // Sample every 0.001 second interval.
 
     for (var i = 0; i < dataLength; i += stepSize) {
         var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
 
         if (avgAmplitude > 0.5) {
-            console.log('peak: ' + i + ' / ' + dataLength);
             results.push(i);
         }
     }
@@ -147,18 +148,18 @@ function calculatePeaks(lChannel, rChannel, sampleRate) {
 }
 
 function renderGame() {
-    gameCanvas.width = window.innerWidth - 50;
-    gameCanvas.height = window.innerHeight - 200;
+    gameView.width = window.innerWidth - 50;
+    gameView.height = window.innerHeight - 200;
 
     requestAnimationFrame(renderGame);
     gameLoop();
 
-    var gameCtx = gameCanvas.getContext('2d');
+    var gameCtx = gameView.getContext('2d');
 
-    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
     // Draw vertical lines
-    var lineCount = Math.ceil(gameCanvas.width / unitScale);
+    var lineCount = Math.ceil(gameView.width / unitScale);
     gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
     gameCtx.lineWidth = 2;
 
@@ -166,16 +167,16 @@ function renderGame() {
         gameCtx.beginPath();
         var x = (i + 1) * unitScale;
         gameCtx.moveTo(x + offsetX, 0);
-        gameCtx.lineTo(x + offsetX, gameCanvas.height);
+        gameCtx.lineTo(x + offsetX, gameView.height);
         gameCtx.stroke();
     }
 }
 
 function gameLoop() {
-    var now = new Date();
-    curTime = now.getTime(); // TEMP. Should use the current audio sample for time reference.
-    var dt = 1 / 60.0; // Time delta (in seconds) between previous frame and this frame.
-
+    curTime = audioPlayer.currentTime;
+    var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
+    console.log(dt);
+    
     offsetX -= dt * unitScale;
 
     if (offsetX < -unitScale) {
