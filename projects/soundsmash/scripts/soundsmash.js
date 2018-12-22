@@ -1,5 +1,6 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
+const NOTE_RADIUS = 30;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -15,7 +16,6 @@ var sampleRate = 44100;
 var curTime = 0.0;
 var lastTime = 0.0;
 var unitScale = 500.0; // The number of pixels per second.
-var offsetX = 0.0;
 var leftGameBounds = 0.0;
 var rightGameBounds = 1.0;
 
@@ -128,7 +128,7 @@ function createBeatmap(data) {
     }
 
     sampleRate = data.sampleRate;
-    songDuration = data.length * 1.0 / sampleRate;
+    songDuration = data.duration;
 
     var leftChannel = data.getChannelData(0);
     var rightChannel = data.getChannelData(1);
@@ -175,18 +175,37 @@ function renderGame() {
     gameCtx.lineWidth = 2;
 
     while(curLineTime < rightGameBounds) {
-        gameCtx.beginPath();
-        var x = convertSecondsToPixel(curLineTime);
-        gameCtx.moveTo(x, 0);
-        gameCtx.lineTo(x, gameView.height);
-        gameCtx.stroke();
-
-        // Step to next line.
+        drawVerticalLine(gameCtx, curLineTime);
         curLineTime += lineStep;
     }
 
     // Draw beat "notes"
+    gameCtx.fillStyle = '#d33415'; // red orange.
+    gameCtx.strokeStyle = '#9b2812'; // darker red orange.
+    gameCtx.lineWidth = 4; // outline width.
 
+    for(var i = 0; i < 500 && i < peaks.length; i++) {
+        drawNote(gameCtx, peaks[i]);
+    }
+}
+
+function drawNote(ctx, time) {
+    var x = convertSecondsToPixel(time);
+    var centerY = gameView.height * 0.5;
+    
+    ctx.beginPath();
+    ctx.arc(x, centerY, NOTE_RADIUS, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.stroke();
+}
+
+function drawVerticalLine(ctx, time) {
+    var x = convertSecondsToPixel(time);
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, gameView.height);
+    ctx.stroke();
 }
 
 function convertSecondsToPixel(time) {
