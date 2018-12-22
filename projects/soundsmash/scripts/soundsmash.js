@@ -168,7 +168,8 @@ function calculatePeaks(lChannel, rChannel) {
             }
 
             // Accumulate the greater amplitude from both channels.
-            avgAmplitude += Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
+            var sample = Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
+            avgAmplitude += sample * sample;
         }
 
         if (stepSize > 1) {
