@@ -23,9 +23,6 @@ function initController() {
     // Create controller object for this session.
     scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', track: null, onRetrieved: null, onFailed: null };
     SC.initialize({ client_id: scController.clientID });
-
-    //DEBUG.
-    renderGame();
 }
 
 function getStreamUrl() {
