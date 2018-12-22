@@ -3,7 +3,7 @@ var scController = {};
 
 function initController() {
     // Create controller object for this session.
-    scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', track:null, onRetrieved: null, onFailed: null };
+    scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', track: null, onRetrieved: null, onFailed: null };
     SC.initialize({ client_id: scController.clientID });
 }
 
@@ -73,18 +73,18 @@ function startSamplingTrack() {
     request.open('GET', streamUrl, true);
     request.responseType = 'arraybuffer';
 
-    request.onload = function() {
-        console.log('onload');
-
-        context.decodeAudioData(request.response, function(data) {
+    request.onload = function () {
+        audioCtx.decodeAudioData(request.response, function (data) {
             console.log(data);
+            console.log('data length: ' + data.length);
             bufferSrc.buffer = data;
         }, null);
     }
 
     request.send();
-    
+
+    /*
     var audioPlayer = $('#audioPlayer');
     audioPlayer.attr('src', streamUrl);
-    audioPlayer[0].play(); // Play loaded clip.
+    audioPlayer[0].play(); // Play loaded clip.*/
 }
