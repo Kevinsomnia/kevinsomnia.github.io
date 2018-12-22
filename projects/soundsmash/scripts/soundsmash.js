@@ -102,13 +102,6 @@ function startSamplingTrack() {
 }
 
 function initializeGame(audioCtx, data) {
-    // Generate beatmap.
-    createBeatmap(data);
-
-    // Reset time to start of clip.
-    curTime = 0.0;
-    lastTime = curTime;
-
     // Connect audio data to player and start playing.
     var bufferSrc = audioCtx.createBufferSource();
     bufferSrc.buffer = data;
@@ -116,7 +109,14 @@ function initializeGame(audioCtx, data) {
     var lowPassFilter = audioCtx.createBiquadFilter();
     lowPassFilter.type = 'lowpass';
     lowPassFilter.frequency.value = 150; // Hz
-    bufferSrc.connect(lowPassFilter);
+    lowPassFilter.connect(bufferSrc);
+
+    // Generate beatmap.
+    createBeatmap(bufferSrc.buffer);
+
+    // Reset time to start of clip.
+    curTime = 0.0;
+    lastTime = curTime;
 
     bufferSrc.connect(audioCtx.destination);
     bufferSrc.start(0);
@@ -125,7 +125,9 @@ function initializeGame(audioCtx, data) {
     renderGame();
 }
 
+var amplitudes = null;
 var peaks = null; // Array of timestamps of audio peaks.
+var stepSize = 0.0;
 
 function createBeatmap(data) {
     var numChannels = data.numberOfChannels;
@@ -149,8 +151,7 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
-    console.log(dataLength);
-    var stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
+    stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
     var sampleStartIndex = 0;
     var prevAvgAmp = 0.0;
 
@@ -177,6 +178,8 @@ function calculatePeaks(lChannel, rChannel) {
             results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
         }
 
+        amplitudes.push({time:(sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude})
+
         prevAvgAmp = avgAmplitude;
         sampleStartIndex += stepSize;
     }
@@ -195,6 +198,12 @@ function renderGame() {
 
     gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
+    // Draw intensity debug.
+    gameCtx.strokeStyle = '#77db25'; // lime green.
+    gameCtx.lineWidth = 8;
+    var amplIndex = Math.min(Math.floor(leftGameBounds / stepSize), amplitudes.length - 1);
+    drawVerticalLine(gameCtx, rightGameBounds - 0.1, amplitudes[amplIndex] * 0.5);
+    
     // Draw vertical lines in intervals.
     const bpm = 120.0; // Make adjustable later.
     var lineStep = 60.0 / bpm; // Time interval per beat.
@@ -204,7 +213,7 @@ function renderGame() {
     gameCtx.lineWidth = 2;
 
     while (curLineTime < rightGameBounds) {
-        drawVerticalLine(gameCtx, curLineTime);
+        drawVerticalLine(gameCtx, curLineTime, 1.0);
         curLineTime += lineStep;
     }
 
@@ -228,12 +237,12 @@ function drawNote(ctx, time) {
     ctx.stroke();
 }
 
-function drawVerticalLine(ctx, time) {
+function drawVerticalLine(ctx, time, heightPercent) {
     var x = convertSecondsToPixel(time);
 
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, gameView.height);
+    ctx.lineTo(x, gameView.height * heightPercent);
     ctx.stroke();
 }
 
