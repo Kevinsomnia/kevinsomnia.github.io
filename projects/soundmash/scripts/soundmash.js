@@ -4,18 +4,41 @@ var controller;
 class SoundCloudController {
     constructor() {
         this.clientID = 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH';
-        console.log('init SC: ' + this.clientID);
+        this.streamUrl = null;
+
+        console.log('init SC controller: ' + this);
 
         SC.initialize({client_id: this.clientID});
     }
 
-    play(link) {
+    tryGetSound(link) {
+        // By default, set streamUrl to null. If everything is successful by the end, it will be an actual link!
+        this.streamUrl = null;
+
+        // Sanitize link.
         link = link.trim();
         console.log('start playing: ' + link);
 
+        // Resolve to get track ID from link.
         SC.get('/resolve', { url: link }, function(result) {
-            console.log(result);
+            if(result.errors === null) {
+                if(result.kind == 'track') {
+                    // We need to provide the client ID to use the API and access the sound.
+                    this.streamUrl = result.stream_url + '?client_id=' + this.clientID;
+                    console.log('Got final stream URL: ' + streamUrl);
+                    return true;
+                }
+                else {
+                    console.log('No support for ' + result.kind + '. Sorry!');
+                }
+            }
+            else {
+                // Error: most likely invalid client ID or track.
+                console.log('Cannot play track: ' + result.errors[0].error_message);
+            }
         });
+
+        return false;
     }
 }
 
@@ -25,5 +48,10 @@ function initController() {
 
 function play() {
     var link = $('#scLink').val();
-    controller.play(link);
+    if(controller.tryGetSound(link)) {
+        console.log('Get sound success');
+    }
+    else {
+        console.log('Get sound failed');
+    }
 }
