@@ -75,16 +75,49 @@ function startSamplingTrack() {
 
     request.onload = function () {
         audioCtx.decodeAudioData(request.response, function (data) {
-            console.log(data);
-            console.log('audio data length: ' + data.length);
+            createBeatmap(data);
+
+            // Connect audio data to player and start playing.
             bufferSrc.buffer = data;
-
-            // Do some magic?
-
             bufferSrc.connect(audioCtx.destination);
-            bufferSrc.start(); // Start playing the audio.
+            bufferSrc.start();
         }, null);
     }
 
     request.send();
+}
+
+var peaks = []; // Array of samples indices.
+
+function createBeatmap(data) {
+    var numChannels = data.numberOfChannels;
+
+    if(numChannels != 2) {
+        return; // Channel count is not supported.
+    }
+
+    var sampleRate = data.sampleRate;
+    var leftChannel = data.getChannelData(0);
+    var rightChannel = data.getChannelData(1);
+
+    peaks = calculatePeaks(leftChannel, rightChannel, sampleRate);
+
+    console.log(peaks);
+}
+
+// Pretty dumb way to get beats, but just get the peak amplitude in the samples.
+function calculatePeaks(lChannel, rChannel, sampleRate) {
+    var results = [];
+    var dataLength = lChannel.length;
+
+    for(var i = 0; i < dataLength; i++) {
+        var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
+
+        if(avgAmplitude > 0.5) {
+            console.log('peak: ' + i + ' / ' + dataLength);
+            results.push(i);
+        }
+    }
+
+    return results;
 }
