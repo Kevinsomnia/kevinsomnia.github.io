@@ -1,7 +1,7 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const NOTE_RADIUS = 10;
-const PEAK_THRESHOLD = 0.225;
+const PEAK_THRESHOLD = 0.075;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -165,8 +165,6 @@ function calculatePeaks(lChannel, rChannel) {
         if (stepSize > 1) {
             avgAmplitude /= stepSize;
         }
-
-        console.log(sampleStartIndex + ': ' + avgAmplitude);
 
         // The average sampled amplitude is greater than the previous sample's by a threshold.
         if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
