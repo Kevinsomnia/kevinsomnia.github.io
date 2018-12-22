@@ -112,8 +112,14 @@ function initializeGame(audioCtx, data) {
     // Connect audio data to player and start playing.
     var bufferSrc = audioCtx.createBufferSource();
     bufferSrc.buffer = data;
+    
+    var lowPassFilter = audioCtx.createBiquadFilter();
+    lowPassFilter.type = 'lowpass';
+    lowPassFilter.frequency.value = 150; // Hz
+    bufferSrc.connect(lowPassFilter);
+
     bufferSrc.connect(audioCtx.destination);
-    bufferSrc.start();
+    bufferSrc.start(0);
 
     // Start drawing the game.
     renderGame();
@@ -158,8 +164,8 @@ function calculatePeaks(lChannel, rChannel) {
                 break;
             }
 
-            // Accumulate average amplitude from both channels.
-            avgAmplitude += (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
+            // Accumulate the greater amplitude from both channels.
+            avgAmplitude += Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
         }
 
         if (stepSize > 1) {
