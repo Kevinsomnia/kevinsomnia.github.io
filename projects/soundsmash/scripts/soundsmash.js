@@ -1,7 +1,7 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const NOTE_RADIUS = 10;
-const PEAK_THRESHOLD = 0.25;
+const PEAK_THRESHOLD = 0.1;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -143,6 +143,7 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
+    console.log(dataLength);
     var stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
     var sampleStartIndex = 0;
     var prevAvgAmp = 0.0;
