@@ -140,35 +140,47 @@ function createBeatmap(data) {
     sampleRate = data.sampleRate;
     songDuration = data.duration;
 
-    var leftChannel = data.getChannelData(0);
-    var rightChannel = data.getChannelData(1);
+    // Get channel data and downsample them to nyquist.
+    var leftChannel = downsample(data.getChannelData(0));
+    var rightChannel = downsample(data.getChannelData(1));
+    var dataLength = leftChannel.length / 2;
+    sampleRate /= 2;
 
-    peaks = calculatePeaks(leftChannel, rightChannel);
+    peaks = calculatePeaks(leftChannel, rightChannel, dataLength);
 
     console.log(peaks);
 }
 
+function downsample(channel) {
+    var newLength = channel.length / 2;
+
+    for(var i = 1; i < newLength; i++) {
+        channel[i] = channel[2*i];
+    }
+
+    return channel;
+}
+
 // Pretty dumb way to get the peaks, but just get the peak amplitude in the samples.
-function calculatePeaks(lChannel, rChannel) {
+function calculatePeaks(lChannel, rChannel, length) {
     var results = [];
-    var dataLength = lChannel.length;
     stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
     var sampleStartIndex = 0;
     var prevAvgAmp = 0.0;
     amplitudes = [];
 
-    while (sampleStartIndex < dataLength) {
+    while (sampleStartIndex < length) {
         var avgAmplitude = 0.0;
 
         for (var i = 0; i < stepSize; i++) {
             var absIndex = sampleStartIndex + i;
 
-            if (absIndex >= dataLength) {
+            if (absIndex >= length) {
                 break;
             }
 
             // Accumulate the greater amplitude from both channels.
-            var sample = Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
+            var sample = (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
             avgAmplitude += sample * sample;
         }
 
