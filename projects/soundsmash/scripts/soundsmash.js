@@ -96,10 +96,6 @@ function onPressPlay() {
 function onTrackLoadSuccess() {
     console.log('Track load successful. Start sampling');
     startSamplingTrack();
-
-    if(loadingNotification != null) {
-        loadingNotification.close();
-    }
 }
 
 function onTrackLoadFail(errorMsg) {
@@ -181,6 +177,11 @@ function initializeGame(audioCtx, data) {
 
     bufferSrc.connect(audioCtx.destination);
     bufferSrc.start(0);
+    
+    // Finished loading. Close notification.
+    if(loadingNotification != null) {
+        loadingNotification.close();
+    }
 
     // Start drawing the game.
     isPlaying = true;
