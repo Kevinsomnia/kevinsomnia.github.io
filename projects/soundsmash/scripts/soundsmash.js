@@ -76,15 +76,15 @@ function startSamplingTrack() {
     request.onload = function () {
         audioCtx.decodeAudioData(request.response, function (data) {
             console.log(data);
-            console.log('data length: ' + data.length);
+            console.log('audio data length: ' + data.length);
             bufferSrc.buffer = data;
+
+            // Do some magic?
+
+            bufferSrc.connect(audioCtx.destination);
+            bufferSrc.start(); // Start playing the audio.
         }, null);
     }
 
     request.send();
-
-    /*
-    var audioPlayer = $('#audioPlayer');
-    audioPlayer.attr('src', streamUrl);
-    audioPlayer[0].play(); // Play loaded clip.*/
 }
