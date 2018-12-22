@@ -1,2 +1,2 @@
 # What's this?
-A keyboard-audio game where you smash buttons on your keyboard to some music. Throw a SoundCloud link at it. YouTube support will be added in the future.
+A keyboard-audio rhythm game at it's finest. Go ahead, throw a SoundCloud link at it and see how musically talented you are. Demonstrates the use of SoundCloud and WebAudio API. YouTube support will most likely be added in the future, depending on the outcome of this project.

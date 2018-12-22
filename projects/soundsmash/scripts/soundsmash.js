@@ -157,11 +157,10 @@ function renderGame() {
 
     gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-    gameCtx.lineWidth = 2;
-
     // Draw vertical lines
     var lineCount = Math.ceil(gameCanvas.width / unitScale);
     gameCtx.strokeStyle = '#ffffff33'; // Translucent white.
+    gameCtx.lineWidth = 2;
 
     for (var i = 0; i < lineCount; i++) {
         gameCtx.beginPath();
