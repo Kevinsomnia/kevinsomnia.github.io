@@ -179,7 +179,7 @@ function calculatePeaks(lChannel, rChannel) {
             results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
         }
 
-        amplitudes.push({time:(sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude})
+        amplitudes.push({time:(sampleStartIndex * 1.0 / sampleRate), amplitude: avgAmplitude});
 
         prevAvgAmp = avgAmplitude;
         sampleStartIndex += stepSize;
