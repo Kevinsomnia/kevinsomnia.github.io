@@ -155,6 +155,7 @@ function calculatePeaks(lChannel, rChannel) {
     stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
     var sampleStartIndex = 0;
     var prevAvgAmp = 0.0;
+    amplitudes = [];
 
     while (sampleStartIndex < dataLength) {
         var avgAmplitude = 0.0;
