@@ -171,8 +171,6 @@ function calculatePeaks(lChannel, rChannel) {
             avgAmplitude += Math.max(Math.abs(lChannel[absIndex]), Math.abs(rChannel[absIndex]));
         }
 
-        amplitudes.push(avgAmplitude);
-
         if (stepSize > 1) {
             avgAmplitude /= stepSize;
         }
@@ -181,6 +179,8 @@ function calculatePeaks(lChannel, rChannel) {
         if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
             results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
         }
+
+        amplitudes.push(avgAmplitude);
 
         prevAvgAmp = avgAmplitude;
         sampleStartIndex += stepSize;
@@ -203,7 +203,7 @@ function renderGame() {
     // Draw intensity debug.
     gameCtx.strokeStyle = '#77db25'; // lime green.
     gameCtx.lineWidth = 8;
-    var amplIndex = Math.min(Math.floor(leftGameBounds / stepSize), amplitudes.length - 1);
+    var amplIndex = Math.min(Math.floor(leftGameBounds * 20.0), amplitudes.length - 1);
     drawVerticalLine(gameCtx, rightGameBounds - 0.33, amplitudes[amplIndex]);
 
     // Draw vertical lines in intervals.
