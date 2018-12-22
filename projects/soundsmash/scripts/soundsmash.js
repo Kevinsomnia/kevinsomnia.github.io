@@ -1,6 +1,6 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
-const NOTE_RADIUS = 30;
+const NOTE_RADIUS = 10;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -142,12 +142,12 @@ function createBeatmap(data) {
 function calculatePeaks(lChannel, rChannel) {
     var results = [];
     var dataLength = lChannel.length;
-    var stepSize = Math.ceil(0.001 * sampleRate); // Sample every 0.001 second interval.
+    var stepSize = Math.ceil(0.01 * sampleRate); // Sample every 0.01 second interval.
 
     for (var i = 0; i < dataLength; i += stepSize) {
         var avgAmplitude = (lChannel[i] + rChannel[i]) * 0.5;
 
-        if (avgAmplitude > 0.5) {
+        if (avgAmplitude > 0.4) {
             results.push(i * 1.0 / sampleRate); // Convert sample index to seconds.
         }
     }
@@ -182,9 +182,9 @@ function renderGame() {
     // Draw beat "notes"
     gameCtx.fillStyle = '#d33415'; // red orange.
     gameCtx.strokeStyle = '#9b2812'; // darker red orange.
-    gameCtx.lineWidth = 4; // outline width.
+    gameCtx.lineWidth = 2; // outline width.
 
-    for(var i = 0; i < 500 && i < peaks.length; i++) {
+    for(var i = 0; i < peaks.length; i++) {
         drawNote(gameCtx, peaks[i]);
     }
 }
