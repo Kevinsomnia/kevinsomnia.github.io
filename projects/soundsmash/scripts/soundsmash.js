@@ -3,10 +3,7 @@ var scController = {};
 
 function initController() {
     // Create controller object for this session.
-    console.log('Initializing SC controller...');
     scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', track:null, onRetrieved: null, onFailed: null };
-    console.log(scController);
-
     SC.initialize({ client_id: scController.clientID });
 }
 
@@ -24,7 +21,6 @@ function tryGetSound(link, onRetrieved, onFailed) {
 
     // Sanitize link.
     link = link.trim();
-    console.log('start playing: ' + link);
 
     // Resolve to get track ID from link.
     SC.get('/resolve', { url: link }, function (result) {
@@ -56,8 +52,12 @@ function onPressPlay() {
 }
 
 function onTrackLoadSuccess() {
+    console.log('track url load success. attempting to play');
     var streamUrl = getStreamUrl();
-    console.log(streamUrl);
+
+    var audioPlayer = $('#audioPlayer');
+    audioPlayer.attr('src', streamUrl);
+    audioPlayer[0].play(); // Play loaded clip.
 }
 
 function onTrackLoadFail(errorMsg) {
