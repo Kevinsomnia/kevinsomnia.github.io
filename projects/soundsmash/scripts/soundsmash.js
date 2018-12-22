@@ -27,7 +27,7 @@ function tryGetSound(link, onRetrieved, onFailed) {
         if(!result.errors && result.kind == 'track') {
             // We need to provide the client ID to use the API and access the sound.
             scController.streamUrl = result.stream_url + '?client_id=' + scController.clientID;
-            console.log('Got final stream URL: ' + streamUrl);
+            console.log('Got final stream URL: ' + scController.streamUrl);
 
             if(scController.onRetrieved !== null) {
                 scController.onRetrieved();
