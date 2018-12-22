@@ -102,14 +102,15 @@ function startSamplingTrack() {
 }
 
 function initializeGame(audioCtx, data) {
-    // Connect audio data to player and start playing.
+    // Create audio buffer.
     var bufferSrc = audioCtx.createBufferSource();
     bufferSrc.buffer = data;
     
+    // Apply low pass filter to get the bass drum hits.
     var lowPassFilter = audioCtx.createBiquadFilter();
     lowPassFilter.type = 'lowpass';
     lowPassFilter.frequency.value = 150; // Hz
-    lowPassFilter.connect(bufferSrc);
+    bufferSrc.connect(lowPassFilter);
 
     // Generate beatmap.
     createBeatmap(bufferSrc.buffer);
