@@ -376,7 +376,7 @@ function cutHole(ctx, x, y, radius) {
     ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
     ctx.clip();
     var clearSize = radius * 2 + 2; // diameter + 1 pixel padding.
-    ctx.clearRect(x - radius - 1, centerY - radius - 1, clearSize, clearSize);
+    ctx.clearRect(x - radius - 1, y - radius - 1, clearSize, clearSize);
     ctx.restore();
 }
 
