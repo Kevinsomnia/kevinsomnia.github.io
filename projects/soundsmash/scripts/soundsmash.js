@@ -1,7 +1,7 @@
 // Constants
 const PIXELS_PER_SECOND = 320; // Controls how fast to scroll the graph across the screen.
 const BEAT_RADIUS = 10;
-const SMASH_LINE_WIDTH = 30;
+const SMASH_LINE_WIDTH = 34;
 const PEAK_THRESHOLD = 0.055;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
@@ -272,8 +272,8 @@ function renderGame() {
 function drawGraph(ctx) {
     // Draw vertical lines and time labels in intervals.
     var lineStep = 60.0 / songBpm; // Time interval per beat.
-    var curLineIndex = Math.floor(leftGameBounds / lineStep);
-    var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
+    var curLineIndex = Math.ceil(leftGameBounds / lineStep);
+    var curLineTime = curLineIndex * lineStep;
 
     ctx.lineWidth = 2;
     ctx.fillStyle = '#ffffff66'; // translucent white.
