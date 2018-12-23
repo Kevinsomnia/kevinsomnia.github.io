@@ -83,7 +83,7 @@ function onPressPlay() {
     tryGetSound(link, onTrackLoadSuccess, onTrackLoadFail);
     setIsBusy(true);
 
-    loadingNotification = $.notify({ title: '<b>Getting sound:</b>', message: 'Please be patient while the sound loads.' }, {
+    loadingNotification = $.notify({ title: '<b>Getting track data:</b>', message: 'Please be patient.' }, {
         type: 'info',
         allow_dismiss: false,
         spacing: 5,
@@ -100,22 +100,27 @@ function onPressPlay() {
 }
 
 function onTrackLoadSuccess() {
-    console.log('Track load successful. Creating beatmap.');
     console.log('*** Track Info ***');
     console.log(scController.track);
+
+    if(loadingNotification != null) {
+        loadingNotification.update({
+            title: '<b>Generating beatmap:</b>',
+            message: 'Please be patient.'
+        });
+    }
 
     startSamplingTrack();
 }
 
 function onTrackLoadFail(errorMsg) {
-    console.log('Track failed to load: ' + errorMsg);
+    displayError('Failed to load track! ' + errorMsg);
     setIsBusy(false);
 
     if (loadingNotification != null) {
         loadingNotification.close();
+        loadingNotification = null;
     }
-
-    displayError('Failed to load sound! Make sure the URL is correct, and that it is not a playlist.')
 }
 
 function displayError(msg) {
@@ -191,6 +196,7 @@ function initializeGame(audioCtx, data) {
     // Finished loading. Close notification.
     if (loadingNotification != null) {
         loadingNotification.close();
+        loadingNotification = null;
     }
 
     // Setup any necessary game variables.
@@ -226,8 +232,8 @@ function createBeatmap(data) {
     const EVERY_NTH_SAMPLE = 4;
 
     for(var i = 0; i < dataLength; i += EVERY_NTH_SAMPLE) {
-        avgSongVolume += lChannel[i];
-        avgSongVolume += rChannel[i];
+        avgSongVolume += Math.abs(lChannel[i]);
+        avgSongVolume += Math.abs(rChannel[i]);
     }
 
     avgSongVolume *= 0.5 * EVERY_NTH_SAMPLE; // Average both channels and account for missing samples.
