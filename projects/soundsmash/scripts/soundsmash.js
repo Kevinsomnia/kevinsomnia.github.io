@@ -108,37 +108,29 @@ function onTrackLoadFail(errorMsg) {
     console.log('Track failed to load: ' + errorMsg);
     setIsBusy(false);
 
+    if(loadingNotification != null) {
+        loadingNotification.close();
+    }
+
     displayError('Failed to load sound! Make sure the URL is correct, and that it is not a playlist.')
 }
 
 function displayError(msg) {
-    if (loadingNotification != null) {
-        loadingNotification.update({
-            'type': 'danger',
-            'title': '<b>Error:</b>',
-            'message': msg,
-            'delay': 5000,
-            'timer': 250,
-            'allow_dismiss': true
-        });
-    }
-    else {
-        $.notify({ title: '<b>Error:</b>', message: msg }, {
-            type: 'danger',
-            allow_dismiss: true,
-            spacing: 5,
-            delay: 5000,
-            timer: 250,
-            placement: {
-                from: "top",
-                align: "center"
-            },
-            animate: {
-                enter: 'animated faster fadeInDown',
-                exit: 'animated faster fadeOutUp'
-            }
-        });
-    }
+    $.notify({ title: '<b>Error:</b>', message: msg }, {
+        type: 'danger',
+        allow_dismiss: true,
+        spacing: 5,
+        delay: 5000,
+        timer: 250,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        animate: {
+            enter: 'animated faster fadeInDown',
+            exit: 'animated faster fadeOutUp'
+        }
+    });
 }
 
 function setIsBusy(busy) {
