@@ -270,7 +270,7 @@ function renderGame() {
     gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
     // Draw vertical lines and time labels in intervals.
-    var lineStep = 60.0 / bpm; // Time interval per beat.
+    var lineStep = 60.0 / songBpm; // Time interval per beat.
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
     gameCtx.strokeStyle = '#ffffff33'; // translucent white.
