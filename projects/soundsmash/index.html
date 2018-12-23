@@ -42,7 +42,7 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/soundsmash"
                         target="_blank">
-                        View source on &nbsp;<img src="../../images/github.png">
+                        View source on &nbsp;<img src="../../images/github.png" style="width:24px; height:24px">
                     </a>
                 </li>
 
@@ -70,7 +70,7 @@
 
             <audio id="audioPlayer"></audio>
 
-            <h5 class="main-header">This game is intended to be played with a keyboard. This means no mobile users!</h5>
+            <h5 class="main-header">This game currently does not support mobile devices.</h5>
 
             <div class="row">
                 <div class="col-10">
@@ -79,9 +79,14 @@
                     </div>
                 </div>
 
-                <div class="col-2">
-                    <button id="playBtn" class="btn btn-primary btn-md" onclick="onPressPlay()" style="width:100%;background-color:#3421df"
+                <div class="col-1">
+                    <button id="playBtn" class="btn btn-primary btn-md wide-button" onclick="onPressPlay()" style="background-color:#2b4964"
                         role="button">Play</button>
+                </div>
+
+                <div class="col-1">
+                    <button id="settingsBtn" class="btn btn-primary btn-md wide-button" style="background-color:#739b53"
+                        data-toggle="modal" data-target="#settingsModal" role="button">Settings</button>
                 </div>
             </div>
 
@@ -90,6 +95,35 @@
             <!-- END UI -->
         </div> <!-- /project-body -->
     </main>
+
+
+    <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="Something will be here later.">
+                            I Am A Toggle Switch:
+                        </div>
+
+                        <div class="col">
+                            <label class="switch">
+                                <input id="testing" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="closeSettings" type="button" class="btn btn-secondary" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
 
     <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
@@ -117,6 +151,11 @@
     <script>
         // Fade in page after done loading.
         window.onload = function () {
+            // Initialize tooltips for the entire page.
+            $('[data-toggle="tooltip"]').tooltip();
+
+            document.body.addEventListener('keydown', onKeyDown);
+            document.body.addEventListener('keyup', onKeyUp);
             initController();
 
             setTimeout(function () {

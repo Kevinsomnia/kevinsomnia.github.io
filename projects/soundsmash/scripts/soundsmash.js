@@ -1,7 +1,9 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
-const NOTE_RADIUS = 9;
-const PEAK_THRESHOLD = 0.07;
+const BEAT_RADIUS = 10;
+const PEAK_THRESHOLD = 0.05;
+const KEY_A = 65, KEY_D = 68;
+const BEAT_BASS = 0, BEAT_SNARE = 1;
 
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
@@ -14,6 +16,7 @@ var scController = {};
 var audioCtx = null;
 var songDuration = 0.0;
 var sampleRate = 44100;
+var songBpm = 120.0;
 
 // Game variables.
 var loadingNotification = null;
@@ -81,7 +84,6 @@ function onPressPlay() {
         allow_dismiss: false,
         spacing: 5,
         timer: 0,
-        showProgressbar: true,
         placement: {
             from: "top",
             align: "center"
@@ -94,37 +96,48 @@ function onPressPlay() {
 }
 
 function onTrackLoadSuccess() {
-    console.log('Track load successful. Start sampling');
+    console.log('Track load successful. Creating beatmap.');
+    console.log('*** Track Info ***');
+    console.log(scController.track);
+
     startSamplingTrack();
 }
 
 function onTrackLoadFail(errorMsg) {
     console.log('Track failed to load: ' + errorMsg);
     setIsBusy(false);
-    
-    if(loadingNotification != null) {
-        loadingNotification.close();
-    }
 
     displayError('Failed to load sound! Make sure the URL is correct, and that it is not a playlist.')
 }
 
 function displayError(msg) {
-    $.notify({ title: '<b>Error:</b>', message: msg }, {
-        type: 'danger',
-        allow_dismiss: true,
-        spacing: 5,
-        delay: 5000,
-        timer: 250,
-        placement: {
-            from: "top",
-            align: "center"
-        },
-        animate: {
-            enter: 'animated faster fadeInDown',
-            exit: 'animated faster fadeOutUp'
-        }
-    });
+    if (loadingNotification != null) {
+        loadingNotification.update({
+            'type': 'danger',
+            'title': '<b>Error:</b>',
+            'msg': msg,
+            'delay': 5000,
+            'timer': 250,
+            'allow_dismiss': true
+        });
+    }
+    else {
+        $.notify({ title: '<b>Error:</b>', message: msg }, {
+            type: 'danger',
+            allow_dismiss: true,
+            spacing: 5,
+            delay: 5000,
+            timer: 250,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            animate: {
+                enter: 'animated faster fadeInDown',
+                exit: 'animated faster fadeOutUp'
+            }
+        });
+    }
 }
 
 function setIsBusy(busy) {
@@ -177,9 +190,9 @@ function initializeGame(audioCtx, data) {
 
     bufferSrc.connect(audioCtx.destination);
     bufferSrc.start(0);
-    
+
     // Finished loading. Close notification.
-    if(loadingNotification != null) {
+    if (loadingNotification != null) {
         loadingNotification.close();
     }
 
@@ -188,9 +201,7 @@ function initializeGame(audioCtx, data) {
     renderGame();
 }
 
-var amplitudes = null;
-var peaks = null; // Array of timestamps of audio peaks.
-var stepSize = 0.0;
+var beats = null; // Array of timestamps of audio peaks. This list is ordered chronologically.
 
 function createBeatmap(data) {
     var numChannels = data.numberOfChannels;
@@ -203,58 +214,53 @@ function createBeatmap(data) {
     songDuration = data.duration;
 
     // Get channel data and downsample them to nyquist.
-    var leftChannel = data.getChannelData(0);
-    var rightChannel = data.getChannelData(1);
+    var lChannel = data.getChannelData(0);
+    var rChannel = data.getChannelData(1);
 
-    peaks = calculatePeaks(leftChannel, rightChannel, leftChannel.length);
+    songBpm = 120.0; // Add BPM detection (first soundcloud metadata, then calculate with beat spacing). Later make it overrideable.
+    minBeatInterval = (60.0 / songBpm) / 8.0; // 1/32 note.
 
-    console.log(peaks);
-}
-
-// Pretty dumb way to get the peaks, but just get the peak amplitude in the samples.
-function calculatePeaks(lChannel, rChannel, length) {
-    var results = [];
-    stepSize = Math.ceil(0.05 * sampleRate); // Sample every 0.05 second interval.
+    beats = [];
+    var sampleStepSize = Math.ceil(minBeatInterval * sampleRate); // Number of samples within the minimum beat interval.
     var sampleStartIndex = 0;
-    var prevAvgAmp = 0.0;
-    amplitudes = [];
+    var prevAvgRMS = 0.0;
 
     while (sampleStartIndex < length) {
-        var avgAmplitude = 0.0;
+        var avgRMS = 0.0; // Rough approximation of root-mean square.
 
-        for (var i = 0; i < stepSize; i++) {
+        for (var i = 0; i < sampleStepSize; i++) {
             var absIndex = sampleStartIndex + i;
 
             if (absIndex >= length) {
                 break;
             }
 
-            // Accumulate the greater amplitude from both channels.
             var sample = (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
-            avgAmplitude += sample * sample;
+            avgRMS += sample * sample;
         }
 
-        if (stepSize > 1) {
-            avgAmplitude /= stepSize;
+        if (sampleStepSize > 1) {
+            avgRMS /= sampleStepSize;
         }
 
         // The average sampled amplitude is greater than the previous sample's by a threshold.
-        if (sampleStartIndex > 0 && avgAmplitude - prevAvgAmp > PEAK_THRESHOLD) {
-            results.push((sampleStartIndex + (stepSize * 0.5)) / sampleRate); // Convert sample index to seconds.
+        if (sampleStartIndex > 0 && avgRMS - prevAvgRMS > PEAK_THRESHOLD) {
+            var newBeat = {
+                type: BEAT_BASS, // Should be different depending if this beat is from low-pass or high-pass.
+                timestamp: ((sampleStartIndex + (sampleStepSize * 0.5)) / sampleRate) // Convert sample index to seconds.
+            };
+
+            beats.push(newBeat);
         }
 
-        amplitudes.push(avgAmplitude);
-
-        prevAvgAmp = avgAmplitude;
+        prevAvgRMS = avgRMS;
         sampleStartIndex += stepSize;
     }
-
-    return results;
 }
 
 function renderGame() {
-    gameView.width = window.innerWidth - 50;
-    gameView.height = window.innerHeight - 200;
+    gameView.width = window.innerWidth - 45;
+    gameView.height = window.innerHeight - 195;
 
     requestAnimationFrame(renderGame);
     gameLoop();
@@ -263,14 +269,7 @@ function renderGame() {
 
     gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
-    // Draw intensity debug.
-    gameCtx.strokeStyle = '#77db25'; // lime green.
-    gameCtx.lineWidth = 8;
-    var amplIndex = Math.min(Math.floor(leftGameBounds * 20.0), amplitudes.length - 1);
-    drawVerticalLine(gameCtx, rightGameBounds - 0.33, amplitudes[amplIndex]);
-
     // Draw vertical lines and time labels in intervals.
-    const bpm = 120.0; // Make adjustable later.
     var lineStep = 60.0 / bpm; // Time interval per beat.
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
@@ -286,22 +285,29 @@ function renderGame() {
         curLineTime += lineStep;
     }
 
-    // Draw beat "notes"
-    gameCtx.fillStyle = '#d33415'; // red orange.
-    gameCtx.strokeStyle = '#9b2812'; // darker red orange.
-    gameCtx.lineWidth = 2; // outline width.
+    // Draw beats as circles.
+    gameCtx.lineWidth = 2; // Circle outline width.
 
-    for (var i = 0; i < peaks.length; i++) {
-        drawNote(gameCtx, peaks[i]);
+    for (var i = 0; i < beats.length; i++) {
+        drawBeat(gameCtx, beats[i]);
     }
 }
 
-function drawNote(ctx, time) {
-    var x = convertSecondsToPixel(time);
+function drawBeat(ctx, beat) {
+    var x = convertSecondsToPixel(beat.timestamp);
     var centerY = gameView.height * 0.5;
 
+    if (beat.type == BEAT_BASS) {
+        gameCtx.fillStyle = '#d33415'; // red orange.
+        gameCtx.strokeStyle = '#9b2812'; // darker red orange.
+    }
+    else if (beat.type == BEAT_SNARE) {
+        gameCtx.fillStyle = '#3581e4'; // light blue.
+        gameCtx.strokeStyle = '#2760aa'; // blue.
+    }
+
     ctx.beginPath();
-    ctx.arc(x, centerY, NOTE_RADIUS, 0, 2 * Math.PI, false);
+    ctx.arc(x, centerY, BEAT_RADIUS, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.stroke();
 }
@@ -334,4 +340,35 @@ function gameLoop() {
     rightGameBounds = curTime + GAME_VIEW_WIDTH;
 
     lastTime = curTime;
+}
+
+function onKeyDown(event) {
+    if (event.repeat) {
+        return; // Ignore repeated events.
+    }
+
+    if (event.keyCode == KEY_A) {
+        smashKey(0);
+    }
+    else if (event.keyCode == KEY_D) {
+        smashKey(1);
+    }
+}
+
+function onKeyUp(event) {
+    // Use for notes that are required to be held down.
+    if (event.keyCode == KEY_A) {
+    }
+    else if (event.keyCode == KEY_D) {
+    }
+}
+
+function getNextBeat() {
+
+}
+
+function smashKey(type) {
+    if (type == 1) {
+
+    }
 }
