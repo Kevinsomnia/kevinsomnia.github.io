@@ -272,7 +272,7 @@ function renderGame() {
 function drawGraph(ctx) {
     // Draw vertical lines and time labels in intervals.
     var lineStep = 60.0 / songBpm; // Time interval per beat.
-    var curLineIndex = 0;
+    var curLineIndex = Math.floor(leftGameBounds / lineStep);
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
     ctx.lineWidth = 2;
