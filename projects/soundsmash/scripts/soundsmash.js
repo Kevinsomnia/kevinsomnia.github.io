@@ -10,6 +10,7 @@ var audioPlayer = document.getElementById('audioPlayer');
 var gameView = document.getElementById('gameView');
 var helpButton = document.getElementById('helpBtn');
 var playButton = document.getElementById('playBtn');
+var settingsButton = document.getElementById('settingsBtn');
 
 // Audio controller variables.
 var scController = {};
@@ -115,7 +116,7 @@ function displayError(msg) {
         loadingNotification.update({
             'type': 'danger',
             'title': '<b>Error:</b>',
-            'msg': msg,
+            'message': msg,
             'delay': 5000,
             'timer': 250,
             'allow_dismiss': true
@@ -143,6 +144,7 @@ function displayError(msg) {
 function setIsBusy(busy) {
     helpButton.disabled = busy;
     playButton.disabled = busy;
+    settingsButton.disabled = busy;
 
     isBusy = busy;
 }
@@ -298,12 +300,12 @@ function drawBeat(ctx, beat) {
     var centerY = gameView.height * 0.5;
 
     if (beat.type == BEAT_BASS) {
-        gameCtx.fillStyle = '#d33415'; // red orange.
-        gameCtx.strokeStyle = '#9b2812'; // darker red orange.
+        ctx.fillStyle = '#d33415'; // red orange.
+        ctx.strokeStyle = '#9b2812'; // darker red orange.
     }
     else if (beat.type == BEAT_SNARE) {
-        gameCtx.fillStyle = '#3581e4'; // light blue.
-        gameCtx.strokeStyle = '#2760aa'; // blue.
+        ctx.fillStyle = '#3581e4'; // light blue.
+        ctx.strokeStyle = '#2760aa'; // blue.
     }
 
     ctx.beginPath();

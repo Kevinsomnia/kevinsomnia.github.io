@@ -3,10 +3,12 @@ This is my personal website for web projects.
 
 **Web projects:**
 - [Text Cruncher (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/text_cruncher)
+- [SoundSmash (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/soundsmash)
 
-**Libraries used in projects:**
+**Libraries used in all projects:**
 - [Chart.js](https://www.chartjs.org/)
 - [Tag-it](https://github.com/fagianijunior/tag-it)
+- [SoundCloud SDK](https://developers.soundcloud.com/docs/api/sdks)
 
 **Other resources used in website:**
 - [Bootstrap](https://getbootstrap.com/)
