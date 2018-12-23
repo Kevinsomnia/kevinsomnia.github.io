@@ -1,7 +1,7 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const BEAT_RADIUS = 10;
-const SMASH_LINE_WIDTH = 24;
+const SMASH_LINE_WIDTH = 26;
 const PEAK_THRESHOLD = 0.055;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
@@ -293,7 +293,7 @@ function renderGame() {
 
     // Draw the 'smash' area.
     gameCtx.lineWidth = SMASH_LINE_WIDTH;
-    gameCtx.strokeStyle = '#8dd31bb0'; // translucent green.
+    gameCtx.strokeStyle = '#51871cb0'; // translucent green.
     gameCtx.beginPath();
     var x = (SMASH_LINE_WIDTH * 0.5) + 2;
     gameCtx.moveTo(x, 0);
@@ -302,11 +302,13 @@ function renderGame() {
 
     // Cutout a hole the size of the beat note.
     var centerY = gameView.height * 0.5;
-    var holeRadius = (BEAT_RADIUS + 1) * 2;
+    var holeRadius = BEAT_RADIUS + 1;
+    gameCtx.save();
     gameCtx.beginPath();
     gameCtx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
     gameCtx.clip();
     gameCtx.clearRect(x - holeRadius, centerY - holeRadius, holeRadius * 2, holeRadius * 2);
+    gameCtx.restore();
 
     // Draw beats as circles.
     gameCtx.lineWidth = 2; // Circle outline width.
