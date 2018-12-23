@@ -293,7 +293,7 @@ function renderGame() {
 
     // Draw the 'smash' area.
     gameCtx.lineWidth = SMASH_LINE_WIDTH;
-    gameCtx.fillStyle = '#8dd31bb0'; // translucent green.
+    gameCtx.strokeStyle = '#8dd31bb0'; // translucent green.
     gameCtx.beginPath();
     var x = (SMASH_LINE_WIDTH * 0.5) + 2;
     gameCtx.moveTo(x, 0);
@@ -306,7 +306,7 @@ function renderGame() {
     gameCtx.beginPath();
     gameCtx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
     gameCtx.clip();
-    gameCtx.clearRect(x, centerY, holeRadius, holeRadius);
+    gameCtx.clearRect(x - holeRadius, centerY - holeRadius, holeRadius * 2, holeRadius * 2);
 
     // Draw beats as circles.
     gameCtx.lineWidth = 2; // Circle outline width.
@@ -399,7 +399,7 @@ function smashKey(type) {
 // HELPERS
 function toTimerFormat(seconds) {
     seconds = Math.round(seconds); // no milliseconds.
-    var min = seconds / 60;
+    var min = Math.floor(seconds / 60);
     var sec = seconds % 60;
 
     if(sec < 10) {
