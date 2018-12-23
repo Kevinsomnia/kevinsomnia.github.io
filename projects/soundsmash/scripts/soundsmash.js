@@ -1,7 +1,8 @@
 // Constants
 const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
 const BEAT_RADIUS = 10;
-const PEAK_THRESHOLD = 0.05;
+const SMASH_LINE_WIDTH = 24;
+const PEAK_THRESHOLD = 0.055;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
 
@@ -283,12 +284,29 @@ function renderGame() {
         }
         else {
             // Every other beat in the measure.
-            gameCtx.strokeStyle = '#ffffff0f';
+            gameCtx.strokeStyle = '#ffffff0a';
             drawVerticalLine(gameCtx, curLineTime, 0.96);
         }
 
         curLineTime += lineStep;
     }
+
+    // Draw the 'smash' area.
+    gameCtx.lineWidth = SMASH_LINE_WIDTH;
+    gameCtx.fillStyle = '#8dd31bb0'; // translucent green.
+    gameCtx.beginPath();
+    var x = (SMASH_LINE_WIDTH * 0.5) + 2;
+    gameCtx.moveTo(x, 0);
+    gameCtx.lineTo(x, gameView.height);
+    gameCtx.stroke();
+
+    // Cutout a hole the size of the beat note.
+    var centerY = gameView.height * 0.5;
+    var holeRadius = (BEAT_RADIUS + 1) * 2;
+    gameCtx.beginPath();
+    gameCtx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
+    gameCtx.clip();
+    gameCtx.clearRect(x, centerY, holeRadius, holeRadius);
 
     // Draw beats as circles.
     gameCtx.lineWidth = 2; // Circle outline width.
@@ -328,7 +346,7 @@ function drawVerticalLine(ctx, time, heightPercent) {
 
 function drawTimestamp(ctx, time) {
     var x = convertSecondsToPixel(time);
-    ctx.fillText(time.toString(), x, gameView.height);
+    ctx.fillText(toTimerFormat(time), x, gameView.height);
 }
 
 function convertSecondsToPixel(time) {
@@ -376,4 +394,17 @@ function smashKey(type) {
     if (type == 1) {
 
     }
+}
+
+// HELPERS
+function toTimerFormat(seconds) {
+    seconds = Math.round(seconds); // no milliseconds.
+    var min = seconds / 60;
+    var sec = seconds % 60;
+
+    if(sec < 10) {
+        return min + ':0' + sec;
+    }
+
+    return min + ':' + sec; 
 }
