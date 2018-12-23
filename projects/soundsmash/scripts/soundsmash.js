@@ -4,6 +4,7 @@ const BEAT_RADIUS = 10;
 const SMASH_LINE_OFFSET = 18; // Spacing from the left of canvas.
 const SMASH_LINE_WIDTH = 34;
 const PEAK_THRESHOLD = 0.055;
+const BASS_POS_Y = 0.25, SNARE_POS_Y = 0.75;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
 
@@ -83,7 +84,7 @@ function onPressPlay() {
     tryGetSound(link, onTrackLoadSuccess, onTrackLoadFail);
     setIsBusy(true);
 
-    loadingNotification = $.notify({ title: '<b>Getting track data:</b>', message: 'Please be patient.' }, {
+    loadingNotification = $.notify({ title: '<b>Please be patient:</b>', message: 'Retrieving track data...' }, {
         type: 'info',
         allow_dismiss: false,
         spacing: 5,
@@ -103,10 +104,9 @@ function onTrackLoadSuccess() {
     console.log('*** Track Info ***');
     console.log(scController.track);
 
-    if(loadingNotification != null) {
+    if (loadingNotification != null) {
         loadingNotification.update({
-            title: '<b>Generating beatmap:</b>',
-            message: 'Please be patient.'
+            message: 'Generating beatmap...'
         });
     }
 
@@ -231,7 +231,7 @@ function createBeatmap(data) {
     // Accumulate every 4th sample to save time.
     const EVERY_NTH_SAMPLE = 4;
 
-    for(var i = 0; i < dataLength; i += EVERY_NTH_SAMPLE) {
+    for (var i = 0; i < dataLength; i += EVERY_NTH_SAMPLE) {
         avgSongVolume += Math.abs(lChannel[i]);
         avgSongVolume += Math.abs(rChannel[i]);
     }
@@ -239,9 +239,9 @@ function createBeatmap(data) {
     avgSongVolume *= 0.5 * EVERY_NTH_SAMPLE; // Average both channels and account for missing samples.
     avgSongVolume /= dataLength; // Average over the entire track.
 
-    console.log('avg song volume: ' + avgSongVolume);
-    var normalizationFactor = Math.max(1.0, 0.5 / avgSongVolume); // Most tracks are probably centered around 50%.
-    console.log('normalize factor: ' + normalizationFactor);
+    // Normalize the amplitudes of quiet songs.
+    var normalizationFactor = Math.max(1.0, 0.25 / avgSongVolume); // Most tracks are probably centered around 25%.
+    console.log('normalize factor: ' + normalizationFactor + '   (avg volume: ' + avgSongVolume + ')');
 
     songBpm = 120.0; // Add BPM detection (first soundcloud metadata, then calculate with beat spacing). Later make it overrideable.
     minBeatInterval = (60.0 / songBpm) / 8.0; // 1/32 note.
@@ -356,14 +356,27 @@ function drawSmashArea(ctx) {
     ctx.lineTo(x, gameView.height);
     ctx.stroke();
 
-    // Cutout a hole the size of the beat note.
-    var centerY = gameView.height * 0.5;
+    // Cutout holes for each beat type.
     var holeRadius = BEAT_RADIUS + 4;
+    cutHole(ctx, x, gameView.height * BASS_POS_Y, holeRadius);
+    cutHole(ctx, x, gameView.height * SNARE_POS_Y, holeRadius);
+    
+    // Draw labels to the left of the holes.
+    ctx.fillStyle = '#d33415'; // red orange
+    ctx.textAlign = 'center';
+    ctx.font = '12px Verdana';
+    ctx.fillText('A', x, gameView.height * BASS_POS_Y);
+    ctx.fillStyle = '#3581e4'; // blue
+    ctx.fillText('D', x, gameView.height * BASS_POS_Y);
+}
+
+function cutHole(ctx, x, y, radius) {
     ctx.save();
     ctx.beginPath();
-    ctx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
     ctx.clip();
-    ctx.clearRect(x - holeRadius, centerY - holeRadius, holeRadius * 2, holeRadius * 2);
+    var clearSize = radius * 2 + 2; // diameter + 1 pixel padding.
+    ctx.clearRect(x - radius - 1, centerY - radius - 1, clearSize, clearSize);
     ctx.restore();
 }
 
@@ -377,23 +390,26 @@ function drawAllBeats(ctx) {
 
 function drawBeat(ctx, beat) {
     var x = convertSecondsToPixel(beat.timestamp);
-    var centerY = gameView.height * 0.5;
+    var y = gameView.height;
 
     if (beat.type == BEAT_BASS) {
         ctx.fillStyle = '#d33415'; // red orange.
         ctx.strokeStyle = '#9b2812'; // darker red orange.
+        y *= BASS_POS_Y;
     }
     else if (beat.type == BEAT_SNARE) {
         ctx.fillStyle = '#3581e4'; // light blue.
         ctx.strokeStyle = '#2760aa'; // blue.
+        y *= SNARE_POS_Y;
     }
 
     ctx.beginPath();
-    ctx.arc(x, centerY, BEAT_RADIUS, 0, 2 * Math.PI, false);
+    ctx.arc(x, y, BEAT_RADIUS, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.stroke();
 }
 
+// Gets the actual time at the left edge of the canvas. curTime represents the time at the smash area.
 function getCurrentAdjustedTime() {
     return curTime + timeOffset;
 }
