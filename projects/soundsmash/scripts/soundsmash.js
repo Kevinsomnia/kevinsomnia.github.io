@@ -1,7 +1,7 @@
 // Constants
-const GAME_VIEW_WIDTH = 5.0; // Width of the game view in seconds.
+const PIXELS_PER_SECOND = 320; // Controls how fast to scroll the graph across the screen.
 const BEAT_RADIUS = 10;
-const SMASH_LINE_WIDTH = 26;
+const SMASH_LINE_WIDTH = 30;
 const PEAK_THRESHOLD = 0.055;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
@@ -109,7 +109,7 @@ function onTrackLoadFail(errorMsg) {
     console.log('Track failed to load: ' + errorMsg);
     setIsBusy(false);
 
-    if(loadingNotification != null) {
+    if (loadingNotification != null) {
         loadingNotification.close();
     }
 
@@ -253,68 +253,93 @@ function createBeatmap(data) {
 }
 
 function renderGame() {
-    gameView.width = window.innerWidth - 45;
-    gameView.height = window.innerHeight - 195;
+    gameView.width = clamp(window.innerWidth - 45, PIXELS_PER_SECOND * 2, 3840);
+    gameView.height = clamp(window.innerHeight - 195, 300, 2160);
 
     requestAnimationFrame(renderGame);
     gameLoop();
 
     var gameCtx = gameView.getContext('2d');
 
+    // Clear canvas every frame.
     gameCtx.clearRect(0, 0, gameView.width, gameView.height);
 
+    drawGraph(gameCtx);
+    drawSmashArea(gameCtx);
+    drawAllBeats(gameCtx);
+}
+
+function drawGraph(ctx) {
     // Draw vertical lines and time labels in intervals.
     var lineStep = 60.0 / songBpm; // Time interval per beat.
-    var measureTime = lineStep * 4.0; // 4 beats per measure.
+    var curLineIndex = 0;
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
-    gameCtx.lineWidth = 2;
-    gameCtx.fillStyle = '#ffffff66'; // translucent white.
-    gameCtx.textAlign = 'center';
-    gameCtx.font = '12px Verdana';
+    ctx.lineWidth = 2;
+    ctx.fillStyle = '#ffffff66'; // translucent white.
+    ctx.textAlign = 'center';
+    ctx.font = '12px Verdana';
 
     while (curLineTime < rightGameBounds) {
-        var isMeasureLine = (curLineTime % measureTime == 0.0);
+        var isMeasureLine = (curLineIndex % 4 == 0); // 4 beats per measure.
 
-        if(isMeasureLine) {
+        if (isMeasureLine) {
             // Marks first beat of the measure.
-            gameCtx.strokeStyle = '#ffffff33'; // translucent white.
-            drawVerticalLine(gameCtx, curLineTime, 0.96);
-            drawTimestamp(gameCtx, curLineTime);
+            ctx.strokeStyle = '#ffffff33'; // translucent white.
+            drawVerticalLine(ctx, curLineTime, 0.96);
+            drawTimestamp(ctx, curLineTime);
         }
         else {
             // Every other beat in the measure.
-            gameCtx.strokeStyle = '#ffffff0a';
-            drawVerticalLine(gameCtx, curLineTime, 0.96);
+            ctx.strokeStyle = '#ffffff0a';
+            drawVerticalLine(ctx, curLineTime, 0.96);
         }
 
         curLineTime += lineStep;
+        curLineIndex++;
     }
+}
 
-    // Draw the 'smash' area.
-    gameCtx.lineWidth = SMASH_LINE_WIDTH;
-    gameCtx.strokeStyle = '#51871cb0'; // translucent green.
-    gameCtx.beginPath();
+function drawVerticalLine(ctx, time, heightPercent) {
+    var x = convertSecondsToPixel(time);
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, gameView.height * heightPercent);
+    ctx.stroke();
+}
+
+function drawTimestamp(ctx, time) {
+    var x = convertSecondsToPixel(time);
+    ctx.fillText(toTimerFormat(time), x, gameView.height);
+}
+
+function drawSmashArea(ctx) {
+    // Draw a thick line.
+    ctx.lineWidth = SMASH_LINE_WIDTH;
+    ctx.strokeStyle = '#51871cb0'; // translucent green.
+    ctx.beginPath();
     var x = (SMASH_LINE_WIDTH * 0.5) + 2;
-    gameCtx.moveTo(x, 0);
-    gameCtx.lineTo(x, gameView.height);
-    gameCtx.stroke();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, gameView.height);
+    ctx.stroke();
 
     // Cutout a hole the size of the beat note.
     var centerY = gameView.height * 0.5;
-    var holeRadius = BEAT_RADIUS + 1;
-    gameCtx.save();
-    gameCtx.beginPath();
-    gameCtx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
-    gameCtx.clip();
-    gameCtx.clearRect(x - holeRadius, centerY - holeRadius, holeRadius * 2, holeRadius * 2);
-    gameCtx.restore();
+    var holeRadius = BEAT_RADIUS + 4;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, centerY, holeRadius, 0, 2 * Math.PI, false);
+    ctx.clip();
+    ctx.clearRect(x - holeRadius, centerY - holeRadius, holeRadius * 2, holeRadius * 2);
+    ctx.restore();
+}
 
-    // Draw beats as circles.
-    gameCtx.lineWidth = 2; // Circle outline width.
+function drawAllBeats(ctx) {
+    ctx.lineWidth = 2; // Controls outline thickness.
 
     for (var i = 0; i < beats.length; i++) {
-        drawBeat(gameCtx, beats[i]);
+        drawBeat(ctx, beats[i]);
     }
 }
 
@@ -337,20 +362,6 @@ function drawBeat(ctx, beat) {
     ctx.stroke();
 }
 
-function drawVerticalLine(ctx, time, heightPercent) {
-    var x = convertSecondsToPixel(time);
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, gameView.height * heightPercent);
-    ctx.stroke();
-}
-
-function drawTimestamp(ctx, time) {
-    var x = convertSecondsToPixel(time);
-    ctx.fillText(toTimerFormat(time), x, gameView.height);
-}
-
 function convertSecondsToPixel(time) {
     var inverseLerp = (time - leftGameBounds) / (rightGameBounds - leftGameBounds); // Map from 0 to 1.
     return inverseLerp * gameView.width; // 0 to game view width.
@@ -362,7 +373,7 @@ function gameLoop() {
 
     // Update bounds.
     leftGameBounds = curTime;
-    rightGameBounds = curTime + GAME_VIEW_WIDTH;
+    rightGameBounds = curTime + (gameView.width / PIXELS_PER_SECOND);
 
     lastTime = curTime;
 }
@@ -404,9 +415,13 @@ function toTimerFormat(seconds) {
     var min = Math.floor(seconds / 60);
     var sec = seconds % 60;
 
-    if(sec < 10) {
+    if (sec < 10) {
         return min + ':0' + sec;
     }
 
-    return min + ':' + sec; 
+    return min + ':' + sec;
+}
+
+function clamp(val, min, max) {
+    return Math.min(Math.max(min, val), max)
 }
