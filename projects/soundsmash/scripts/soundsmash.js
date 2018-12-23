@@ -1,6 +1,7 @@
 // Constants
-const PIXELS_PER_SECOND = 320; // Controls how fast to scroll the graph across the screen.
+const PIXELS_PER_SECOND = 240; // Controls how fast to scroll the graph across the screen.
 const BEAT_RADIUS = 10;
+const SMASH_LINE_OFFSET = 18; // Spacing from the left of canvas.
 const SMASH_LINE_WIDTH = 34;
 const PEAK_THRESHOLD = 0.055;
 const KEY_A = 65, KEY_D = 68;
@@ -30,6 +31,7 @@ var lastTime = 0.0;
 var unitScale = 500.0; // The number of pixels per second.
 var leftGameBounds = 0.0;
 var rightGameBounds = 1.0;
+var timeOffset = 0.0; // Compensate for smash line.
 
 function initController() {
     // Create controller object for this session.
@@ -191,6 +193,10 @@ function initializeGame(audioCtx, data) {
         loadingNotification.close();
     }
 
+    // Setup any necessary game variables.
+    var offsetInPixels = SMASH_LINE_OFFSET + (SMASH_LINE_WIDTH * 0.5);
+    timeOffset = -offsetInPixels / PIXELS_PER_SECOND; // Negative time offset to shift graph to the right.
+
     // Start drawing the game.
     isPlaying = true;
     renderGame();
@@ -211,12 +217,30 @@ function createBeatmap(data) {
     // Get channel data and downsample them to nyquist.
     var lChannel = data.getChannelData(0);
     var rChannel = data.getChannelData(1);
+    var dataLength = lChannel.length;
+
+    // Check if volume normalization is necessary by computing it's overall average amplitude.
+    var avgSongVolume = 0.0;
+
+    // Accumulate every 4th sample to save time.
+    const EVERY_NTH_SAMPLE = 4;
+
+    for(var i = 0; i < dataLength; i += EVERY_NTH_SAMPLE) {
+        avgSongVolume += lChannel[i];
+        avgSongVolume += rChannel[i];
+    }
+
+    avgSongVolume *= 0.5 * EVERY_NTH_SAMPLE; // Average both channels and account for missing samples.
+    avgSongVolume /= dataLength; // Average over the entire track.
+
+    console.log('avg song volume: ' + avgSongVolume);
+    var normalizationFactor = Math.max(1.0, 0.5 / avgSongVolume); // Most tracks are probably centered around 50%.
+    console.log('normalize factor: ' + normalizationFactor);
 
     songBpm = 120.0; // Add BPM detection (first soundcloud metadata, then calculate with beat spacing). Later make it overrideable.
     minBeatInterval = (60.0 / songBpm) / 8.0; // 1/32 note.
 
     beats = [];
-    var dataLength = lChannel.length;
     var sampleStepSize = Math.ceil(minBeatInterval * sampleRate); // Number of samples within the minimum beat interval.
     var sampleStartIndex = 0;
     var prevEnergy = 0.0;
@@ -231,9 +255,11 @@ function createBeatmap(data) {
                 break;
             }
 
-            var sample = (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
+            var sample = Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex]);
             energy += sample * sample;
         }
+
+        energy *= 0.25 * normalizationFactor; // Average both channels and apply normalization. (0.5 * 0.5 * norm).
 
         if (sampleStepSize > 1) {
             energy /= sampleStepSize;
@@ -319,7 +345,7 @@ function drawSmashArea(ctx) {
     ctx.lineWidth = SMASH_LINE_WIDTH;
     ctx.strokeStyle = '#51871cb0'; // translucent green.
     ctx.beginPath();
-    var x = (SMASH_LINE_WIDTH * 0.5) + 2;
+    var x = (SMASH_LINE_WIDTH * 0.5) + SMASH_LINE_OFFSET;
     ctx.moveTo(x, 0);
     ctx.lineTo(x, gameView.height);
     ctx.stroke();
@@ -362,6 +388,10 @@ function drawBeat(ctx, beat) {
     ctx.stroke();
 }
 
+function getCurrentAdjustedTime() {
+    return curTime + timeOffset;
+}
+
 function convertSecondsToPixel(time) {
     var inverseLerp = (time - leftGameBounds) / (rightGameBounds - leftGameBounds); // Map from 0 to 1.
     return inverseLerp * gameView.width; // 0 to game view width.
@@ -372,8 +402,8 @@ function gameLoop() {
     //var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
 
     // Update bounds.
-    leftGameBounds = curTime;
-    rightGameBounds = curTime + (gameView.width / PIXELS_PER_SECOND);
+    leftGameBounds = getCurrentAdjustedTime();
+    rightGameBounds = leftGameBounds + (gameView.width / PIXELS_PER_SECOND);
 
     lastTime = curTime;
 }
