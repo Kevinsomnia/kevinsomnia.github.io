@@ -367,7 +367,7 @@ function drawSmashArea(ctx) {
     ctx.font = '12px Verdana';
     ctx.fillText('A', x, gameView.height * BASS_POS_Y);
     ctx.fillStyle = '#3581e4'; // blue
-    ctx.fillText('D', x, gameView.height * BASS_POS_Y);
+    ctx.fillText('D', x, gameView.height * SNARE_POS_Y);
 }
 
 function cutHole(ctx, x, y, radius) {
