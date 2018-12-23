@@ -1,10 +1,10 @@
 // Constants
 const PIXELS_PER_SECOND = 240; // Controls how fast to scroll the graph across the screen.
 const BEAT_RADIUS = 10;
-const SMASH_LINE_OFFSET = 18; // Spacing from the left of canvas.
+const SMASH_LINE_OFFSET = 6; // Spacing from the left of canvas.
 const SMASH_LINE_WIDTH = 34;
-const PEAK_THRESHOLD = 0.055;
-const BASS_POS_Y = 0.25, SNARE_POS_Y = 0.75;
+const PEAK_THRESHOLD = 0.0525;
+const BASS_POS_Y = 0.35, SNARE_POS_Y = 0.65;
 const KEY_A = 65, KEY_D = 68;
 const BEAT_BASS = 0, BEAT_SNARE = 1;
 
@@ -286,7 +286,7 @@ function createBeatmap(data) {
 
 function renderGame() {
     gameView.width = clamp(window.innerWidth - 45, PIXELS_PER_SECOND * 2, 3840);
-    gameView.height = clamp(window.innerHeight - 195, 300, 2160);
+    gameView.height = clamp(window.innerHeight - 195, 300, 1080);
 
     requestAnimationFrame(renderGame);
     gameLoop();
@@ -353,7 +353,7 @@ function drawSmashArea(ctx) {
     ctx.beginPath();
     var x = (SMASH_LINE_WIDTH * 0.5) + SMASH_LINE_OFFSET;
     ctx.moveTo(x, 0);
-    ctx.lineTo(x, gameView.height);
+    ctx.lineTo(x, gameView.height * 0.96);
     ctx.stroke();
 
     // Cutout holes for each beat type.
@@ -361,13 +361,13 @@ function drawSmashArea(ctx) {
     cutHole(ctx, x, gameView.height * BASS_POS_Y, holeRadius);
     cutHole(ctx, x, gameView.height * SNARE_POS_Y, holeRadius);
     
-    // Draw labels to the left of the holes.
+    // Draw labels to the inside the holes.
     ctx.fillStyle = '#d33415'; // red orange
     ctx.textAlign = 'center';
-    ctx.font = '12px Verdana';
-    ctx.fillText('A', x, gameView.height * BASS_POS_Y);
+    ctx.font = 'bold 14px Verdana';
+    ctx.fillText('A', x, (gameView.height * BASS_POS_Y) + 7);
     ctx.fillStyle = '#3581e4'; // blue
-    ctx.fillText('D', x, gameView.height * SNARE_POS_Y);
+    ctx.fillText('D', x, (gameView.height * SNARE_POS_Y) + 7);
 }
 
 function cutHole(ctx, x, y, radius) {
