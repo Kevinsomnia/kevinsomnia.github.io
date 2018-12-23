@@ -246,13 +246,7 @@ function createBeatmap(data) {
         }
 
         prevAvgRMS = avgRMS;
-        sampleStartIndex += stepSize;
-    }
-
-    console.log(beats);
-
-    for(var i = 0; i < beats.length; i++) {
-        console.log(beats[i]);
+        sampleStartIndex += sampleStepSize;
     }
 }
 
