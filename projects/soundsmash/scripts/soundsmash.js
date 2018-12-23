@@ -365,9 +365,9 @@ function drawSmashArea(ctx) {
     ctx.fillStyle = '#d33415'; // red orange
     ctx.textAlign = 'center';
     ctx.font = 'bold 14px Verdana';
-    ctx.fillText('A', x, (gameView.height * BASS_POS_Y) + 7);
+    ctx.fillText('A', x, (gameView.height * BASS_POS_Y) + 6);
     ctx.fillStyle = '#3581e4'; // blue
-    ctx.fillText('D', x, (gameView.height * SNARE_POS_Y) + 7);
+    ctx.fillText('D', x, (gameView.height * SNARE_POS_Y) + 6);
 }
 
 function cutHole(ctx, x, y, radius) {

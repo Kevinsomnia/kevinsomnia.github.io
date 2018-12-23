@@ -379,10 +379,6 @@ function addFilesChunked(element, start, end, notification) {
         // Clear the file selector value in case we remove and readd the same item.
         element.value = '';
 
-        if (notification != null) {
-            notification.close();
-        }
-
         // Display errors, if there are any.
         if (addErrorCount > ADD_ERROR_MSG_LIMIT) {
             displayError('Failed to add <b>' + addErrorCount + '</b> files.');
@@ -391,6 +387,10 @@ function addFilesChunked(element, start, end, notification) {
             for (var i = 0; i < queuedAddErrors.length; i++) {
                 displayError(queuedAddErrors[i]);
             }
+        }
+
+        if (notification != null) {
+            notification.close();
         }
 
         queuedAddErrors.length = 0;
