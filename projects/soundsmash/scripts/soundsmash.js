@@ -239,12 +239,10 @@ function createBeatmap(data) {
 
         // The average sampled amplitude is greater than the previous sample's by a threshold.
         if (sampleStartIndex > 0 && avgRMS - prevAvgRMS > PEAK_THRESHOLD) {
-            var newBeat = {
+            beats.push({
                 type: BEAT_BASS, // Should be different depending if this beat is from low-pass or high-pass.
                 timestamp: ((sampleStartIndex + (sampleStepSize * 0.5)) / sampleRate) // Convert sample index to seconds.
-            };
-
-            beats.push(newBeat);
+            });
         }
 
         prevAvgRMS = avgRMS;
@@ -265,17 +263,29 @@ function renderGame() {
 
     // Draw vertical lines and time labels in intervals.
     var lineStep = 60.0 / songBpm; // Time interval per beat.
+    var measureTime = lineStep * 4.0; // 4 beats per measure.
     var curLineTime = Math.ceil(leftGameBounds / lineStep) * lineStep;
 
-    gameCtx.strokeStyle = '#ffffff33'; // translucent white.
     gameCtx.lineWidth = 2;
     gameCtx.fillStyle = '#ffffff66'; // translucent white.
     gameCtx.textAlign = 'center';
     gameCtx.font = '12px Verdana';
 
     while (curLineTime < rightGameBounds) {
-        drawVerticalLine(gameCtx, curLineTime, 0.96);
-        drawTimestamp(gameCtx, curLineTime);
+        var isMeasureLine = (curLineTime % measureTime == 0.0);
+
+        if(isMeasureLine) {
+            // Marks first beat of the measure.
+            gameCtx.strokeStyle = '#ffffff33'; // translucent white.
+            drawVerticalLine(gameCtx, curLineTime, 0.96);
+            drawTimestamp(gameCtx, curLineTime);
+        }
+        else {
+            // Every other beat in the measure.
+            gameCtx.strokeStyle = '#ffffff19';
+            drawVerticalLine(gameCtx, curLineTime, 0.96);
+        }
+
         curLineTime += lineStep;
     }
 
