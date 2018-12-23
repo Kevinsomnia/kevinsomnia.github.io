@@ -215,37 +215,38 @@ function createBeatmap(data) {
     minBeatInterval = (60.0 / songBpm) / 8.0; // 1/32 note.
 
     beats = [];
+    var dataLength = lChannel.length;
     var sampleStepSize = Math.ceil(minBeatInterval * sampleRate); // Number of samples within the minimum beat interval.
     var sampleStartIndex = 0;
-    var prevAvgRMS = 0.0;
+    var prevEnergy = 0.0;
 
-    while (sampleStartIndex < length) {
-        var avgRMS = 0.0; // Rough approximation of root-mean square.
+    while (sampleStartIndex < dataLength) {
+        var energy = 0.0; // Rough approximation of sound energy.
 
         for (var i = 0; i < sampleStepSize; i++) {
             var absIndex = sampleStartIndex + i;
 
-            if (absIndex >= length) {
+            if (absIndex >= dataLength) {
                 break;
             }
 
             var sample = (Math.abs(lChannel[absIndex]) + Math.abs(rChannel[absIndex])) * 0.5;
-            avgRMS += sample * sample;
+            energy += sample * sample;
         }
 
         if (sampleStepSize > 1) {
-            avgRMS /= sampleStepSize;
+            energy /= sampleStepSize;
         }
 
         // The average sampled amplitude is greater than the previous sample's by a threshold.
-        if (sampleStartIndex > 0 && avgRMS - prevAvgRMS > PEAK_THRESHOLD) {
+        if (sampleStartIndex > 0 && energy - prevEnergy > PEAK_THRESHOLD) {
             beats.push({
                 type: BEAT_BASS, // Should be different depending if this beat is from low-pass or high-pass.
                 timestamp: ((sampleStartIndex + (sampleStepSize * 0.5)) / sampleRate) // Convert sample index to seconds.
             });
         }
 
-        prevAvgRMS = avgRMS;
+        prevEnergy = energy;
         sampleStartIndex += sampleStepSize;
     }
 }
