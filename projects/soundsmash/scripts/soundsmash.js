@@ -248,6 +248,12 @@ function createBeatmap(data) {
         prevAvgRMS = avgRMS;
         sampleStartIndex += stepSize;
     }
+
+    console.log(beats);
+
+    for(var i = 0; i < beats.length; i++) {
+        console.log(beats[i]);
+    }
 }
 
 function renderGame() {
@@ -282,7 +288,7 @@ function renderGame() {
         }
         else {
             // Every other beat in the measure.
-            gameCtx.strokeStyle = '#ffffff19';
+            gameCtx.strokeStyle = '#ffffff0f';
             drawVerticalLine(gameCtx, curLineTime, 0.96);
         }
 
