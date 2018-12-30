@@ -1,13 +1,3 @@
-// Constants
-const PIXELS_PER_SECOND = 240; // Controls how fast to scroll the graph across the screen.
-const BEAT_RADIUS = 10;
-const SMASH_LINE_OFFSET = 6; // Spacing from the left of canvas.
-const SMASH_LINE_WIDTH = 34;
-const PEAK_THRESHOLD = 0.0525;
-const BASS_POS_Y = 0.35, SNARE_POS_Y = 0.65;
-const KEY_A = 65, KEY_D = 68;
-const BEAT_BASS = 0, BEAT_SNARE = 1;
-
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
 var helpButton = document.getElementById('helpBtn');
@@ -15,28 +5,36 @@ var startButton = document.getElementById('startBtn');
 var settingsButton = document.getElementById('settingsBtn');
 
 // Audio controller variables.
+var scClientID = '';
 var scController = {};
 var audioCtx = null;
 var songDuration = 0.0;
 var sampleRate = 44100;
-var songBpm = 120.0;
-
-// Game variables.
 var loadingNotification = null;
 var isBusy = false;
 var isPlaying = false;
-var startTime = 0.0;
-var curTime = 0.0;
-var lastTime = 0.0;
-var unitScale = 500.0; // The number of pixels per second.
-var leftGameBounds = 0.0;
-var rightGameBounds = 1.0;
-var timeOffset = 0.0; // Compensate for smash line.
+
+$('#closeSettings').click(function (e) {
+    var newId = $('#cIdInput').val();
+
+    if(newId != scClientID) {
+        scClientID = newId;
+        localStorage.setItem('scClientId', scClientID);
+        
+        initController(); // Reinitialize.
+    }
+});
+
+function loadSettings() {
+    scClientID = localStorage.getItem('scClientId');
+
+    $('#cIdInput').val(scClientID);
+}
 
 function initController() {
     // Create controller object for this session.
-    scController = { clientID: 'giRCTsKmvoxGF53IxQ6xEV1FzsR6IzQH', playlist: null, onRetrieved: null, onFailed: null };
-    SC.initialize({ client_id: scController.clientID });
+    scController = { clientID: scClientID, playlist: null, onRetrieved: null, onFailed: null };
+    SC.initialize({ client_id: scClientID });
 }
 
 function getStreamUrl() {
@@ -56,11 +54,8 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
 
     // Resolve to get playlist from link.
     SC.get('/resolve', { url: link }, function (result) {
-        console.log(result);
-
         if (!result.errors && result.kind == 'playlist') {
-            // We need to provide the client ID to use the API and access the sound.
-            scController.playlist = result;
+            scController.playlist = result.tracks;
 
             if (scController.onRetrieved !== null) {
                 scController.onRetrieved();
@@ -119,7 +114,7 @@ function onPlaylistLoadFail(errorMsg) {
 }
 
 function shufflePlaylist() {
-    // Magic.
+    // In-place shuffling.
     console.log('Shuffle stuff');
 }
 

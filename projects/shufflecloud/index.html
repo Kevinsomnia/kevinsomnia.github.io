@@ -71,12 +71,13 @@
 
             <audio id="audioPlayer"></audio>
 
-            <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there). This doesn't work on Firefox yet!</h5>
+            <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there). This doesn't work on
+                Firefox yet!</h5>
 
             <div class="row">
                 <div class="col-8">
                     <div class="form-group">
-                        <input id="scLink" class="form-control" type="text" placeholder="Paste the SoundCloud playlist here">
+                        <input id="scLink" class="form-control" type="text" placeholder="Paste SoundCloud playlist link here (https://www.soundcloud.com/username/sets/playlist-name)">
                     </div>
                 </div>
 
@@ -105,16 +106,15 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                        <div class="col-8 col-md-7 col-lg-6" data-toggle="tooltip" data-placement="bottom" data-html="true"
                             title="Something will be here later.">
-                            Test:
+                            SoundCloud Client ID:
                         </div>
 
-                        <div class="col">
-                            <label class="switch">
-                                <input id="testing" type="checkbox">
-                                <span class="slider"></span>
-                            </label>
+                        <div class="col-4 col-md-5 col-lg-6">
+                            <div class="form-group">
+                                <input id="cIdInput" class="form-control" type="text" placeholder="32 characters of random letters and numbers">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,6 +153,7 @@
             // Initialize tooltips for the entire page.
             $('[data-toggle="tooltip"]').tooltip();
 
+            loadSettings();
             initController();
 
             setTimeout(function () {
