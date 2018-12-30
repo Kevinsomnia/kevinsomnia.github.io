@@ -56,6 +56,8 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
 
     // Resolve to get playlist from link.
     SC.get('/resolve', { url: link }, function (result) {
+        console.log(result);
+
         if (!result.errors && result.kind == 'playlist') {
             // We need to provide the client ID to use the API and access the sound.
             scController.playlist = result;
