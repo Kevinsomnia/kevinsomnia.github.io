@@ -14,13 +14,17 @@ var loadingNotification = null;
 var isBusy = false;
 var isPlaying = false;
 
+$('#startBtn').click(function (e) {
+    localStorage.setItem('scLink', $('#scLink').val());
+});
+
 $('#closeSettings').click(function (e) {
     var newId = $('#cIdInput').val();
 
     if(newId != scClientID) {
         scClientID = newId;
         localStorage.setItem('scClientId', scClientID);
-        
+
         initController(); // Reinitialize.
     }
 });
@@ -29,6 +33,7 @@ function loadSettings() {
     scClientID = localStorage.getItem('scClientId');
 
     $('#cIdInput').val(scClientID);
+    $('#scLink').val(localStorage.getItem('scLink'));
 }
 
 function initController() {
@@ -54,6 +59,8 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
 
     // Resolve to get playlist from link.
     SC.get('/resolve', { url: link }, function (result) {
+        console.log(result);
+        
         if (!result.errors && result.kind == 'playlist') {
             scController.playlist = result.tracks;
 
