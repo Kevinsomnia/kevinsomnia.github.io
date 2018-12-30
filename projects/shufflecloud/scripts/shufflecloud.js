@@ -126,12 +126,14 @@ function onPlaylistLoadFail(errorMsg) {
 }
 
 function fillPlaylist(tracks) {
-    scController.playlist = [];
+    result = [];
     var trackCount = tracks.length;
 
     for(var i = 0; i < trackCount; i++) {
-        scController.playlist.push({origIndex: i, data: tracks[i]})
+        result.push({origIndex: i, data: tracks[i]})
     }
+
+    return result;
 }
 
 function shufflePlaylist() {
