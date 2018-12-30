@@ -1,0 +1,2 @@
+# What's this?
+A keyboard-audio rhythm game at it's finest. Go ahead, throw a SoundCloud link at it and see how musically talented you are. Demonstrates the use of SoundCloud and WebAudio API. YouTube support will probably be added in the future.

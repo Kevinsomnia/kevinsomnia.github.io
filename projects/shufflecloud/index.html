@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#161616">
+    <link rel="icon" href="images/favicon.png">
+
+    <title>ShuffleCloud | Kevin's Web Portfolio</title>
+
+    <!-- Bootstrap and page CSS -->
+    <link href="../../styles/bootstrap.min.css" rel="stylesheet">
+    <link href="../../styles/animate.min.css" rel="stylesheet">
+    <link href="../../styles/main.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Content invisible. -->
+    <script>
+        document.body.classList.add('fadeout');
+    </script>
+
+    <!-- NAVBAR START -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark main-shadow">
+        <h3 class="main-header pr-3">ShuffleCloud</h3>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active pr-1">
+                    <a class="nav-link" href="../..">
+                        Home
+                    </a>
+                </li>
+
+                <div class="d-none d-lg-inline-flex pr-1 v-divide"></div>
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/shufflecloud"
+                        target="_blank">
+                        View source on &nbsp;<img src="../../images/github.png" style="width:24px; height:24px">
+                    </a>
+                </li>
+
+                <!-- Mobile help link (hide on desktop) -->
+                <li class="nav-item active">
+                    <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
+                        Help
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Desktop help button (hide on mobile) -->
+            <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
+                style="background-color:#ac8f53" role="button">
+                ? &nbsp;Help
+            </button>
+        </div>
+    </nav>
+    <!-- NAVBAR END-->
+
+    <main role="main">
+        <div class="project-container">
+            <!-- START BODY UI -->
+
+            <audio id="audioPlayer"></audio>
+
+            <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there). This doesn't work on Firefox yet!</h5>
+
+            <div class="row">
+                <div class="col-8">
+                    <div class="form-group">
+                        <input id="scLink" class="form-control" type="text" placeholder="Paste the SoundCloud playlist here">
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressStart()" style="background-color:#2b4964"
+                        role="button">Load & Shuffle</button>
+                </div>
+
+                <div class="col-2">
+                    <button id="settingsBtn" class="btn btn-primary btn-md wide-button" style="background-color:#739b53"
+                        data-toggle="modal" data-target="#settingsModal" role="button">Settings</button>
+                </div>
+            </div>
+
+            <!-- END UI -->
+        </div> <!-- /project-body -->
+    </main>
+
+
+    <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-9 col-md-8 col-lg-5" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                            title="Something will be here later.">
+                            Test:
+                        </div>
+
+                        <div class="col">
+                            <label class="switch">
+                                <input id="testing" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="closeSettings" type="button" class="btn btn-secondary" data-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" style="transition:-webkit-transform 0.2s" role="document">
+            <div class="modal-content" style="background-color: #2d2a31f1;outline:solid 2px; outline-color: #37547eb0">
+                <div class="modal-header">
+                    <h5 class="modal-title">How To Use ShuffleCloud</h5>
+                </div>
+
+                <div class="modal-body">
+                    <p>Is your monitor turned on?</p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../scripts/popper.min.js"></script>
+    <script src="../../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../../scripts/bootstrap.min.js"></script>
+    <script src="../../scripts/bootstrap-notify.min.js"></script>
+    <script src="https://connect.soundcloud.com/sdk.js"></script>
+    <script src="scripts/shufflecloud.js"></script>
+
+    <script>
+        // Fade in page after done loading.
+        window.onload = function () {
+            // Initialize tooltips for the entire page.
+            $('[data-toggle="tooltip"]').tooltip();
+
+            document.body.addEventListener('keydown', onKeyDown);
+            document.body.addEventListener('keyup', onKeyUp);
+            initController();
+
+            setTimeout(function () {
+                // Fade in page.
+                document.body.classList.remove('fadeout');
+            }, 50);
+        };
+    </script>
+
+</body>
+
+</html>
