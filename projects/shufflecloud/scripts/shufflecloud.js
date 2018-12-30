@@ -171,19 +171,13 @@ function displayPlaylist() {
     var trackCount = scController.playlist.length;
 
     for (var i = 0; i < trackCount; i++) {
-        var styling = '" class="file-list-item file-list-item-notsup" onclick="playTrack(' + i + ')"';
-        styling += ' data-toggle="tooltip" data-placement="bottom" data-html="true"';
-        styling += ' title="Great tooltip text"';
-        styling += '>';
+        var styling = '" class="track-list-item" onclick="playTrack(' + i + ')">';
 
         var trackName = scController.playlist[i].title;
         listContents += '<button id="' + i + styling + trackName + '</button>';
     }
 
     playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
-
-    // Initialize tooltips for these buttons.
-    $('[data-toggle="tooltip"]').tooltip();
 }
 
 function playTrack(index) {

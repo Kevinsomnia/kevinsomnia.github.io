@@ -233,6 +233,22 @@ a:hover {
 	-webkit-user-select: none;
 }
 
+.track-list-item {
+	background-color: #564f75a0;
+	border: solid 1px;
+	border-color: #898797;
+	color: #ebebeb;
+	text-align: left;
+	width: 100%;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	border-radius: 1px;
+}
+
 /* TABS
 ------------------------- */
 .nav-pills .nav-link {
