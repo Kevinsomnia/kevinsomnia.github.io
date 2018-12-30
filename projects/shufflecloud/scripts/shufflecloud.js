@@ -61,11 +61,10 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     SC.get('/resolve', { url: link }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
-                scController.playlist = result.tracks;
+                scController.playlist = fillPlaylist(result.tracks);
 
                 if (scController.onRetrieved !== null) {
                     scController.onRetrieved();
-                    return;
                 }
             }
             else {
@@ -107,9 +106,6 @@ function onPressStart() {
 }
 
 function onPlaylistLoadSuccess() {
-    console.log('*** Playlist Info ***');
-    console.log(scController.playlist);
-    
     if (loadingNotification != null) {
         loadingNotification.update({
             message: 'Shuffling playlist...'
@@ -129,9 +125,41 @@ function onPlaylistLoadFail(errorMsg) {
     }
 }
 
+function fillPlaylist(tracks) {
+    scController.playlist = [];
+    var trackCount = tracks.length;
+
+    for(var i = 0; i < trackCount; i++) {
+        scController.playlist.push({origIndex: i, data: tracks[i]})
+    }
+}
+
 function shufflePlaylist() {
     // In-place shuffling.
-    console.log('Shuffle stuff');
+    console.log('Shuffling playlist...');
+    var trackCount = scController.playlist.length;
+
+    for(var i = 0; i < trackCount; i++) {
+        // Choose random index to swap with.
+        var swapWith = randomInt(0, trackCount - 1);
+
+        if(swapWith == i) {
+            swapWith++;
+
+            if(swapWith >= trackCount) {
+                swapWith = 0; // Wrap around.
+            }
+        }
+
+        console.log('swapping index ' + i + ' and ' + swapWith);
+
+        // Swap both elements.
+        var temp = scController.playlist[i];
+        scController.playlist[i] = scController.playlist[swapWith];
+        scController.playlist[swapWith] = temp;
+    }
+
+    console.log(scController.playlist);
     
     if (loadingNotification != null) {
         loadingNotification.close();
@@ -180,4 +208,12 @@ function toTimerFormat(seconds) {
 
 function clamp(val, min, max) {
     return Math.min(Math.max(min, val), max)
+}
+
+function lerp(a, b, t) {
+    return a + ((b - a) * t);
+}
+
+function randomInt(min, max) {
+    return Math.floor(lerp(min, max + 1, Math.random()));
 }
