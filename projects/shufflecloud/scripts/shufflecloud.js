@@ -21,7 +21,7 @@ $('#startBtn').click(function (e) {
 $('#closeSettings').click(function (e) {
     var newId = $('#cIdInput').val();
 
-    if(newId != scClientID) {
+    if (newId != scClientID) {
         scClientID = newId;
         localStorage.setItem('scClientId', scClientID);
 
@@ -59,25 +59,28 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
 
     // Resolve to get playlist from link.
     SC.get('/resolve', { url: link }, function (result) {
-        console.log(result);
-        
-        if (!result.errors && result.kind == 'playlist') {
-            scController.playlist = result.tracks;
+        if (result) {
+            if (!result.errors && result.kind == 'playlist') {
+                scController.playlist = result.tracks;
 
-            if (scController.onRetrieved !== null) {
-                scController.onRetrieved();
-                return;
+                if (scController.onRetrieved !== null) {
+                    scController.onRetrieved();
+                    return;
+                }
+            }
+            else {
+                if (scController.onFailed !== null) {
+                    if (result.errors) {
+                        scController.onFailed(result.errors[0].error_message);
+                    }
+                    else {
+                        scController.onFailed(result.kind + ' is unsupported.');
+                    }
+                }
             }
         }
         else {
-            if (scController.onFailed !== null) {
-                if (result.errors) {
-                    scController.onFailed(result.errors[0].error_message);
-                }
-                else {
-                    scController.onFailed(result.kind + ' is unsupported.');
-                }
-            }
+            scController.onFailed('Unauthorized! Make sure you set the client ID in the settings menu! (or you may need to assign a new one)');
         }
     });
 }
@@ -106,6 +109,12 @@ function onPressStart() {
 function onPlaylistLoadSuccess() {
     console.log('*** Playlist Info ***');
     console.log(scController.playlist);
+    
+    if (loadingNotification != null) {
+        loadingNotification.update({
+            message: 'Shuffling playlist...'
+        });
+    }
 
     shufflePlaylist();
 }
@@ -123,6 +132,11 @@ function onPlaylistLoadFail(errorMsg) {
 function shufflePlaylist() {
     // In-place shuffling.
     console.log('Shuffle stuff');
+    
+    if (loadingNotification != null) {
+        loadingNotification.close();
+        loadingNotification = null;
+    }
 }
 
 function displayError(msg) {
