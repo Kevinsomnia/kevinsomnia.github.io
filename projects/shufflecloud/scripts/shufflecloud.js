@@ -171,7 +171,7 @@ function shufflePlaylist(iterations) {
 }
 
 function displayPlaylist() {
-    print(scController.metadata);
+    console.log(scController.metadata);
     //playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + '</strong>';
     playlistTitleUI.innerHTML = '<strong>My Playlist</strong>';
 
