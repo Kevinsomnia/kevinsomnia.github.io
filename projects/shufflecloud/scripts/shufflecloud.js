@@ -61,7 +61,7 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     SC.get('/resolve', { url: link }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
-                scController.playlist = fillPlaylist(result.tracks);
+                fillPlaylist(result.tracks);
 
                 if (scController.onRetrieved !== null) {
                     scController.onRetrieved();
@@ -112,7 +112,8 @@ function onPlaylistLoadSuccess() {
         });
     }
 
-    shufflePlaylist();
+    // Shuffle 3 times to make sure its "random" enough.
+    shufflePlaylist(3);
 }
 
 function onPlaylistLoadFail(errorMsg) {
@@ -126,43 +127,40 @@ function onPlaylistLoadFail(errorMsg) {
 }
 
 function fillPlaylist(tracks) {
-    result = [];
+    scController.playlist = [];
     var trackCount = tracks.length;
 
-    for(var i = 0; i < trackCount; i++) {
-        result.push({origIndex: i, data: tracks[i]})
+    for (var i = 0; i < trackCount; i++) {
+        scController.playlist.push({ origIndex: i, data: tracks[i] })
     }
-
-    return result;
 }
 
-function shufflePlaylist() {
+function shufflePlaylist(iterations) {
     // In-place shuffling.
     console.log('Shuffling playlist...');
     var trackCount = scController.playlist.length;
 
-    for(var i = 0; i < trackCount; i++) {
-        // Choose random index to swap with.
-        var swapWith = randomInt(0, trackCount - 1);
+    for (var iter = 0; iter < iterations; iter++) {
+        for (var i = 0; i < trackCount; i++) {
+            // Choose random index to swap with.
+            var swapWith = randomInt(0, trackCount);
 
-        if(swapWith == i) {
-            swapWith++;
-
-            if(swapWith >= trackCount) {
-                swapWith = 0; // Wrap around.
+            if (swapWith == i) {
+                swapWith++;
             }
+
+            if (swapWith >= trackCount) {
+                swapWith -= trackCount; // Wrap around.
+            }
+
+            // Swap both elements.
+            var temp = scController.playlist[i];
+            scController.playlist[i] = scController.playlist[swapWith];
+            scController.playlist[swapWith] = temp;
         }
-
-        console.log('swapping index ' + i + ' and ' + swapWith);
-
-        // Swap both elements.
-        var temp = scController.playlist[i];
-        scController.playlist[i] = scController.playlist[swapWith];
-        scController.playlist[swapWith] = temp;
     }
-
     console.log(scController.playlist);
-    
+
     if (loadingNotification != null) {
         loadingNotification.close();
         loadingNotification = null;
