@@ -172,12 +172,14 @@ function shufflePlaylist(iterations) {
 
 function displayPlaylist() {
     console.log(scController.metadata);
-    //playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + '</strong>';
-    playlistTitleUI.innerHTML = '<strong>My Playlist</strong>';
+    var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
+
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' (' + toTimerFormat(playlistDurationInSeconds) + ')</strong>';
 
     var listContents = '';
-    
-    for (var i = 0; i < fileCount; i++) {
+    var trackCount = scController.playlist.length;
+
+    for (var i = 0; i < trackCount; i++) {
         var styling = '" class="file-list-item file-list-item-notsup" onclick="playTrack(' + i + ')"';
         styling += ' data-toggle="tooltip" data-placement="bottom" data-html="true"';
         styling += ' title="Great tooltip text"';
@@ -188,7 +190,7 @@ function displayPlaylist() {
     }
 
     playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
-    
+
     // Initialize tooltips for these buttons.
     $('[data-toggle="tooltip"]').tooltip();
 }
@@ -225,15 +227,28 @@ function setIsBusy(busy) {
 
 // HELPERS
 function toTimerFormat(seconds) {
-    seconds = Math.round(seconds); // no milliseconds.
+    seconds = Math.ceil(seconds); // no milliseconds.
+    var hr = Math.floor(seconds / 3600);
     var min = Math.floor(seconds / 60);
     var sec = seconds % 60;
 
-    if (sec < 10) {
-        return min + ':0' + sec;
+    var result = hr.toString();
+
+    if (min < 10) {
+        result += ':0' + min;
+    }
+    else {
+        result += ':' + min;
     }
 
-    return min + ':' + sec;
+    if (sec < 10) {
+        result += ':0' + sec;
+    }
+    else {
+        result += ':' + sec;
+    }
+
+    return result;
 }
 
 function clamp(val, min, max) {
