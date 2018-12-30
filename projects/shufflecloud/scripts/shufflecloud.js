@@ -3,6 +3,8 @@ var audioPlayer = document.getElementById('audioPlayer');
 var helpButton = document.getElementById('helpBtn');
 var startButton = document.getElementById('startBtn');
 var settingsButton = document.getElementById('settingsBtn');
+var playlistTitleUI = document.getElementById('playlistTitle');
+var playlistUI = document.getElementById('playlist');
 
 // Audio controller variables.
 var scClientID = '';
@@ -38,7 +40,7 @@ function loadSettings() {
 
 function initController() {
     // Create controller object for this session.
-    scController = { clientID: scClientID, playlist: null, onRetrieved: null, onFailed: null };
+    scController = { clientID: scClientID, metadata: null, playlist: null, onRetrieved: null, onFailed: null };
     SC.initialize({ client_id: scClientID });
 }
 
@@ -61,6 +63,7 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     SC.get('/resolve', { url: link }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
+                scController.metadata = result;
                 fillPlaylist(result.tracks);
 
                 if (scController.onRetrieved !== null) {
@@ -114,6 +117,8 @@ function onPlaylistLoadSuccess() {
 
     // Shuffle 3 times to make sure its "random" enough.
     shufflePlaylist(3);
+    displayPlaylist();
+    playTrack(0); // Start with first song.
 }
 
 function onPlaylistLoadFail(errorMsg) {
@@ -136,8 +141,7 @@ function fillPlaylist(tracks) {
 }
 
 function shufflePlaylist(iterations) {
-    // In-place shuffling.
-    console.log('Shuffling playlist...');
+    // In-place shuffling for playlist array (roughly O(n)).
     var trackCount = scController.playlist.length;
 
     for (var iter = 0; iter < iterations; iter++) {
@@ -159,12 +163,38 @@ function shufflePlaylist(iterations) {
             scController.playlist[swapWith] = temp;
         }
     }
-    console.log(scController.playlist);
 
     if (loadingNotification != null) {
         loadingNotification.close();
         loadingNotification = null;
     }
+}
+
+function displayPlaylist() {
+    print(scController.metadata);
+    //playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + '</strong>';
+    playlistTitleUI.innerHTML = '<strong>My Playlist</strong>';
+
+    var listContents = '';
+    
+    for (var i = 0; i < fileCount; i++) {
+        var styling = '" class="file-list-item file-list-item-notsup" onclick="playTrack(' + i + ')"';
+        styling += ' data-toggle="tooltip" data-placement="bottom" data-html="true"';
+        styling += ' title="Great tooltip text"';
+        styling += '>';
+
+        var trackName = i.toString();
+        listContents += '<button id="' + i + styling + trackName + '</button>';
+    }
+
+    playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
+    
+    // Initialize tooltips for these buttons.
+    $('[data-toggle="tooltip"]').tooltip();
+}
+
+function playTrack(index) {
+    console.log('playing track from playlist: ' + scController.playlist[index]);
 }
 
 function displayError(msg) {
