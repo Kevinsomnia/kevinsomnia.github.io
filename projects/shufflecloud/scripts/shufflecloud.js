@@ -64,7 +64,7 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
                 scController.metadata = result;
-                fillPlaylist(result.tracks);
+                scController.playlist = result.tracks;
 
                 if (scController.onRetrieved !== null) {
                     scController.onRetrieved();
@@ -131,15 +131,6 @@ function onPlaylistLoadFail(errorMsg) {
     }
 }
 
-function fillPlaylist(tracks) {
-    scController.playlist = [];
-    var trackCount = tracks.length;
-
-    for (var i = 0; i < trackCount; i++) {
-        scController.playlist.push({ origIndex: i, data: tracks[i] })
-    }
-}
-
 function shufflePlaylist(iterations) {
     // In-place shuffling for playlist array (roughly O(n)).
     var trackCount = scController.playlist.length;
@@ -174,7 +165,7 @@ function displayPlaylist() {
     console.log(scController.metadata);
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' (' + toTimerFormat(playlistDurationInSeconds) + ')</strong>';
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' (Total Duration: ' + toTimerFormat(playlistDurationInSeconds) + ')</strong>';
 
     var listContents = '';
     var trackCount = scController.playlist.length;
@@ -185,7 +176,7 @@ function displayPlaylist() {
         styling += ' title="Great tooltip text"';
         styling += '>';
 
-        var trackName = i.toString();
+        var trackName = scController.playlist[i].title;
         listContents += '<button id="' + i + styling + trackName + '</button>';
     }
 
@@ -196,7 +187,8 @@ function displayPlaylist() {
 }
 
 function playTrack(index) {
-    console.log('playing track from playlist: ' + scController.playlist[index]);
+    console.log('*** Playing track from playlist ***');
+    console.log(scController.playlist[index]);
 }
 
 function displayError(msg) {
@@ -229,7 +221,7 @@ function setIsBusy(busy) {
 function toTimerFormat(seconds) {
     seconds = Math.ceil(seconds); // no milliseconds.
     var hr = Math.floor(seconds / 3600);
-    var min = Math.floor(seconds / 60);
+    var min = Math.floor((seconds / 60) % 60);
     var sec = seconds % 60;
 
     var result = hr.toString();
