@@ -460,20 +460,3 @@ function smashKey(type) {
 
     }
 }
-
-// HELPERS
-function toTimerFormat(seconds) {
-    seconds = Math.round(seconds); // no milliseconds.
-    var min = Math.floor(seconds / 60);
-    var sec = seconds % 60;
-
-    if (sec < 10) {
-        return min + ':0' + sec;
-    }
-
-    return min + ':' + sec;
-}
-
-function clamp(val, min, max) {
-    return Math.min(Math.max(min, val), max)
-}

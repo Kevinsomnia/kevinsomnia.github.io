@@ -1,7 +1,14 @@
+// Global constants.
+const UPDATE_PLAYER_INTERVAL = 100; // in milliseconds.
+
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
+var currentTimeLabel = document.getElementById('currentTimeLbl');
+var trackDurationLabel = document.getElementById('trackDurationLbl');
+var playerProgSlider = document.getElementById('playerProgSlider');
 var helpButton = document.getElementById('helpBtn');
-var startButton = document.getElementById('startBtn');
+var loadButton = document.getElementById('loadBtn');
+var shuffleButton = document.getElementById('shuffleBtn');
 var settingsButton = document.getElementById('settingsBtn');
 var playlistTitleUI = document.getElementById('playlistTitle');
 var playlistUI = document.getElementById('playlist');
@@ -9,15 +16,12 @@ var playlistUI = document.getElementById('playlist');
 // Audio controller variables.
 var scClientID = '';
 var scController = {};
-var audioCtx = null;
-var songDuration = 0.0;
-var sampleRate = 44100;
 var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
 
-$('#startBtn').click(function (e) {
+$('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
 });
 
@@ -40,9 +44,11 @@ function onWebpageLoaded() {
     $('#scLink').val(localStorage.getItem('scLink'));
 
     // Initialize audio player for audio streaming.
-    audioCtx = new AudioContext();
     musicPlayer.crossOrigin = 'anonymous';
     curTrackIndex = -1;
+
+    // Start player UI update loop.
+    updatePlayerUI();
 }
 
 function initController() {
@@ -224,7 +230,23 @@ function refreshPlaylistUI() {
 }
 
 function updatePlayerUI() {
+    if(curTrackIndex == -1) {
+        currentTimeLabel.innerHTML = '--:--';
+        trackDurationLabel.innerHTML = '--:--';
+    }
+    else {
+        var curPlayerTime = Math.floor(musicPlayer.currentTime);
+        var curPlayerDuration = Math.floor(musicPlayer.duration);
 
+        currentTimeLabel.innerHTML = toTimerFormat(curPlayerTime);
+        trackDurationLabel.innerHTML = toTimerFormat(musicPlayer.duration);
+
+        // Update progress slider.
+        playerProgSlider.max = curPlayerDuration.toString();
+        playerProgSlider.value = curPlayerTime.toString();
+    }
+
+    setTimeout(updatePlayerUI, UPDATE_PLAYER_INTERVAL);
 }
 
 function loadTrackOntoPlayer(index) {
@@ -258,7 +280,7 @@ function cyclePrevTrack() {
         curTrackIndex = scController.playlist.length - 1;
     }
 
-    console.log(scController.playlist[curTrackIndex]);
+    loadTrackOntoPlayer(curTrackIndex);
     refreshPlaylistUI();
 }
 
@@ -288,7 +310,7 @@ function cycleNextTrack() {
         curTrackIndex = 0;
     }
 
-    console.log(scController.playlist[curTrackIndex]);
+    loadTrackOntoPlayer(curTrackIndex);
     refreshPlaylistUI();
 }
 
@@ -316,42 +338,4 @@ function setIsBusy(busy) {
     settingsButton.disabled = busy;
 
     isBusy = busy;
-}
-
-// HELPERS
-function toTimerFormat(seconds) {
-    seconds = Math.ceil(seconds); // no milliseconds.
-    var hr = Math.floor(seconds / 3600);
-    var min = Math.floor((seconds / 60) % 60);
-    var sec = seconds % 60;
-
-    var result = hr.toString();
-
-    if (min < 10) {
-        result += ':0' + min;
-    }
-    else {
-        result += ':' + min;
-    }
-
-    if (sec < 10) {
-        result += ':0' + sec;
-    }
-    else {
-        result += ':' + sec;
-    }
-
-    return result;
-}
-
-function clamp(val, min, max) {
-    return Math.min(Math.max(min, val), max)
-}
-
-function lerp(a, b, t) {
-    return a + ((b - a) * t);
-}
-
-function randomInt(min, max) {
-    return Math.floor(lerp(min, max + 1, Math.random()));
 }
