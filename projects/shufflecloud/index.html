@@ -75,25 +75,25 @@
         <div class="project-container">
             <!-- START BODY UI -->
 
-            <audio id="audioPlayer"></audio>
+            <audio id="musicPlayer"></audio>
 
             <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there). This doesn't work on
                 Firefox yet!</h5>
 
             <div class="row">
-                <div class="col-6">
+                <div class="col-8">
                     <div class="form-group">
                         <input id="scLink" class="form-control" type="text" placeholder="Paste SoundCloud playlist link here (https://www.soundcloud.com/username/sets/playlist-name)">
                     </div>
                 </div>
 
-                <div class="col-2">
+                <div class="col-1" style="padding-right:2px;">
                     <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressLoad()" style="background-color:#2b4964"
                         role="button">Load</button>
                 </div>
 
-                <div class="col-2">
-                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressShuffle()" style="background-color:#2b4964"
+                <div class="col-1" style="padding-left:2px;">
+                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressShuffle()" style="background-color:#41996d"
                         role="button">Shuffle</button>
                 </div>
 
@@ -115,9 +115,9 @@
                 </div>
 
                 <div>
-                    <input type="image" id="playerPrevBtn" alt="Previous" src="images/next.png" style="width:16px;height:16px;transform:scaleX(-1);outline:none;">
-                    <input type="image" id="playerPlayBtn" alt="Play" src="images/play.png" style="width:12px;height:16px;margin-left:1rem;margin-right:1rem;outline:none;">
-                    <input type="image" id="playerNextBtn" alt="Next" src="images/next.png" style="width:16px;height:16px;outline:none;">
+                    <input type="image" id="playerPrevBtn" alt="Previous" onclick="cyclePrevTrack()" src="images/next.png" style="width:16px;height:16px;transform:scaleX(-1);outline:none;">
+                    <input type="image" id="playerPlayBtn" alt="Play" onclick="toggleTrackPlayback()" src="images/play.png" style="width:12px;height:16px;margin-left:1rem;margin-right:1rem;outline:none;">
+                    <input type="image" id="playerNextBtn" alt="Next" onclick="cycleNextTrack()" src="images/next.png" style="width:16px;height:16px;outline:none;">
                 </div>
             </div>
 
@@ -183,7 +183,7 @@
             // Initialize tooltips for the entire page.
             $('[data-toggle="tooltip"]').tooltip();
 
-            loadSettings();
+            onWebpageLoaded();
             initController();
 
             setTimeout(function () {

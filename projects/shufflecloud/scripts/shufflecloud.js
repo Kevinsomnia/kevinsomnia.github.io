@@ -1,5 +1,5 @@
 // HTML elements
-var audioPlayer = document.getElementById('audioPlayer');
+var musicPlayer = document.getElementById('musicPlayer');
 var helpButton = document.getElementById('helpBtn');
 var startButton = document.getElementById('startBtn');
 var settingsButton = document.getElementById('settingsBtn');
@@ -14,8 +14,8 @@ var songDuration = 0.0;
 var sampleRate = 44100;
 var loadingNotification = null;
 var isBusy = false;
-var isPlaying = false;
-var curTrackIndex = 0;
+var isPlayerPlaying = false;
+var curTrackIndex = -1;
 
 $('#startBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -32,21 +32,27 @@ $('#closeSettings').click(function (e) {
     }
 });
 
-function loadSettings() {
+function onWebpageLoaded() {
+    // Load settings.
     scClientID = localStorage.getItem('scClientId');
 
     $('#cIdInput').val(scClientID);
     $('#scLink').val(localStorage.getItem('scLink'));
+
+    // Initialize audio player for audio streaming.
+    audioCtx = new AudioContext();
+    musicPlayer.crossOrigin = 'anonymous';
+    curTrackIndex = -1;
 }
 
 function initController() {
-    // Create controller object for this session.
+    // Create controller object for this client ID.
     scController = { clientID: scClientID, metadata: null, playlist: null, onRetrieved: null, onFailed: null };
     SC.initialize({ client_id: scClientID });
 }
 
-function getStreamUrl() {
-    return scController.playlist.stream_url + '?client_id=' + scController.clientID;
+function getStreamUrl(index) {
+    return scController.playlist[index].stream_url + '?client_id=' + scController.clientID;
 }
 
 function tryGetPlaylist(link, onRetrieved, onFailed) {
@@ -66,6 +72,15 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
             if (!result.errors && result.kind == 'playlist') {
                 scController.metadata = result;
                 scController.playlist = result.tracks;
+
+                var trackCount = scController.playlist.length;
+
+                // Remove tracks from playlist that are not streamable.
+                for(var i = trackCount - 1; i >= 0; i--) {
+                    if(!scController.playlist[i].streamable) {
+                        scController.playlist.splice(i, 1);
+                    }
+                }
 
                 if (scController.onRetrieved !== null) {
                     scController.onRetrieved();
@@ -115,7 +130,7 @@ function onPressShuffle() {
     }
 
     shufflePlaylist();
-    displayPlaylist();
+    refreshPlaylistUI();
 }
 
 function onPlaylistLoadSuccess() {
@@ -123,8 +138,8 @@ function onPlaylistLoadSuccess() {
         loadingNotification.close();
         loadingNotification = null;
     }
-    
-    displayPlaylist();
+
+    refreshPlaylistUI();
     setIsBusy(false);
 }
 
@@ -170,7 +185,7 @@ function shufflePlaylist() {
     }
 }
 
-function displayPlaylist() {
+function refreshPlaylistUI() {
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
     playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | '
@@ -180,10 +195,10 @@ function displayPlaylist() {
     var trackCount = scController.playlist.length;
 
     for (var i = 0; i < trackCount; i++) {
-        var isPlayingTrack = (i == curTrackIndex);
+        var selectedAndPlayingTrack = (isPlayerPlaying && i == curTrackIndex);
         var styling = '" class="track-list-item';
 
-        if (isPlayingTrack) {
+        if (selectedAndPlayingTrack) {
             styling += ' track-list-item-playing"';
         }
         else {
@@ -191,10 +206,10 @@ function displayPlaylist() {
         }
 
         // Add click callback to play this track.
-        styling += ' onclick="playTrack(' + i + ')">';
+        styling += ' onclick="loadTrackOntoPlayer(' + i + ')">';
         var playIcon = '';
 
-        if (isPlayingTrack) {
+        if (selectedAndPlayingTrack) {
             // Display play icon for the current track index.
             playIcon = '<img src="images/play.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
         }
@@ -208,17 +223,73 @@ function displayPlaylist() {
     playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
 }
 
-function updatePlayer() {
+function updatePlayerUI() {
 
 }
 
-function playTrack(index) {
+function loadTrackOntoPlayer(index) {
+    if(!scController || !scController.playlist || index >= scController.playlist.length) {
+        return;
+    }
+
     console.log(scController.playlist[index]);
     curTrackIndex = index;
 
+    // Set new player source to this track's stream URL.
+    musicPlayer.setAttribute('src', getStreamUrl(index));
+    musicPlayer.play();
+    isPlayerPlaying = true;
+
     // Update UI.
-    displayPlaylist();
-    updatePlayer();
+    refreshPlaylistUI();
+    updatePlayerUI();
+}
+
+// Player controls
+function cyclePrevTrack() {
+    if(scController.playlist.length <= 1) {
+        return; // No tracks to cycle.
+    }
+
+    curTrackIndex--;
+
+    if(curTrackIndex < 0) {
+        // Wrap around.
+        curTrackIndex = scController.playlist.length - 1;
+    }
+
+    console.log(scController.playlist[curTrackIndex]);
+    refreshPlaylistUI();
+}
+
+function toggleTrackPlayback() {
+    isPlayerPlaying = !isPlayerPlaying;
+    console.log('now playing: ' + isPlayerPlaying);
+
+    if(isPlayerPlaying) {
+        musicPlayer.play();
+        // Update image to pause button.
+    }
+    else {
+        musicPlayer.pause();
+        // Update image to play button.
+    }
+}
+
+function cycleNextTrack() {
+    if(scController.playlist.length <= 1) {
+        return; // No tracks to cycle.
+    }
+
+    curTrackIndex++;
+
+    if(curTrackIndex >= scController.playlist.length) {
+        // Wrap around.
+        curTrackIndex = 0;
+    }
+
+    console.log(scController.playlist[curTrackIndex]);
+    refreshPlaylistUI();
 }
 
 function displayError(msg) {
