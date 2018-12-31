@@ -251,6 +251,7 @@ a:hover {
 }
 .track-list-item-playing {
 	background-color: #46347233;
+	border-color: #ffffff66;
 }
 
 .music-player {
@@ -276,7 +277,6 @@ a:hover {
 
 /* SLIDERS
 ------------------------- */
-/* The slider itself */
 .slider-main {
 	-webkit-appearance: none;
 	width: 100%;
@@ -292,7 +292,7 @@ a:hover {
 	border: solid 2px;
 	border-radius: 50%;
 	border-color: #333333;
-	background: #7864d4;
+	background: #3f42da;
 	cursor: pointer;
 }
 .slider-main::-moz-range-thumb {
@@ -301,7 +301,7 @@ a:hover {
 	border: solid 2px;
 	border-radius: 50%;
 	border-color: #333333;
-	background: #7864d4;
+	background: #3f42da;
 	cursor: pointer;
 }
 

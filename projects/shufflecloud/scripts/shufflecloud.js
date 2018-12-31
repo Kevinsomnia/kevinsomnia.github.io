@@ -164,10 +164,10 @@ function shufflePlaylist(iterations) {
 }
 
 function displayPlaylist() {
-    console.log(scController.metadata);
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' 
+                                + scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
 
     var listContents = '';
     var trackCount = scController.playlist.length;
@@ -208,7 +208,10 @@ function updatePlayer() {
 function playTrack(index) {
     console.log(scController.playlist[index]);
     curTrackIndex = index;
-    displayPlaylist(); // Update UI.
+
+    // Update UI.
+    displayPlaylist();
+    updatePlayer();
 }
 
 function displayError(msg) {
