@@ -20,6 +20,7 @@ var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
+var loadedTrackIndex = -1;
 
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -45,10 +46,12 @@ function onWebpageLoaded() {
 
     // Initialize audio player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
+    musicPlayer.addEventListener('oncanplay', onTrackLoaded);
     curTrackIndex = -1;
+    loadedTrackIndex = -1;
 
     // Start player UI update loop.
-    updatePlayerUI();
+    playerUpdateLoop();
 }
 
 function initController() {
@@ -82,8 +85,8 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
                 var trackCount = scController.playlist.length;
 
                 // Remove tracks from playlist that are not streamable.
-                for(var i = trackCount - 1; i >= 0; i--) {
-                    if(!scController.playlist[i].streamable) {
+                for (var i = trackCount - 1; i >= 0; i--) {
+                    if (!scController.playlist[i].streamable) {
                         scController.playlist.splice(i, 1);
                     }
                 }
@@ -136,7 +139,6 @@ function onPressShuffle() {
     }
 
     shufflePlaylist();
-    refreshPlaylistUI();
 }
 
 function onPlaylistLoadSuccess() {
@@ -171,8 +173,12 @@ function shufflePlaylist() {
         // Choose random index to swap with.
         var swapWith = randomInt(0, trackCount);
 
-        if (swapWith == i) {
+        if (i == swapWith) {
             swapWith++;
+        }
+
+        if (i == curTrackIndex) {
+            curTrackIndex = swapWith;
         }
 
         if (swapWith >= trackCount) {
@@ -184,6 +190,9 @@ function shufflePlaylist() {
         scController.playlist[i] = scController.playlist[swapWith];
         scController.playlist[swapWith] = temp;
     }
+
+    refreshPlaylistUI();
+    scrollToCurrentTrack();
 
     if (loadingNotification != null) {
         loadingNotification.close();
@@ -229,14 +238,23 @@ function refreshPlaylistUI() {
     playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
 }
 
-function updatePlayerUI() {
-    if(curTrackIndex == -1) {
+function scrollToCurrentTrack() {
+    if(curTrackIndex <= -1 || !scController || !scController.playlist || curTrackIndex >= scController.playlist.length) {
+        return; // No track to scroll to.
+    }
+
+    var elementID = 'trackBtn' + curTrackIndex;
+    document.getElementById(elementID).scrollIntoView();
+}
+
+function playerUpdateLoop() {
+    if (curTrackIndex == -1) {
         currentTimeLabel.innerHTML = '--:--';
         trackDurationLabel.innerHTML = '--:--';
     }
     else {
         var curPlayerTime = Math.floor(musicPlayer.currentTime);
-        var curPlayerDuration = Math.floor(musicPlayer.duration);
+        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? Math.floor(musicPlayer.duration) : 0;
 
         currentTimeLabel.innerHTML = toTimerFormat(curPlayerTime);
         trackDurationLabel.innerHTML = toTimerFormat(musicPlayer.duration);
@@ -244,38 +262,52 @@ function updatePlayerUI() {
         // Update progress slider.
         playerProgSlider.max = curPlayerDuration.toString();
         playerProgSlider.value = curPlayerTime.toString();
+
+        // Automatically go to the next track in playlist.
+        if (isPlayerPlaying && musicPlayer.ended && curTrackIndex == loadedTrackIndex) {
+            console.log('Go to next track');
+            cycleNextTrack();
+        }
     }
 
-    setTimeout(updatePlayerUI, UPDATE_PLAYER_INTERVAL);
+    setTimeout(playerUpdateLoop, UPDATE_PLAYER_INTERVAL);
 }
 
 function loadTrackOntoPlayer(index) {
-    if(!scController || !scController.playlist || index >= scController.playlist.length) {
+    if (isBusy || !scController || !scController.playlist || index >= scController.playlist.length) {
         return;
     }
 
-    console.log(scController.playlist[index]);
+    console.log('Cur track index: ' + index);
     curTrackIndex = index;
 
     // Set new player source to this track's stream URL.
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.play();
     isPlayerPlaying = true;
+    setIsBusy(true);
 
     // Update UI.
     refreshPlaylistUI();
-    updatePlayerUI();
+    playerUpdateLoop();
+    scrollToCurrentTrack();
+}
+
+function onTrackLoaded() {
+    console.log('Track can be played. Loaded track: ' + curTrackIndex);
+    setIsBusy(false);
+    loadedTrackIndex = curTrackIndex;
 }
 
 // Player controls
 function cyclePrevTrack() {
-    if(scController.playlist.length <= 1) {
+    if (isBusy || scController.playlist.length <= 1) {
         return; // No tracks to cycle.
     }
 
     curTrackIndex--;
 
-    if(curTrackIndex < 0) {
+    if (curTrackIndex < 0) {
         // Wrap around.
         curTrackIndex = scController.playlist.length - 1;
     }
@@ -285,10 +317,17 @@ function cyclePrevTrack() {
 }
 
 function toggleTrackPlayback() {
-    isPlayerPlaying = !isPlayerPlaying;
-    console.log('now playing: ' + isPlayerPlaying);
+    if (isBusy || !scController || !scController.playlist || scController.playlist.length == 0) {
+        return;
+    }
 
-    if(isPlayerPlaying) {
+    isPlayerPlaying = !isPlayerPlaying;
+
+    if (isPlayerPlaying) {
+        if (curTrackIndex < 0) {
+            loadTrackOntoPlayer(0);
+        }
+
         musicPlayer.play();
         // Update image to pause button.
     }
@@ -299,13 +338,13 @@ function toggleTrackPlayback() {
 }
 
 function cycleNextTrack() {
-    if(scController.playlist.length <= 1) {
+    if (isBusy || scController.playlist.length <= 1) {
         return; // No tracks to cycle.
     }
 
     curTrackIndex++;
 
-    if(curTrackIndex >= scController.playlist.length) {
+    if (curTrackIndex >= scController.playlist.length) {
         // Wrap around.
         curTrackIndex = 0;
     }
