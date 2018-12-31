@@ -227,7 +227,6 @@ function shufflePlaylist() {
     }
 
     refreshPlaylistUI();
-    scrollToCurrentTrack();
 
     if (loadingNotification != null) {
         loadingNotification.close();
@@ -295,11 +294,11 @@ function playerUpdateLoop(timestamp) {
         var curTimeText = toTimerFormat(curPlayerTime);
 
         // Cache label text for performance (setting innerHTML is slow).
-        if(cachedCurTimeText !== curTimeText) {
+        if (cachedCurTimeText !== curTimeText) {
             currentTimeLabel.innerHTML = curTimeText;
             cachedCurTimeText = curTimeText;
         }
-        
+
         playerProgSlider.value = curPlayerTime.toString();
     }
 
@@ -315,10 +314,10 @@ function playerUpdateLoop(timestamp) {
     artistNameLabel.style.left = Math.round(lerp(0, -artistNameMoveDist, animTime)) + 'px';
     scrollingTextTimer += dt / TEXT_SCROLL_DURATION;
 
-    if(scrollingTextTimer >= 1.0) {
+    if (scrollingTextTimer >= 1.0) {
         scrollingTextTimer = 0.0; // Reset animation.
     }
-    
+
     requestAnimationFrame(playerUpdateLoop);
     lastTimestamp = timestamp;
 }
@@ -346,7 +345,6 @@ function loadTrackOntoPlayer(index) {
 
     // Update UI.
     updateTrackInfoUI();
-    refreshPlaylistUI();
     scrollToCurrentTrack();
 }
 
@@ -357,11 +355,6 @@ function updateTrackInfoUI() {
         trackArtwork.src = '../../images/shufflecloud.jpg';
         trackNameLabel.innerHTML = 'Track Name';
         artistNameLabel.innerHTML = 'Artist Name';
-
-        currentTimeLabel.innerHTML = '--:--';
-        trackDurationLabel.innerHTML = '--:--';
-        playerProgSlider.max = '0.02';
-        playerProgSlider.value = '0';
     }
     else {
         // Update static track elements (basically everything except for the current time).
@@ -369,16 +362,22 @@ function updateTrackInfoUI() {
         trackArtwork.src = scController.playlist[curTrackIndex].artwork_url;
         trackNameLabel.innerHTML = scController.playlist[curTrackIndex].title;
         artistNameLabel.innerHTML = scController.playlist[curTrackIndex].user.username;
-
-        // Update track duration on label and slider.
-        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
-        trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
-        playerProgSlider.max = curPlayerDuration.toString();
     }
+
+    // Reset time labels and slider (we need to wait for the track to finish loading onto player, see onTrackLoaded below).
+    currentTimeLabel.innerHTML = '0:00';
+    trackDurationLabel.innerHTML = '--:--';
+    playerProgSlider.max = playerProgSlider.step.toString();
+    playerProgSlider.value = '0';
 }
 
 function onTrackLoaded() {
     setIsBusy(false);
+
+    // Update track duration on label and slider.
+    var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
+    trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
+    playerProgSlider.max = curPlayerDuration.toString();
 }
 
 // Player controls
@@ -453,7 +452,7 @@ function clearCurrentTrack() {
     musicPlayer.src = '';
     isPlayerPlaying = false;
     curTrackIndex = -1;
-    
+
     // Clear cached label texts.
     cachedCurTimeText = '';
 
