@@ -288,7 +288,6 @@ function scrollToCurrentTrack() {
     document.getElementById(elementID).scrollIntoView();
 }
 
-
 function playerUpdateLoop(timestamp) {
     if (curTrackIndex > -1) {
         // Update current time for label and slider.
@@ -366,10 +365,10 @@ function updateTrackInfoUI() {
     }
     else {
         // Update static track elements (basically everything except for the current time).
-        trackPermalink.href = scController.playlist[index].permalink_url;
-        trackArtwork.src = scController.playlist[index].artwork_url;
-        trackNameLabel.innerHTML = scController.playlist[index].title;
-        artistNameLabel.innerHTML = scController.playlist[index].user.username;
+        trackPermalink.href = scController.playlist[curTrackIndex].permalink_url;
+        trackArtwork.src = scController.playlist[curTrackIndex].artwork_url;
+        trackNameLabel.innerHTML = scController.playlist[curTrackIndex].title;
+        artistNameLabel.innerHTML = scController.playlist[curTrackIndex].user.username;
 
         // Update track duration on label and slider.
         var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
