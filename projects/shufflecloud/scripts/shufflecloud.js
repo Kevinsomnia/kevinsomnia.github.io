@@ -22,7 +22,6 @@ var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
-var loadedTrackIndex = -1;
 
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -49,8 +48,8 @@ function onWebpageLoaded() {
     // Initialize audio player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
     musicPlayer.addEventListener('loadeddata', onTrackLoaded);
+    musicPlayer.addEventListener('onended', onTrackEnded);
     curTrackIndex = -1;
-    loadedTrackIndex = -1;
 
     // Start player UI update loop.
     playerUpdateLoop();
@@ -270,15 +269,17 @@ function playerUpdateLoop() {
         // Update progress slider.
         playerProgSlider.max = curPlayerDuration.toString();
         playerProgSlider.value = curPlayerTime.toString();
-
-        // Automatically go to the next track in playlist.
-        if (isPlayerPlaying && musicPlayer.ended && curTrackIndex == loadedTrackIndex) {
-            console.log('Go to next track');
-            cycleNextTrack();
-        }
     }
 
     setTimeout(playerUpdateLoop, UPDATE_PLAYER_INTERVAL);
+}
+
+function onTrackEnded() {
+    // Automatically go to the next track in playlist.
+    if (!isBusy && isPlayerPlaying) {
+        console.log('Go to next track');
+        cycleNextTrack();
+    }
 }
 
 function loadTrackOntoPlayer(index) {
@@ -302,9 +303,8 @@ function loadTrackOntoPlayer(index) {
 }
 
 function onTrackLoaded() {
-    console.log('Track can be played. Loaded track: ' + curTrackIndex);
+    console.log('Track is loaded. Returning control.');
     setIsBusy(false);
-    loadedTrackIndex = curTrackIndex;
 }
 
 // Player controls
