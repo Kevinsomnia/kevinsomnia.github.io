@@ -178,8 +178,11 @@ function shufflePlaylist() {
             swapWith++;
         }
 
-        if (i == curTrackIndex) {
+        if (curTrackIndex == i) {
             curTrackIndex = swapWith;
+        }
+        else if (curTrackIndex == swapWith) {
+            curTrackIndex = i;
         }
 
         if (swapWith >= trackCount) {
