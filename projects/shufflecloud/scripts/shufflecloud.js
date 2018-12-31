@@ -34,6 +34,9 @@ var playerVolume = 1.0;
 var scrollingTextTimer = 0.0;
 var lastTimestamp = 0.0;
 
+// Cached HTML variables that are constantly updating.
+var cachedCurTimeText = '';
+
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
 });
@@ -69,8 +72,8 @@ function onWebpageLoaded() {
     musicPlayer.addEventListener('loadeddata', onTrackLoaded);
     musicPlayer.addEventListener('ended', onTrackEnded);
     musicPlayer.volume = playerVolume;
-    curTrackIndex = -1;
     scrollingTextTimer = 0.0;
+    clearCurrentTrack();
 
     // Start player UI update loop.
     lastTimestamp = performance.now();
@@ -173,11 +176,7 @@ function onPlaylistLoadSuccess() {
     }
 
     // Reset current track and stop music playback.
-    musicPlayer.pause();
-    musicPlayer.currentTime = 0.0;
-    musicPlayer.src = '';
-    isPlayerPlaying = false;
-    curTrackIndex = -1;
+    clearCurrentTrack();
 
     refreshPlaylistUI();
     setIsBusy(false);
@@ -289,27 +288,19 @@ function scrollToCurrentTrack() {
     document.getElementById(elementID).scrollIntoView();
 }
 
+
 function playerUpdateLoop(timestamp) {
-    if (curTrackIndex == -1) {
-        // No track selected. Reset to default values.
-        trackArtwork.src = '../../images/shufflecloud.jpg';
-        trackNameLabel.innerHTML = 'Track Name';
-        artistNameLabel.innerHTML = 'Artist Name';
-
-        currentTimeLabel.innerHTML = '--:--';
-        trackDurationLabel.innerHTML = '--:--';
-        playerProgSlider.max = '0.02';
-        playerProgSlider.value = '0';
-    }
-    else {
+    if (curTrackIndex > -1) {
+        // Update current time for label and slider.
         var curPlayerTime = musicPlayer.currentTime;
-        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
+        var curTimeText = toTimerFormat(curPlayerTime);
 
-        currentTimeLabel.innerHTML = toTimerFormat(curPlayerTime);
-        trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
-
-        // Update progress slider.
-        playerProgSlider.max = curPlayerDuration.toString();
+        // Cache label text for performance (setting innerHTML is slow).
+        if(cachedCurTimeText !== curTimeText) {
+            currentTimeLabel.innerHTML = curTimeText;
+            cachedCurTimeText = curTimeText;
+        }
+        
         playerProgSlider.value = curPlayerTime.toString();
     }
 
@@ -328,7 +319,7 @@ function playerUpdateLoop(timestamp) {
     if(scrollingTextTimer >= 1.0) {
         scrollingTextTimer = 0.0; // Reset animation.
     }
-
+    
     requestAnimationFrame(playerUpdateLoop);
     lastTimestamp = timestamp;
 }
@@ -352,17 +343,39 @@ function loadTrackOntoPlayer(index) {
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.currentTime = 0.0;
     setIsBusy(true);
-    // Set to play.
-    toggleTrackPlayback();
+    toggleTrackPlayback(); // Start playing.
 
     // Update UI.
-    trackPermalink.href = scController.playlist[index].permalink_url;
-    trackArtwork.src = scController.playlist[index].artwork_url;
-    trackNameLabel.innerHTML = scController.playlist[index].title;
-    artistNameLabel.innerHTML = scController.playlist[index].user.username;
-
+    updateTrackInfoUI();
     refreshPlaylistUI();
     scrollToCurrentTrack();
+}
+
+function updateTrackInfoUI() {
+    if (curTrackIndex <= -1) {
+        // No track selected. Reset to default values.
+        trackPermalink.href = '';
+        trackArtwork.src = '../../images/shufflecloud.jpg';
+        trackNameLabel.innerHTML = 'Track Name';
+        artistNameLabel.innerHTML = 'Artist Name';
+
+        currentTimeLabel.innerHTML = '--:--';
+        trackDurationLabel.innerHTML = '--:--';
+        playerProgSlider.max = '0.02';
+        playerProgSlider.value = '0';
+    }
+    else {
+        // Update static track elements (basically everything except for the current time).
+        trackPermalink.href = scController.playlist[index].permalink_url;
+        trackArtwork.src = scController.playlist[index].artwork_url;
+        trackNameLabel.innerHTML = scController.playlist[index].title;
+        artistNameLabel.innerHTML = scController.playlist[index].user.username;
+
+        // Update track duration on label and slider.
+        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
+        trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
+        playerProgSlider.max = curPlayerDuration.toString();
+    }
 }
 
 function onTrackLoaded() {
@@ -433,6 +446,20 @@ function cycleNextTrack() {
 
     loadTrackOntoPlayer(curTrackIndex);
     refreshPlaylistUI();
+}
+
+function clearCurrentTrack() {
+    musicPlayer.pause();
+    musicPlayer.currentTime = 0.0;
+    musicPlayer.src = '';
+    isPlayerPlaying = false;
+    curTrackIndex = -1;
+    
+    // Clear cached label texts.
+    cachedCurTimeText = '';
+
+    // Update UI.
+    updateTrackInfoUI();
 }
 
 function displayError(msg) {
