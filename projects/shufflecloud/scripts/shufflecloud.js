@@ -289,6 +289,10 @@ function scrollToCurrentTrack() {
 
 function playerUpdateLoop() {
     if (curTrackIndex == -1) {
+        trackArtwork.src = '../../images/shufflecloud.jpg';
+        trackNameLabel.innerHTML = 'Track Name';
+        artistNameLabel.innerHTML = 'Artist Name';
+
         currentTimeLabel.innerHTML = '--:--';
         trackDurationLabel.innerHTML = '--:--';
     }
@@ -319,7 +323,7 @@ function playerUpdateLoop() {
     var dt = UPDATE_PLAYER_INTERVAL / 1000.0; // time elapsed in seconds.
 
     // Scroll from 25% to 75% of animation time.
-    var animTime = inverseLerp(0.25, 0.75, scrollingTextTimer);
+    var animTime = inverseLerp(0.15, 0.85, scrollingTextTimer);
     trackNameLabel.style.left = Math.round(lerp(0, -trackNameMoveDist, animTime)) + 'px';
     artistNameLabel.style.left = Math.round(lerp(0, -artistNameMoveDist, animTime)) + 'px';
     scrollingTextTimer += dt / TEXT_SCROLL_DURATION;
