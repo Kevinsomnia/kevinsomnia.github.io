@@ -258,7 +258,7 @@ function loadTrackOntoPlayer(index) {
     curTrackIndex = index;
 
     // Set new player source to this track's stream URL.
-    musicPlayer.setAttribute('src', getStreamUrl(index));
+    musicPlayer.src = getStreamUrl(index);
     musicPlayer.play();
     isPlayerPlaying = true;
 
@@ -334,7 +334,8 @@ function displayError(msg) {
 
 function setIsBusy(busy) {
     helpButton.disabled = busy;
-    startButton.disabled = busy;
+    loadButton.disabled = busy;
+    shuffleButton.disabled = busy;
     settingsButton.disabled = busy;
 
     isBusy = busy;
