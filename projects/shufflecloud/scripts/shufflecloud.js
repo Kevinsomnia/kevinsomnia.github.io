@@ -1,6 +1,6 @@
 // Global constants.
 const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
-const TEXT_SCROLL_DURATION = 8.0; // in seconds.
+const TEXT_SCROLL_DURATION = 7.5; // in seconds.
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -308,8 +308,8 @@ function playerUpdateLoop(timestamp) {
     var artistNameMoveDist = Math.max(0, artistNameLabel.clientWidth - trackLblParentWidth);
     var dt = (timestamp - lastTimestamp) / 1000.0; // time elapsed in seconds.
 
-    // Scroll from 25% to 75% of animation time.
-    var animTime = inverseLerp(0.15, 0.85, scrollingTextTimer);
+    // Scroll from 17.5% to 82.5% of the animation time.
+    var animTime = inverseLerp(0.175, 0.825, scrollingTextTimer);
     trackNameLabel.style.left = Math.round(lerp(0, -trackNameMoveDist, animTime)) + 'px';
     artistNameLabel.style.left = Math.round(lerp(0, -artistNameMoveDist, animTime)) + 'px';
     scrollingTextTimer += dt / TEXT_SCROLL_DURATION;
@@ -340,6 +340,7 @@ function loadTrackOntoPlayer(index) {
     isPlayerPlaying = false;
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.currentTime = 0.0;
+    scrollingTextTimer = 0.0; // Reset scrolling text.
     setIsBusy(true);
     toggleTrackPlayback(); // Start playing.
 
