@@ -100,7 +100,7 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
                 scController.playlist = result.tracks;
 
                 // Update playlist link.
-                trackPermalink.href = link;
+                playlistPermalink.href = link;
                 var trackCount = scController.playlist.length;
 
                 // Remove tracks from playlist that are not streamable.
