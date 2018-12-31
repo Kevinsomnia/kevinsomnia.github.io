@@ -166,7 +166,7 @@ function displayPlaylist() {
     console.log(scController.metadata);
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' (Total Duration: ' + toTimerFormat(playlistDurationInSeconds) + ')</strong>';
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
 
     var listContents = '';
     var trackCount = scController.playlist.length;
@@ -175,7 +175,7 @@ function displayPlaylist() {
         var isPlayingTrack = (i == curTrackIndex);
         var styling = '" class="track-list-item';
 
-        if(isPlayingTrack) {
+        if (isPlayingTrack) {
             styling += ' track-list-item-playing"';
         }
         else {
@@ -186,13 +186,13 @@ function displayPlaylist() {
         styling += ' onclick="playTrack(' + i + ')">';
         var playIcon = '';
 
-        if(isPlayingTrack) {
+        if (isPlayingTrack) {
             // Display play icon for the current track index.
-            playIcon = '<img src="../images/play.png" style="width:16px;height:16px;margin-right:5px;margin-bottom:3px;>';
+            playIcon = '<img src="images/play.png" style="width:16px;height:16px;margin-right:5px;margin-bottom:3px;">';
         }
 
         var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
-        var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.metadata.user.username + '</div>';
+        var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.playlist[i].user.username + '</div>';
 
         listContents += '<button id="trackBtn' + i + styling + playIcon + trackName + uploaderName + '</button>';
     }

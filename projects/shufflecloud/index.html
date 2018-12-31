@@ -98,8 +98,9 @@
 
             <div class="music-player">
                 This is a music player
-                <input type="text" id="playerProgressSlider" data-slider-id='progSlider' data-slider-min="0" data-slider-max="60" data-slider-step="1" data-slider-value="0"/>
-                <input type="image" id="playerPlayBtn" alt="Play" src="../images/play.png">
+                <input type="text" id="playerProgSlider" data-slider-id='progSlider' data-slider-min="0"
+                    data-slider-max="60" data-slider-step="1" data-slider-value="0" />
+                <input type="image" id="playerPlayBtn" alt="Play" src="images/play.png">
             </div>
 
             <!-- END UI -->
@@ -166,6 +167,12 @@
 
             loadSettings();
             initController();
+
+            $('#playerProgSlider').slider({
+                formatter: function (value) {
+                    return getTimerFormat(value) + ' / ' + getTimerFormat(300);
+                }
+            });
 
             setTimeout(function () {
                 // Fade in page.
