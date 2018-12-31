@@ -12,6 +12,7 @@
     <!-- Bootstrap and page CSS -->
     <link href="../../styles/bootstrap.min.css" rel="stylesheet">
     <link href="../../styles/animate.min.css" rel="stylesheet">
+    <link href="../../styles/bootstrap-slider.min.css" rel="stylesheet">
     <link href="../../styles/main.css" rel="stylesheet">
 </head>
 
@@ -95,6 +96,12 @@
             <p id="playlistTitle"></p>
             <p id="playlist" class="scrollable-v" style="height:60vh"></p>
 
+            <div class="music-player">
+                This is a music player
+                <input type="text" id="playerProgressSlider" data-slider-id='progSlider' data-slider-min="0" data-slider-max="60" data-slider-step="1" data-slider-value="0"/>
+                <input type="image" id="playerPlayBtn" alt="Play" src="../images/play.png">
+            </div>
+
             <!-- END UI -->
         </div> <!-- /project-body -->
     </main>
@@ -147,6 +154,7 @@
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/bootstrap-notify.min.js"></script>
+    <script src="../../scripts/bootstrap-slider.min.js"></script>
     <script src="https://connect.soundcloud.com/sdk.js"></script>
     <script src="scripts/shufflecloud.js"></script>
 

@@ -234,19 +234,30 @@ a:hover {
 }
 
 .track-list-item {
-	background-color: #564f75a0;
+	background-color: #00000033;
 	border: solid 1px;
-	border-color: #898797;
+	border-color: #ffffff33;
 	color: #ebebeb;
 	text-align: left;
 	width: 100%;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding-left: 8px;
+	padding-right: 8px;
 	padding-top: 3px;
 	padding-bottom: 3px;
 	margin-top: 1px;
 	margin-bottom: 1px;
+	margin-right: 10px;
 	border-radius: 1px;
+}
+.track-list-item-playing {
+	background-color: #361a7733;
+}
+
+.music-player {
+	background-color: #00000033;
+	width: 100%;
+	height: 80px;
+	padding: 0.5rem;
 }
 
 /* TABS

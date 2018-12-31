@@ -15,6 +15,7 @@ var sampleRate = 44100;
 var loadingNotification = null;
 var isBusy = false;
 var isPlaying = false;
+var curTrackIndex = 0;
 
 $('#startBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -171,18 +172,42 @@ function displayPlaylist() {
     var trackCount = scController.playlist.length;
 
     for (var i = 0; i < trackCount; i++) {
-        var styling = '" class="track-list-item" onclick="playTrack(' + i + ')">';
+        var isPlayingTrack = (i == curTrackIndex);
+        var styling = '" class="track-list-item';
 
-        var trackName = scController.playlist[i].title;
-        listContents += '<button id="' + i + styling + trackName + '</button>';
+        if(isPlayingTrack) {
+            styling += ' track-list-item-playing"';
+        }
+        else {
+            styling += '"'; // Close off class quotation mark.
+        }
+
+        // Add click callback to play this track.
+        styling += ' onclick="playTrack(' + i + ')">';
+        var playIcon = '';
+
+        if(isPlayingTrack) {
+            // Display play icon for the current track index.
+            playIcon = '<img src="../images/play.png" style="width:16px;height:16px;margin-right:5px;margin-bottom:3px;>';
+        }
+
+        var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
+        var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.metadata.user.username + '</div>';
+
+        listContents += '<button id="trackBtn' + i + styling + playIcon + trackName + uploaderName + '</button>';
     }
 
     playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
 }
 
+function updatePlayer() {
+
+}
+
 function playTrack(index) {
-    console.log('*** Playing track from playlist ***');
     console.log(scController.playlist[index]);
+    curTrackIndex = index;
+    displayPlaylist(); // Update UI.
 }
 
 function displayError(msg) {
