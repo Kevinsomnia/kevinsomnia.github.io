@@ -248,7 +248,7 @@ a:hover {
 	margin-right: 10px;
 	border-radius: 1px;
 }
-.track-list-item-playing {
+.track-list-item-selected {
 	background-color: #46347233;
 	border-color: #ffffff66;
 }

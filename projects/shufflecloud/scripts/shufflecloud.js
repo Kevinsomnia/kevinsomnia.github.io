@@ -215,8 +215,8 @@ function refreshPlaylistUI() {
         var selectedTrack = (i == curTrackIndex);
         var styling = '" class="track-list-item';
 
-        if (isPlayerPlaying && selectedTrack) {
-            styling += ' track-list-item-playing"';
+        if (selectedTrack) {
+            styling += ' track-list-item-selected"';
         }
         else {
             styling += '"'; // Close off class quotation mark.
@@ -347,6 +347,8 @@ function toggleTrackPlayback() {
         // Update image of pause button to play button.
         playerPlayButton.src = 'images/play.png';
     }
+
+    refreshPlaylistUI();
 }
 
 function cycleNextTrack() {
