@@ -355,6 +355,13 @@ input:checked+.slider:before {
 	transform: translate(19px, 1px);
 }
 
+/* SCROLLING TEXT
+------------------------- */
+.scrollable-text {
+	position: absolute;
+	white-space: nowrap;
+}
+
 /* TAG-IT STYLING
 ------------------------- */
 ul.tagit {

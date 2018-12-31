@@ -1,10 +1,12 @@
 // Global constants.
-const UPDATE_PLAYER_INTERVAL = 100; // in milliseconds.
+const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
+const TEXT_SCROLL_DURATION = 8.0; // in seconds.
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
 var trackPermalink = document.getElementById('trackPermalink');
 var trackArtwork = document.getElementById('trackArtwork');
+var trackLblParent = document.getElementById('trackLblParent');
 var trackNameLabel = document.getElementById('trackNameLbl');
 var artistNameLabel = document.getElementById('artistNameLbl');
 var currentTimeLabel = document.getElementById('currentTimeLbl');
@@ -29,6 +31,7 @@ var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
 var playerVolume = 1.0;
+var scrollingTextTimer = 0.0;
 
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -66,6 +69,7 @@ function onWebpageLoaded() {
     musicPlayer.addEventListener('ended', onTrackEnded);
     musicPlayer.volume = playerVolume;
     curTrackIndex = -1;
+    scrollingTextTimer = 0.0;
 
     // Start player UI update loop.
     playerUpdateLoop();
@@ -300,13 +304,36 @@ function playerUpdateLoop() {
         playerProgSlider.value = curPlayerTime.toString();
     }
 
+    // Update play/pause button image depending on state.
+    if (isPlayerPlaying) {
+        playerPlayButton.src = 'images/pause.png';
+    }
+    else {
+        playerPlayButton.src = 'images/play.png';
+    }
+
+    // Update track and artist label positioning.
+    var trackLblParentWidth = trackLblParent.clientWidth + 6; // Magic number :o
+    var trackNameMoveDist = Math.max(0, trackNameLabel.clientWidth - trackLblParentWidth);
+    var artistNameMoveDist = Math.max(0, artistNameLabel.clientWidth - trackLblParentWidth);
+    var dt = UPDATE_PLAYER_INTERVAL / 1000.0; // time elapsed in seconds.
+
+    // Scroll from 25% to 75% of animation time.
+    var animTime = inverseLerp(0.25, 0.75, scrollingTextTimer);
+    trackNameLabel.style.left = Math.round(lerp(0, -trackNameMoveDist, animTime)) + 'px';
+    artistNameLabel.style.left = Math.round(lerp(0, -artistNameMoveDist, animTime)) + 'px';
+    scrollingTextTimer += dt / TEXT_SCROLL_DURATION;
+
+    if(scrollingTextTimer >= 1.0) {
+        scrollingTextTimer = 0.0; // Reset animation.
+    }
+
     setTimeout(playerUpdateLoop, UPDATE_PLAYER_INTERVAL);
 }
 
 function onTrackEnded() {
     // Automatically go to the next track in playlist.
     if (!isBusy && isPlayerPlaying) {
-        console.log('Go to next track');
         cycleNextTrack();
     }
 }
@@ -316,15 +343,14 @@ function loadTrackOntoPlayer(index) {
         return;
     }
 
-    console.log(scController.playlist[index]);
     curTrackIndex = index;
 
     // Set new player source to this track's stream URL.
     musicPlayer.src = getStreamUrl(index);
-    musicPlayer.currentTime = 0;
+    musicPlayer.currentTime = 0.0;
     musicPlayer.play();
-    isPlayerPlaying = true;
     setIsBusy(true);
+    isPlayerPlaying = true;
 
     // Update UI.
     trackPermalink.href = scController.playlist[index].permalink_url;
@@ -333,7 +359,6 @@ function loadTrackOntoPlayer(index) {
     artistNameLabel.innerHTML = scController.playlist[index].user.username;
 
     refreshPlaylistUI();
-    playerUpdateLoop();
     scrollToCurrentTrack();
 }
 
@@ -380,17 +405,12 @@ function toggleTrackPlayback() {
         }
 
         musicPlayer.play();
-
-        // Update image of play button to pause button.
-        playerPlayButton.src = 'images/pause.png';
     }
     else {
         musicPlayer.pause();
-
-        // Update image of pause button to play button.
-        playerPlayButton.src = 'images/play.png';
     }
 
+    // Update playing icon in playlist.
     refreshPlaylistUI();
 }
 

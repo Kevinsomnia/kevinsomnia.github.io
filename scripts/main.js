@@ -78,6 +78,10 @@ function lerp(a, b, t) {
     return a + ((b - a) * t);
 }
 
+function inverseLerp(a, b, val) {
+    return clamp((val - a) / (b - a), 0.0, 1.0);
+}
+
 function clamp(val, min, max) {
     return Math.min(Math.max(min, val), max);
 }
