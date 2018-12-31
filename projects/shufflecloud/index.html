@@ -57,6 +57,11 @@
 
             </ul>
 
+            <a class="pr-3" href="https://soundcloud.com" target="_blank">
+                <img src="https://developers.soundcloud.com/assets/powered_by_white-371bd6967352fcc89673d4c81f7e5661.png"
+                    alt="Powered by SoundCloud">
+            </a>
+
             <!-- Desktop help button (hide on mobile) -->
             <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
                 style="background-color:#ac8f53" role="button">
@@ -97,10 +102,17 @@
             <p id="playlist" class="scrollable-v" style="height:60vh"></p>
 
             <div class="music-player">
-                This is a music player
-                <input type="text" id="playerProgSlider" data-slider-id='progSlider' data-slider-min="0"
-                    data-slider-max="60" data-slider-step="1" data-slider-value="0" />
-                <input type="image" id="playerPlayBtn" alt="Play" src="images/play.png">
+                <div style="display:flex;padding-left:15%;padding-right:15%;">
+                    <div style="width:10%;">0:00</div>
+                    <input type="range" id="playerProgSlider" min="0" max="44100" step="44100" value="0" class="slider-main" style="margin-top:10px;">
+                    <div style="width:10%;">3:00</div>
+                </div>
+
+                <div>
+                    <input type="image" id="playerPrevBtn" alt="Previous" src="images/next.png" style="width:16px;height:16px;transform:scaleX(-1);outline:none;">
+                    <input type="image" id="playerPlayBtn" alt="Play" src="images/play.png" style="width:12px;height:16px;margin-left:1rem;margin-right:1rem;outline:none;">
+                    <input type="image" id="playerNextBtn" alt="Next" src="images/next.png" style="width:16px;height:16px;outline:none;">
+                </div>
             </div>
 
             <!-- END UI -->
@@ -167,12 +179,6 @@
 
             loadSettings();
             initController();
-
-            $('#playerProgSlider').slider({
-                formatter: function (value) {
-                    return toTimerFormat(value) + ' / ' + toTimerFormat(300);
-                }
-            });
 
             setTimeout(function () {
                 // Fade in page.

@@ -119,6 +119,7 @@ function onPlaylistLoadSuccess() {
     // Shuffle 3 times to make sure its "random" enough.
     shufflePlaylist(3);
     displayPlaylist();
+    setIsBusy(false);
     playTrack(0); // Start with first song.
 }
 
@@ -188,7 +189,7 @@ function displayPlaylist() {
 
         if (isPlayingTrack) {
             // Display play icon for the current track index.
-            playIcon = '<img src="images/play.png" style="width:16px;height:16px;margin-right:5px;margin-bottom:3px;">';
+            playIcon = '<img src="images/play.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
         }
 
         var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';

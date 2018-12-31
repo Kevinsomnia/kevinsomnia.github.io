@@ -239,7 +239,7 @@ a:hover {
 	border-color: #ffffff33;
 	color: #ebebeb;
 	text-align: left;
-	width: 100%;
+	width: 99%;
 	padding-left: 8px;
 	padding-right: 8px;
 	padding-top: 3px;
@@ -250,14 +250,15 @@ a:hover {
 	border-radius: 1px;
 }
 .track-list-item-playing {
-	background-color: #361a7733;
+	background-color: #46347233;
 }
 
 .music-player {
 	background-color: #00000033;
 	width: 100%;
-	height: 80px;
+	height: 60px;
 	padding: 0.5rem;
+	text-align: center;
 }
 
 /* TABS
@@ -271,6 +272,37 @@ a:hover {
 	background-color: #2c335f;
 	border: solid 1px;
 	border-color: #6873b1;
+}
+
+/* SLIDERS
+------------------------- */
+/* The slider itself */
+.slider-main {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 5px;
+	border-radius: 5px;
+	background: #333333;
+	outline: none;
+}
+.slider-main::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 20px;
+	height: 20px;
+	border: solid 2px;
+	border-radius: 50%;
+	border-color: #333333;
+	background: #7864d4;
+	cursor: pointer;
+}
+.slider-main::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border: solid 2px;
+	border-radius: 50%;
+	border-color: #333333;
+	background: #7864d4;
+	cursor: pointer;
 }
 
 /* CHECKBOXES
