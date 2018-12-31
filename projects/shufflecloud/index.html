@@ -102,13 +102,33 @@
                 </div>
             </div>
 
-            <p id="playlistTitle"></p>
+            <a id="playlistPermalink" href="" target="_blank">
+                <p id="playlistTitle"></p>
+            </a>
+
             <p id="playlist" class="scrollable-v" style="height:60vh"></p>
 
             <div class="music-player">
-                <div class="row">
-                    <div class="col-2">
-                        Track Info
+                <div class="row" style="margin:0px;padding:0px;">
+                    <div class="col-2" style="margin:0px;padding:0px;">
+                        <a id="trackPermalink" href="" target="_blank">
+                            <div class="row" style="margin:0px;padding:0px;">
+                                <div class="col-3" style="margin:0px;padding:0px;">
+                                    <img id="trackArtwork" src="../../images/shufflecloud.jpg" class="img-no-interact"
+                                        style="height:45px;border:solid 1px;border-color:#333333;border-radius:3px;">
+                                </div>
+
+                                <div class="col-9" style="margin:0px;padding:0px;text-align:left;">
+                                    <div id="trackNameLbl" style="padding-left:12px;padding-right:10px;color:#ffffff;">
+                                        Track Name
+                                    </div>
+
+                                    <div id="artistNameLbl" style="padding-left:12px;padding-right:10px;color:#a0a0a0;">
+                                        Artist Name
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                     </div>
 
                     <div class="col-8">
@@ -120,19 +140,19 @@
 
                             <div id="trackDurationLbl" style="width:10%;">--:--</div>
                         </div>
+
+                        <div>
+                            <input type="image" alt="Previous" onclick="cyclePrevTrack()" src="images/next.png" style="width:16px;height:16px;transform:scaleX(-1);outline:none;">
+                            <input type="image" id="playerPlayBtn" alt="Play" onclick="toggleTrackPlayback()" src="images/play.png"
+                                style="width:12px;height:16px;margin-left:1rem;margin-right:1rem;outline:none;">
+                            <input type="image" alt="Next" onclick="cycleNextTrack()" src="images/next.png" style="width:16px;height:16px;outline:none;">
+                        </div>
                     </div>
 
                     <div class="col-2">
                         <input type="range" id="playerVolSldr" min="0" max="100" step="1" value="100" class="slider-main"
-                            style="width:33%;margin-top:10px;">
+                            style="min-width:80px;width:40%;margin-top:10px;">
                     </div>
-                </div>
-
-                <div>
-                    <input type="image" alt="Previous" onclick="cyclePrevTrack()" src="images/next.png" style="width:16px;height:16px;transform:scaleX(-1);outline:none;">
-                    <input type="image" id="playerPlayBtn" alt="Play" onclick="toggleTrackPlayback()" src="images/play.png"
-                        style="width:12px;height:16px;margin-left:1rem;margin-right:1rem;outline:none;">
-                    <input type="image" alt="Next" onclick="cycleNextTrack()" src="images/next.png" style="width:16px;height:16px;outline:none;">
                 </div>
             </div>
 

@@ -3,6 +3,10 @@ const UPDATE_PLAYER_INTERVAL = 100; // in milliseconds.
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
+var trackPermalink = document.getElementById('trackPermalink');
+var trackArtwork = document.getElementById('trackArtwork');
+var trackNameLabel = document.getElementById('trackNameLbl');
+var artistNameLabel = document.getElementById('artistNameLbl');
 var currentTimeLabel = document.getElementById('currentTimeLbl');
 var trackDurationLabel = document.getElementById('trackDurationLbl');
 var playerProgSlider = document.getElementById('playerProgSlider');
@@ -13,6 +17,7 @@ var helpButton = document.getElementById('helpBtn');
 var loadButton = document.getElementById('loadBtn');
 var shuffleButton = document.getElementById('shuffleBtn');
 var settingsButton = document.getElementById('settingsBtn');
+var playlistPermalink = document.getElementById('playlistPermalink');
 var playlistTitleUI = document.getElementById('playlistTitle');
 var playlistUI = document.getElementById('playlist');
 
@@ -94,6 +99,8 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
                 scController.metadata = result;
                 scController.playlist = result.tracks;
 
+                // Update playlist link.
+                trackPermalink.href = link;
                 var trackCount = scController.playlist.length;
 
                 // Remove tracks from playlist that are not streamable.
@@ -161,7 +168,7 @@ function onPlaylistLoadSuccess() {
 
     // Reset and stop music playback.
     musicPlayer.pause();
-    musicPlayer.currentTime = 0;
+    musicPlayer.currentTime = 0.0;
     musicPlayer.src = '';
     isPlayerPlaying = false;
     curTrackIndex = -1;
@@ -320,31 +327,44 @@ function loadTrackOntoPlayer(index) {
     setIsBusy(true);
 
     // Update UI.
+    trackPermalink.href = scController.playlist[index].permalink_url;
+    trackArtwork.src = scController.playlist[index].artwork_url;
+    trackNameLabel.innerHTML = scController.playlist[index].title;
+    artistNameLabel.innerHTML = scController.playlist[index].user.username;
+
     refreshPlaylistUI();
     playerUpdateLoop();
     scrollToCurrentTrack();
 }
 
 function onTrackLoaded() {
-    console.log('Track is loaded. Returning control.');
     setIsBusy(false);
 }
 
 // Player controls
 function cyclePrevTrack() {
-    if (isBusy || scController.playlist.length <= 1) {
-        return; // No tracks to cycle.
+    // The song will rewind to beginning instead, when more than 3 seconds in.
+    var shouldRewind = (musicPlayer.currentTime >= 3.0);
+
+    if (shouldRewind) {
+        // Simply restart to beginning of current song.
+        musicPlayer.currentTime = 0.0;
     }
+    else {
+        if (isBusy || scController.playlist.length <= 1) {
+            return; // No tracks to cycle.
+        }
 
-    curTrackIndex--;
+        curTrackIndex--;
 
-    if (curTrackIndex < 0) {
-        // Wrap around.
-        curTrackIndex = scController.playlist.length - 1;
+        if (curTrackIndex < 0) {
+            // Wrap around.
+            curTrackIndex = scController.playlist.length - 1;
+        }
+
+        loadTrackOntoPlayer(curTrackIndex);
+        refreshPlaylistUI();
     }
-
-    loadTrackOntoPlayer(curTrackIndex);
-    refreshPlaylistUI();
 }
 
 function toggleTrackPlayback() {
