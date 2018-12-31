@@ -1,6 +1,46 @@
 // A nice compilation of helper functions for my projects.
 // Author: Kevin Tong
 
+function loadBoolean(key, defaultValue) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null) {
+        return (value === 'true');
+    }
+
+    return defaultValue;
+}
+
+function loadFloat(key, defaultValue) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null) {
+        return parseFloat(value);
+    }
+
+    return defaultValue;
+}
+
+function loadInt(key, defaultValue) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null) {
+        return parseInt(value);
+    }
+
+    return defaultValue;
+}
+
+function loadArray(key) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null && value.length > 0) {
+        return value.split(',');
+    }
+
+    return [];
+}
+
 function toTimerFormat(seconds) {
     seconds = Math.floor(seconds); // no milliseconds.
     var needHours = (seconds >= 3600);

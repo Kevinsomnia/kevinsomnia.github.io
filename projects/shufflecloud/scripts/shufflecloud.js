@@ -7,6 +7,7 @@ var currentTimeLabel = document.getElementById('currentTimeLbl');
 var trackDurationLabel = document.getElementById('trackDurationLbl');
 var playerProgSlider = document.getElementById('playerProgSlider');
 var playerPlayButton = document.getElementById('playerPlayBtn');
+var playerVolumeSlider = document.getElementById('playerVolSldr');
 
 var helpButton = document.getElementById('helpBtn');
 var loadButton = document.getElementById('loadBtn');
@@ -22,6 +23,7 @@ var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
+var playerVolume = 1.0;
 
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -38,17 +40,26 @@ $('#closeSettings').click(function (e) {
     }
 });
 
+$('#playerVolSldr').change(function (e) {
+    playerVolume = $('#playerVolSldr').val() / 100.0;
+    musicPlayer.volume = playerVolume;
+    localStorage.setItem('playerVolume', playerVolume.toString());
+});
+
 function onWebpageLoaded() {
     // Load settings.
     scClientID = localStorage.getItem('scClientId');
+    playerVolume = loadFloat('playerVolume', 1.0);
 
     $('#cIdInput').val(scClientID);
     $('#scLink').val(localStorage.getItem('scLink'));
+    $('#playerVolSldr').val(Math.round(playerVolume * 100));
 
     // Initialize audio player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
     musicPlayer.addEventListener('loadeddata', onTrackLoaded);
-    musicPlayer.addEventListener('onended', onTrackEnded);
+    musicPlayer.addEventListener('ended', onTrackEnded);
+    musicPlayer.volume = playerVolume;
     curTrackIndex = -1;
 
     // Start player UI update loop.
@@ -148,6 +159,13 @@ function onPlaylistLoadSuccess() {
         loadingNotification = null;
     }
 
+    // Reset and stop music playback.
+    musicPlayer.pause();
+    musicPlayer.currentTime = 0;
+    musicPlayer.src = '';
+    isPlayerPlaying = false;
+    curTrackIndex = -1;
+
     refreshPlaylistUI();
     setIsBusy(false);
 }
@@ -178,6 +196,7 @@ function shufflePlaylist() {
             swapWith++;
         }
 
+        // Current track index should persist even after shuffling.
         if (curTrackIndex == i) {
             curTrackIndex = swapWith;
         }
@@ -290,11 +309,12 @@ function loadTrackOntoPlayer(index) {
         return;
     }
 
-    console.log('Cur track index: ' + index);
+    console.log(scController.playlist[index]);
     curTrackIndex = index;
 
     // Set new player source to this track's stream URL.
     musicPlayer.src = getStreamUrl(index);
+    musicPlayer.currentTime = 0;
     musicPlayer.play();
     isPlayerPlaying = true;
     setIsBusy(true);

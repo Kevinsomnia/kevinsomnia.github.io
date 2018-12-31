@@ -220,26 +220,6 @@ function loadSettings() {
     }
 };
 
-function loadBoolean(key, defaultValue) {
-    var value = localStorage.getItem(key);
-
-    if (value !== null) {
-        return (value === 'true');
-    }
-
-    return defaultValue;
-}
-
-function loadArray(key) {
-    var value = localStorage.getItem(key);
-
-    if (value !== null && value.length > 0) {
-        return value.split(',');
-    }
-
-    return [];
-}
-
 $('#allowDupFiles').change(function (e) {
     allowDuplicateFiles = e.target.checked;
     localStorage.setItem('allowDupFiles', allowDuplicateFiles.toString());
