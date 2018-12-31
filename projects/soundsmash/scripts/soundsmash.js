@@ -421,7 +421,6 @@ function convertSecondsToPixel(time) {
 
 function gameLoop() {
     curTime = audioCtx.currentTime - startTime;
-    //var dt = curTime - lastTime; // Time delta (in seconds) between previous frame and this frame.
 
     // Update bounds.
     leftGameBounds = getCurrentAdjustedTime();

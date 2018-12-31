@@ -32,6 +32,7 @@ var isPlayerPlaying = false;
 var curTrackIndex = -1;
 var playerVolume = 1.0;
 var scrollingTextTimer = 0.0;
+var lastTimestamp = 0.0;
 
 $('#loadBtn').click(function (e) {
     localStorage.setItem('scLink', $('#scLink').val());
@@ -72,7 +73,8 @@ function onWebpageLoaded() {
     scrollingTextTimer = 0.0;
 
     // Start player UI update loop.
-    playerUpdateLoop();
+    lastTimestamp = performance.now();
+    playerUpdateLoop(lastTimestamp);
 }
 
 function initController() {
@@ -261,11 +263,11 @@ function refreshPlaylistUI() {
         if (selectedTrack) {
             if (isPlayerPlaying) {
                 // Display play icon for the current track index.
-                playIcon = '<img src="images/play.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+                playIcon = '<img src="images/play.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
             }
             else {
                 // Display pause icon instead.
-                playIcon = '<img src="images/pause.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+                playIcon = '<img src="images/pause.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
             }
         }
 
@@ -287,7 +289,7 @@ function scrollToCurrentTrack() {
     document.getElementById(elementID).scrollIntoView();
 }
 
-function playerUpdateLoop() {
+function playerUpdateLoop(timestamp) {
     if (curTrackIndex == -1) {
         // No track selected. Reset to default values.
         trackArtwork.src = '../../images/shufflecloud.jpg';
@@ -296,7 +298,7 @@ function playerUpdateLoop() {
 
         currentTimeLabel.innerHTML = '--:--';
         trackDurationLabel.innerHTML = '--:--';
-        playerProgSlider.max = '0.01';
+        playerProgSlider.max = '0.02';
         playerProgSlider.value = '0';
     }
     else {
@@ -315,7 +317,7 @@ function playerUpdateLoop() {
     var trackLblParentWidth = trackLblParent.clientWidth + 6; // Magic number :o
     var trackNameMoveDist = Math.max(0, trackNameLabel.clientWidth - trackLblParentWidth);
     var artistNameMoveDist = Math.max(0, artistNameLabel.clientWidth - trackLblParentWidth);
-    var dt = UPDATE_PLAYER_INTERVAL / 1000.0; // time elapsed in seconds.
+    var dt = (timestamp - lastTimestamp) / 1000.0; // time elapsed in seconds.
 
     // Scroll from 25% to 75% of animation time.
     var animTime = inverseLerp(0.15, 0.85, scrollingTextTimer);
@@ -327,7 +329,8 @@ function playerUpdateLoop() {
         scrollingTextTimer = 0.0; // Reset animation.
     }
 
-    setTimeout(playerUpdateLoop, UPDATE_PLAYER_INTERVAL);
+    requestAnimationFrame(playerUpdateLoop);
+    lastTimestamp = timestamp;
 }
 
 function onTrackEnded() {
