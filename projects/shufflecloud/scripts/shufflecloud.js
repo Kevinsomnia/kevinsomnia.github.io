@@ -6,6 +6,8 @@ var musicPlayer = document.getElementById('musicPlayer');
 var currentTimeLabel = document.getElementById('currentTimeLbl');
 var trackDurationLabel = document.getElementById('trackDurationLbl');
 var playerProgSlider = document.getElementById('playerProgSlider');
+var playerPlayButton = document.getElementById('playerPlayBtn');
+
 var helpButton = document.getElementById('helpBtn');
 var loadButton = document.getElementById('loadBtn');
 var shuffleButton = document.getElementById('shuffleBtn');
@@ -46,7 +48,7 @@ function onWebpageLoaded() {
 
     // Initialize audio player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
-    musicPlayer.addEventListener('oncanplay', onTrackLoaded);
+    musicPlayer.addEventListener('loadeddata', onTrackLoaded);
     curTrackIndex = -1;
     loadedTrackIndex = -1;
 
@@ -210,10 +212,10 @@ function refreshPlaylistUI() {
     var trackCount = scController.playlist.length;
 
     for (var i = 0; i < trackCount; i++) {
-        var selectedAndPlayingTrack = (isPlayerPlaying && i == curTrackIndex);
+        var selectedTrack = (i == curTrackIndex);
         var styling = '" class="track-list-item';
 
-        if (selectedAndPlayingTrack) {
+        if (isPlayerPlaying && selectedTrack) {
             styling += ' track-list-item-playing"';
         }
         else {
@@ -224,9 +226,15 @@ function refreshPlaylistUI() {
         styling += ' onclick="loadTrackOntoPlayer(' + i + ')">';
         var playIcon = '';
 
-        if (selectedAndPlayingTrack) {
-            // Display play icon for the current track index.
-            playIcon = '<img src="images/play.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+        if (selectedTrack) {
+            if (isPlayerPlaying) {
+                // Display play icon for the current track index.
+                playIcon = '<img src="images/play.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+            }
+            else {
+                // Display pause icon instead.
+                playIcon = '<img src="images/pause.png" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+            }
         }
 
         var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
@@ -239,7 +247,7 @@ function refreshPlaylistUI() {
 }
 
 function scrollToCurrentTrack() {
-    if(curTrackIndex <= -1 || !scController || !scController.playlist || curTrackIndex >= scController.playlist.length) {
+    if (curTrackIndex <= -1 || !scController || !scController.playlist || curTrackIndex >= scController.playlist.length) {
         return; // No track to scroll to.
     }
 
@@ -257,7 +265,7 @@ function playerUpdateLoop() {
         var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? Math.floor(musicPlayer.duration) : 0;
 
         currentTimeLabel.innerHTML = toTimerFormat(curPlayerTime);
-        trackDurationLabel.innerHTML = toTimerFormat(musicPlayer.duration);
+        trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
 
         // Update progress slider.
         playerProgSlider.max = curPlayerDuration.toString();
@@ -317,7 +325,7 @@ function cyclePrevTrack() {
 }
 
 function toggleTrackPlayback() {
-    if (isBusy || !scController || !scController.playlist || scController.playlist.length == 0) {
+    if (!scController || !scController.playlist || scController.playlist.length == 0) {
         return;
     }
 
@@ -329,11 +337,15 @@ function toggleTrackPlayback() {
         }
 
         musicPlayer.play();
-        // Update image to pause button.
+
+        // Update image of play button to pause button.
+        playerPlayButton.src = 'images/pause.png';
     }
     else {
         musicPlayer.pause();
-        // Update image to play button.
+
+        // Update image of pause button to play button.
+        playerPlayButton.src = 'images/play.png';
     }
 }
 
