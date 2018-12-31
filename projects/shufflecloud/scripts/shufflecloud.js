@@ -289,16 +289,19 @@ function scrollToCurrentTrack() {
 
 function playerUpdateLoop() {
     if (curTrackIndex == -1) {
+        // No track selected. Reset to default values.
         trackArtwork.src = '../../images/shufflecloud.jpg';
         trackNameLabel.innerHTML = 'Track Name';
         artistNameLabel.innerHTML = 'Artist Name';
 
         currentTimeLabel.innerHTML = '--:--';
         trackDurationLabel.innerHTML = '--:--';
+        playerProgSlider.max = '0.01';
+        playerProgSlider.value = '0';
     }
     else {
-        var curPlayerTime = Math.floor(musicPlayer.currentTime);
-        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? Math.floor(musicPlayer.duration) : 0;
+        var curPlayerTime = musicPlayer.currentTime;
+        var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
 
         currentTimeLabel.innerHTML = toTimerFormat(curPlayerTime);
         trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
@@ -306,14 +309,6 @@ function playerUpdateLoop() {
         // Update progress slider.
         playerProgSlider.max = curPlayerDuration.toString();
         playerProgSlider.value = curPlayerTime.toString();
-    }
-
-    // Update play/pause button image depending on state.
-    if (isPlayerPlaying) {
-        playerPlayButton.src = 'images/pause.png';
-    }
-    else {
-        playerPlayButton.src = 'images/play.png';
     }
 
     // Update track and artist label positioning.
@@ -350,11 +345,12 @@ function loadTrackOntoPlayer(index) {
     curTrackIndex = index;
 
     // Set new player source to this track's stream URL.
+    isPlayerPlaying = false;
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.currentTime = 0.0;
-    musicPlayer.play();
     setIsBusy(true);
-    isPlayerPlaying = true;
+    // Set to play.
+    toggleTrackPlayback();
 
     // Update UI.
     trackPermalink.href = scController.playlist[index].permalink_url;
@@ -407,11 +403,13 @@ function toggleTrackPlayback() {
         if (curTrackIndex < 0) {
             loadTrackOntoPlayer(0);
         }
-
+        
         musicPlayer.play();
+        playerPlayButton.src = 'images/pause.png';
     }
     else {
         musicPlayer.pause();
+        playerPlayButton.src = 'images/play.png';
     }
 
     // Update playing icon in playlist.
