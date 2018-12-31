@@ -81,15 +81,20 @@
                 Firefox yet!</h5>
 
             <div class="row">
-                <div class="col-8">
+                <div class="col-6">
                     <div class="form-group">
                         <input id="scLink" class="form-control" type="text" placeholder="Paste SoundCloud playlist link here (https://www.soundcloud.com/username/sets/playlist-name)">
                     </div>
                 </div>
 
                 <div class="col-2">
-                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressStart()" style="background-color:#2b4964"
-                        role="button">Load & Shuffle</button>
+                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressLoad()" style="background-color:#2b4964"
+                        role="button">Load</button>
+                </div>
+
+                <div class="col-2">
+                    <button id="startBtn" class="btn btn-primary btn-md wide-button" onclick="onPressShuffle()" style="background-color:#2b4964"
+                        role="button">Shuffle</button>
                 </div>
 
                 <div class="col-2">
@@ -103,9 +108,10 @@
 
             <div class="music-player">
                 <div style="display:flex;padding-left:15%;padding-right:15%;">
-                    <div style="width:10%;">-:--</div>
-                    <input type="range" id="playerProgSlider" min="0" max="44100" step="44100" value="0" class="slider-main" style="margin-top:10px;">
-                    <div style="width:10%;">-:--</div>
+                    <div style="width:10%;">--:--</div>
+                    <input type="range" id="playerProgSlider" min="0" max="44100" step="44100" value="0" class="slider-main"
+                        style="margin-top:10px;">
+                    <div style="width:10%;">--:--</div>
                 </div>
 
                 <div>

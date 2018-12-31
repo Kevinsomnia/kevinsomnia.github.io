@@ -88,7 +88,7 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     });
 }
 
-function onPressStart() {
+function onPressLoad() {
     var link = $('#scLink').val();
     tryGetPlaylist(link, onPlaylistLoadSuccess, onPlaylistLoadFail);
     setIsBusy(true);
@@ -109,18 +109,23 @@ function onPressStart() {
     });
 }
 
-function onPlaylistLoadSuccess() {
-    if (loadingNotification != null) {
-        loadingNotification.update({
-            message: 'Shuffling playlist...'
-        });
+function onPressShuffle() {
+    if (!scController || !scController.playlist) {
+        return; // No playlist to shuffle.
     }
 
-    // Shuffle 3 times to make sure its "random" enough.
-    shufflePlaylist(3);
+    shufflePlaylist();
+    displayPlaylist();
+}
+
+function onPlaylistLoadSuccess() {
+    if (loadingNotification != null) {
+        loadingNotification.close();
+        loadingNotification = null;
+    }
+    
     displayPlaylist();
     setIsBusy(false);
-    playTrack(0); // Start with first song.
 }
 
 function onPlaylistLoadFail(errorMsg) {
@@ -133,28 +138,30 @@ function onPlaylistLoadFail(errorMsg) {
     }
 }
 
-function shufflePlaylist(iterations) {
+function shufflePlaylist() {
     // In-place shuffling for playlist array (roughly O(n)).
     var trackCount = scController.playlist.length;
 
-    for (var iter = 0; iter < iterations; iter++) {
-        for (var i = 0; i < trackCount; i++) {
-            // Choose random index to swap with.
-            var swapWith = randomInt(0, trackCount);
+    if (trackCount <= 1) {
+        return;
+    }
 
-            if (swapWith == i) {
-                swapWith++;
-            }
+    for (var i = 0; i < trackCount; i++) {
+        // Choose random index to swap with.
+        var swapWith = randomInt(0, trackCount);
 
-            if (swapWith >= trackCount) {
-                swapWith -= trackCount; // Wrap around.
-            }
-
-            // Swap both elements.
-            var temp = scController.playlist[i];
-            scController.playlist[i] = scController.playlist[swapWith];
-            scController.playlist[swapWith] = temp;
+        if (swapWith == i) {
+            swapWith++;
         }
+
+        if (swapWith >= trackCount) {
+            swapWith -= trackCount; // Wrap around.
+        }
+
+        // Swap both elements.
+        var temp = scController.playlist[i];
+        scController.playlist[i] = scController.playlist[swapWith];
+        scController.playlist[swapWith] = temp;
     }
 
     if (loadingNotification != null) {
@@ -166,8 +173,8 @@ function shufflePlaylist(iterations) {
 function displayPlaylist() {
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' 
-                                + scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | '
+        + scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
 
     var listContents = '';
     var trackCount = scController.playlist.length;
