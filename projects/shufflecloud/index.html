@@ -50,7 +50,7 @@
                 <!-- Mobile help link (hide on desktop) -->
                 <li class="nav-item active">
                     <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
-                        Help
+                        Help / FAQ
                     </a>
                 </li>
 
@@ -64,7 +64,7 @@
             <!-- Desktop help button (hide on mobile) -->
             <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
                 style="background-color:#ac8f53" role="button">
-                ? &nbsp;Help
+                ? &nbsp;Help / FAQ
             </button>
         </div>
     </nav>
@@ -197,9 +197,58 @@
 
                 <div class="modal-body">
                     <p>Is your monitor turned on?</p>
+
+                    For serious issues:
+                    <ul>
+                        <li>
+                            Check the client ID in the settings and make sure it's 32 characters long. It looks like a
+                            bunch of random letters and numbers. This is <strong>absolutely necessary</strong> in order
+                            to access the SoundCloud API.
+
+                            <ul>
+                                <li>
+                                    I triple-checked my client ID and it is still giving me errors!
+                                </li>
+                                <ul>
+                                    <li>
+                                        There is a rate limit to how many API requests are made from any given client
+                                        ID (<a href="https://developers.soundcloud.com/docs/api/rate-limits" target="_blank">more
+                                            info</a>). You can see how problems can quickly arise if everyone is using
+                                        the same ID. This most likely means you have to wait until the 24-hour window
+                                        expires, or use another client ID (apart from the default).
+                                    </li>
+                                </ul>
+                            </ul>
+
+                            <ul>
+                                <li>Where can I find a new client ID?</li>
+                                <ul>
+                                    <li>
+                                        Google is your friend, buddy.
+                                    </li>
+                                </ul>
+                            </ul>
+                        </li>
+
+                        <li>
+                            Make sure you aren't pasting a link of a single track, but a playlist. The link should
+                            contain "/sets/" in it.
+                        </li>
+
+                        <li>
+                            After making sure it's a playlist, double-check that it is set to public. Your private
+                            playlists cannot be played for obvious reasons.
+                        </li>
+
+                        <li>
+                            If you are still having issues with this, please post it on the GitHub
+                            repository and I will try to fix it. Be sure to look at the console (Ctrl-Shift-J on
+                            Chrome) for any errors.
+                        </li>
+                    </ul>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Sweet!</button>
             </div>
         </div>
     </div>

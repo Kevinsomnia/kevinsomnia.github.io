@@ -50,7 +50,7 @@
                 <!-- Mobile help link (hide on desktop) -->
                 <li class="nav-item active">
                     <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
-                        Help
+                        Help / FAQ
                     </a>
                 </li>
 
@@ -59,7 +59,7 @@
             <!-- Desktop help button (hide on mobile) -->
             <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
                 style="background-color:#ac8f53" role="button">
-                ? &nbsp;Help
+                ? &nbsp;Help / FAQ
             </button>
         </div>
     </nav>
@@ -264,10 +264,40 @@
                 </div>
 
                 <div class="modal-body">
-                    <p>Help is in development. :-)</p>
+                    <ul>
+                        <li>
+                            Why are some of the files yellow?
+                        </li>
+                        <ul>
+                            <li>
+                                It just means that file won't support extra features, like ignoring commented lines. It
+                                will still analyze that file.
+                            </li>
+                        </ul>
+
+                        <li>
+                            Take a look at the settings menu for more customization and fine-tuning. If you hover over
+                            the label, a tooltip will provide you with additional info of what it does.
+                        </li>
+
+                        <li>
+                            Selecting a directory may cause your browser to ask if you trust my website. Relax, I'm not
+                            stealing your info.
+                        </li>
+
+                        <li>
+                            The rest is pretty self-explanatory.
+                        </li>
+
+                        <li>
+                            If you are still having other issues, please post it on the GitHub
+                            repository and I will try to fix it. Be sure to look at the console (Ctrl-Shift-J on
+                            Chrome) for any errors.
+                        </li>
+                    </ul>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Thanks</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Thanks!</button>
             </div>
         </div>
     </div>
@@ -280,6 +310,7 @@
     <script src="../../scripts/bootstrap-notify.min.js"></script>
     <script src="../../scripts/Chart.min.js"></script>
     <script src="../../scripts/tag-it.min.js"></script>
+    <script src="../../scripts/main.js"></script>
     <script src="scripts/text_cruncher.js"></script>
 
     <script>

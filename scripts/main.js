@@ -1,6 +1,16 @@
 // A nice compilation of helper functions for my projects.
 // Author: Kevin Tong
 
+function loadString(key, defaultValue) {
+    var value = localStorage.getItem(key);
+
+    if (value !== null) {
+        return value;
+    }
+
+    return defaultValue;
+}
+
 function loadBoolean(key, defaultValue) {
     var value = localStorage.getItem(key);
 

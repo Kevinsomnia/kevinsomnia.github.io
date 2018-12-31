@@ -24,7 +24,7 @@ var playlistTitleUI = document.getElementById('playlistTitle');
 var playlistUI = document.getElementById('playlist');
 
 // Audio controller variables.
-var scClientID = '';
+var scClientID = 'HzEllmdjxRaeJ4LHu62ED4YKXrx4ji1v';
 var scController = {};
 var loadingNotification = null;
 var isBusy = false;
@@ -56,7 +56,7 @@ $('#playerVolSldr').change(function (e) {
 
 function onWebpageLoaded() {
     // Load settings.
-    scClientID = localStorage.getItem('scClientId');
+    scClientID = loadString('scClientId', 'HzEllmdjxRaeJ4LHu62ED4YKXrx4ji1v');
     playerVolume = loadFloat('playerVolume', 1.0);
 
     $('#cIdInput').val(scClientID);
@@ -170,7 +170,7 @@ function onPlaylistLoadSuccess() {
         loadingNotification = null;
     }
 
-    // Reset and stop music playback.
+    // Reset current track and stop music playback.
     musicPlayer.pause();
     musicPlayer.currentTime = 0.0;
     musicPlayer.src = '';
@@ -403,7 +403,7 @@ function toggleTrackPlayback() {
         if (curTrackIndex < 0) {
             loadTrackOntoPlayer(0);
         }
-        
+
         musicPlayer.play();
         playerPlayButton.src = 'images/pause.png';
     }

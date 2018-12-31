@@ -50,7 +50,7 @@
                 <!-- Mobile help link (hide on desktop) -->
                 <li class="nav-item active">
                     <a class="d-inline-flex d-lg-none nav-link" href="#" data-toggle="modal" data-target="#helpModal">
-                        Help
+                        Help / FAQ
                     </a>
                 </li>
 
@@ -60,11 +60,11 @@
                 <img src="https://developers.soundcloud.com/assets/powered_by_white-371bd6967352fcc89673d4c81f7e5661.png"
                     alt="Powered by SoundCloud">
             </a>
-            
+
             <!-- Desktop help button (hide on mobile) -->
             <button id="helpBtn" class="d-none d-lg-inline-flex btn btn-primary btn-md" data-toggle="modal" data-target="#helpModal"
                 style="background-color:#ac8f53" role="button">
-                ? &nbsp;Help
+                ? &nbsp;Help / FAQ
             </button>
         </div>
     </nav>
@@ -76,7 +76,8 @@
 
             <audio id="audioPlayer"></audio>
 
-            <h5 class="main-header">This game currently does not support mobile devices. Also, doesn't work on Firefox yet!</h5>
+            <h5 class="main-header">This game currently does not support mobile devices. Also, doesn't work on Firefox
+                yet!</h5>
 
             <div class="row">
                 <div class="col-8">
@@ -139,10 +140,46 @@
                 </div>
 
                 <div class="modal-body">
-                    <p>Hear sound? Press keys.</p>
+                    <ul>
+                        <li>
+                            Why is the beat detection so trash?
+                        </li>
+                        <ul>
+                            <li>
+                                Please don't make fun of me.
+                            </li>
+                        </ul>
+
+                        <li>
+                            Why is the sound not loading or taking so long?
+                        </li>
+                        <ul>
+                            <li>
+                                The time it takes to load also depends on your internet connection speed and if your
+                                computer processor speed. Other times, SoundCloud doesn't allow you to download that
+                                track, but most of the tracks should work as long as it's not a SoundCloud Go track.
+                            </li>
+                        </ul>
+
+                        <li>
+                            Will you support custom beatmaps or a beatmap editor?
+                        </li>
+                        <ul>
+                            <li>
+                                Yeah, probably in the future. It sounds like a lot of work, so I will probably do it
+                                when I'm bored.
+                            </li>
+                        </ul>
+
+                        <li>
+                            If you are still having other issues, please post it on the GitHub
+                            repository and I will try to fix it. Be sure to look at the console (Ctrl-Shift-J on
+                            Chrome) for any errors.
+                        </li>
+                    </ul>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Awesome</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nice!</button>
             </div>
         </div>
     </div>
