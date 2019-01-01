@@ -31,6 +31,7 @@ var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
 var isScrubbing = false;
+var scrubTime = 0.0; // For scrubbing.
 var curTrackIndex = -1;
 var playerVolume = 1.0;
 var trackScrollingTimer = null;
@@ -62,32 +63,23 @@ $('#playerVolSldr').on('input', function (e) {
 });
 
 $('#playerProgSldr').on('mousedown', function (e) {
-    if (curTrackIndex > -1 && musicPlayer.src !== '' && !isScrubbing) {
-        // User started scrubbing, so pause playback.
+    if (curTrackIndex > -1 && musicPlayer.src !== '') {
         isScrubbing = true;
-
-        if (isPlayerPlaying) {
-            musicPlayer.pause();
-        }
     }
 });
 
 $('#playerProgSldr').on('input', function (e) {
     if (curTrackIndex > -1 && musicPlayer.src !== '' && isScrubbing) {
         // To update current time label.
-        musicPlayer.currentTime = $('#playerProgSldr').val();
+        scrubTime = $('#playerProgSldr').val();
     }
 });
 
 $('#playerProgSldr').on('mouseup', function (e) {
     if (curTrackIndex > -1 && musicPlayer.src !== '' && isScrubbing) {
-        // Stop scrubbing. Go to this point in time and resume.
+        // Stop scrubbing. Move player to this timestamp.
         isScrubbing = false;
         musicPlayer.currentTime = $('#playerProgSldr').val();
-
-        if (isPlayerPlaying) {
-            musicPlayer.play();
-        }
     }
 });
 
@@ -322,17 +314,12 @@ function scrollToCurrentTrack() {
 
 function playerUpdateLoop(timestamp) {
     if (curTrackIndex > -1) {
-        // Update current time for label and slider.
-        var curPlayerTime = musicPlayer.currentTime;
-        var curTimeText = toTimerFormat(curPlayerTime);
-
-        // Cache label text for performance (setting innerHTML is slow).
-        if (cachedCurTimeText !== curTimeText) {
-            currentTimeLabel.innerHTML = curTimeText;
-            cachedCurTimeText = curTimeText;
+        if(isScrubbing) {
+            updateCurrentTimeLabel(scrubTime);
         }
-
-        if (!isScrubbing) {
+        else {
+            var curPlayerTime = musicPlayer.currentTime;
+            updateCurrentTimeLabel(curPlayerTime);
             playerProgSlider.value = curPlayerTime.toString();
         }
     }
@@ -350,6 +337,16 @@ function playerUpdateLoop(timestamp) {
 
     requestAnimationFrame(playerUpdateLoop);
     lastTimestamp = timestamp;
+}
+
+function updateCurrentTimeLabel(time) {
+    var curTimeText = toTimerFormat(time);
+
+    if (cachedCurTimeText !== curTimeText) {
+        // Cache label text for performance (setting innerHTML is slow).
+        currentTimeLabel.innerHTML = curTimeText;
+        cachedCurTimeText = curTimeText;
+    }
 }
 
 function onTrackEnded() {
