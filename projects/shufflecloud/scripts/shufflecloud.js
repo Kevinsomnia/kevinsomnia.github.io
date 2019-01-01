@@ -64,8 +64,11 @@ $('#playerVolSldr').on('input', function (e) {
 $('#playerProgSldr').on('mousedown', function (e) {
     if (curTrackIndex > -1 && musicPlayer.src !== '' && !isScrubbing) {
         // User started scrubbing, so pause playback.
-        musicPlayer.pause();
         isScrubbing = true;
+
+        if (isPlayerPlaying) {
+            musicPlayer.pause();
+        }
     }
 });
 
@@ -79,9 +82,12 @@ $('#playerProgSldr').on('input', function (e) {
 $('#playerProgSldr').on('mouseup', function (e) {
     if (curTrackIndex > -1 && musicPlayer.src !== '' && isScrubbing) {
         // Stop scrubbing. Go to this point in time and resume.
-        musicPlayer.currentTime = $('#playerProgSldr').val();
-        musicPlayer.play();
         isScrubbing = false;
+        musicPlayer.currentTime = $('#playerProgSldr').val();
+
+        if (isPlayerPlaying) {
+            musicPlayer.play();
+        }
     }
 });
 
