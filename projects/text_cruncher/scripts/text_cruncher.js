@@ -704,7 +704,6 @@ function readFile(file) {
 
 function setIsBusy(busy) {
     // Toggles button controls.
-    $('#helpBtn').prop('disabled', busy);
     fileSelector.disabled = busy;
     dirSelector.disabled = busy;
     analyzeButton.disabled = busy;

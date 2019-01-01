@@ -11,7 +11,6 @@ const BEAT_BASS = 0, BEAT_SNARE = 1;
 // HTML elements
 var audioPlayer = document.getElementById('audioPlayer');
 var gameView = document.getElementById('gameView');
-var helpButton = document.getElementById('helpBtn');
 var playButton = document.getElementById('playBtn');
 var settingsButton = document.getElementById('settingsBtn');
 
@@ -142,7 +141,6 @@ function displayError(msg) {
 }
 
 function setIsBusy(busy) {
-    helpButton.disabled = busy;
     playButton.disabled = busy;
     settingsButton.disabled = busy;
 

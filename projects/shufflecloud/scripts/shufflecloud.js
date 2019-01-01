@@ -17,7 +17,6 @@ var playerProgSlider = document.getElementById('playerProgSlider');
 var playerPlayButton = document.getElementById('playerPlayBtn');
 var playerVolumeSlider = document.getElementById('playerVolSldr');
 
-var helpButton = document.getElementById('helpBtn');
 var loadButton = document.getElementById('loadBtn');
 var shuffleButton = document.getElementById('shuffleBtn');
 var settingsButton = document.getElementById('settingsBtn');
@@ -514,7 +513,6 @@ function displayError(msg) {
 }
 
 function setIsBusy(busy) {
-    helpButton.disabled = busy;
     loadButton.disabled = busy;
     shuffleButton.disabled = busy;
     settingsButton.disabled = busy;
