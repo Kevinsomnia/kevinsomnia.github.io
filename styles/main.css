@@ -278,10 +278,11 @@ a:hover {
 ------------------------- */
 .slider-main {
 	-webkit-appearance: none;
+	-moz-apperance: none;
 	width: 100%;
 	height: 5px;
 	border-radius: 5px;
-	background: #333333;
+	background: -webkit-gradient(linear,left top,right top,color-stop(0.0, #333333));
 	outline: none;
 }
 .slider-main::-webkit-slider-thumb {
@@ -290,8 +291,8 @@ a:hover {
 	height: 20px;
 	border: solid 2px;
 	border-radius: 50%;
-	border-color: #333333;
-	background: #3f42da;
+	border-color: #0d0d0d;
+	background: #426ca3;
 	cursor: pointer;
 }
 .slider-main::-moz-range-thumb {
@@ -299,8 +300,8 @@ a:hover {
 	height: 20px;
 	border: solid 2px;
 	border-radius: 50%;
-	border-color: #333333;
-	background: #3f42da;
+	border-color: #0d0d0d;
+	background: #426ca3;
 	cursor: pointer;
 }
 

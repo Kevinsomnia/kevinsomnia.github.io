@@ -3,6 +3,7 @@ const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
 const TEXT_SCROLL_SPEED = 75; // in pixels/s.
 const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
 const TEXT_SCROLL_END_DELAY = 1.5; // in seconds.
+const SLIDER_GRADIENT = '-webkit-gradient(linear, left top, right top, ';
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -316,7 +317,7 @@ function scrollToCurrentTrack() {
 
 function playerUpdateLoop(timestamp) {
     if (curTrackIndex > -1) {
-        if(isScrubbing) {
+        if (isScrubbing) {
             updateCurrentTimeLabel(scrubTime);
         }
         else {
@@ -325,6 +326,17 @@ function playerUpdateLoop(timestamp) {
             playerProgSlider.value = curPlayerTime.toString();
         }
     }
+
+    var bufferFactor = 0.0;
+    var bufferRangeCount = musicPlayer.buffered.length;
+    
+    if(bufferRangeCount > 0 && !isNaN(musicPlayer.duration)) {
+        // Get buffer amount (largest buffered time) as slider duration.
+        bufferFactor = musicPlayer.buffered.end(bufferRangeCount - 1) / musicPlayer.duration;
+    }
+
+    handleBufferSlider(playerProgSlider, bufferFactor);
+    handleDefaultSlider(playerVolumeSlider);
 
     // Update track and artist label positioning.
     var trackLblParentWidth = trackLblParent.clientWidth + 6; // Magic number :o
@@ -349,6 +361,30 @@ function updateCurrentTimeLabel(time) {
         currentTimeLabel.innerHTML = curTimeText;
         cachedCurTimeText = curTimeText;
     }
+}
+
+function handleBufferSlider(slider, bufferPercent) {
+    var t = inverseLerp(slider.min, slider.max, slider.value);
+    var buffer = clamp(bufferPercent, t, 1.0);
+    
+    var colorKeys = 'color-stop(0.0, #1e3e6d), '; // light blue.
+    colorKeys += 'color-stop(' + t + ', #2220af), '; // dark purple
+    colorKeys += 'color-stop(' + t + ', #5d6993), '; // blue-gray.
+    colorKeys += 'color-stop(' + buffer + ', #5d6993), '; // blue-gray.
+    colorKeys += 'color-stop(' + buffer + ', #333333)'; // background color (dark gray)
+
+    slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
+}
+
+function handleDefaultSlider(slider) {
+    var t = inverseLerp(slider.min, slider.max, slider.value);
+
+    var colorKeys = 'color-stop(0.0, #1e3e6d), '; // light blue.
+    colorKeys += 'color-stop(' + t + ', #2220af), '; // dark purple
+    colorKeys += 'color-stop(' + t + ', #333333), '; // stop gradient.
+    colorKeys += 'color-stop(' + t + ', #333333)'; // background color (dark gray)
+
+    slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
 }
 
 function onTrackEnded() {
