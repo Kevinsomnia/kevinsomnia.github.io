@@ -13,7 +13,7 @@ var trackNameLabel = document.getElementById('trackNameLbl');
 var artistNameLabel = document.getElementById('artistNameLbl');
 var currentTimeLabel = document.getElementById('currentTimeLbl');
 var trackDurationLabel = document.getElementById('trackDurationLbl');
-var playerProgSlider = document.getElementById('playerProgSlider');
+var playerProgSlider = document.getElementById('playerProgSldr');
 var playerPlayButton = document.getElementById('playerPlayBtn');
 var playerVolumeSlider = document.getElementById('playerVolSldr');
 
@@ -30,6 +30,7 @@ var scController = {};
 var loadingNotification = null;
 var isBusy = false;
 var isPlayerPlaying = false;
+var isScrubbing = false;
 var curTrackIndex = -1;
 var playerVolume = 1.0;
 var trackScrollingTimer = null;
@@ -54,10 +55,29 @@ $('#closeSettings').click(function (e) {
     }
 });
 
-$('#playerVolSldr').change(function (e) {
+$('#playerVolSldr').on('input', function (e) {
     playerVolume = $('#playerVolSldr').val() / 100.0;
     musicPlayer.volume = playerVolume;
     localStorage.setItem('playerVolume', playerVolume.toString());
+});
+
+$('#playerProgSldr').on('mousedown', function (e) {
+    if (isPlayerPlaying && !isScrubbing) {
+        // User started scrubbing, so pause playback.
+        musicPlayer.pause();
+        isScrubbing = true;
+        console.log('started scrubbing');
+    }
+});
+
+$('#playerProgSldr').on('mouseup', function (e) {
+    if (isPlayerPlaying && isScrubbing) {
+        // Stop scrubbing. Go to this point in time and resume.
+        musicPlayer.currentTime = $('#playerProgSldr').val();
+        console.log('stopped scrubbing: ' + musicPlayer.currentTime);
+        musicPlayer.play();
+        isScrubbing = false;
+    }
 });
 
 function onWebpageLoaded() {
@@ -335,6 +355,7 @@ function loadTrackOntoPlayer(index) {
 
     // Set new player source to this track's stream URL.
     isPlayerPlaying = false;
+    isScrubbing = false;
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.currentTime = 0.0;
     resetScrollingTimers();
@@ -449,6 +470,7 @@ function clearCurrentTrack() {
     musicPlayer.currentTime = 0.0;
     musicPlayer.src = '';
     isPlayerPlaying = false;
+    isScrubbing = false;
     curTrackIndex = -1;
     resetScrollingTimers();
 
@@ -460,11 +482,11 @@ function clearCurrentTrack() {
 }
 
 function runScrollingTimer(timer, maxOffset, deltaTime) {
-    if(timer.reachedEnd) {
+    if (timer.reachedEnd) {
         // Timer to reset to beginning.
         timer.delay += deltaTime;
 
-        if(timer.delay >= TEXT_SCROLL_END_DELAY) {
+        if (timer.delay >= TEXT_SCROLL_END_DELAY) {
             // Go back to the start.
             timer.pxOffset = 0.0;
             timer.delay = 0.0;
@@ -472,7 +494,7 @@ function runScrollingTimer(timer, maxOffset, deltaTime) {
         }
     }
     else {
-        if(timer.delay < TEXT_SCROLL_START_DELAY) {
+        if (timer.delay < TEXT_SCROLL_START_DELAY) {
             // Wait! There's a delay set!
             timer.delay += deltaTime;
         }
@@ -480,7 +502,7 @@ function runScrollingTimer(timer, maxOffset, deltaTime) {
             // Start scrolling to the right.
             timer.pxOffset += TEXT_SCROLL_SPEED * deltaTime;
 
-            if(timer.pxOffset > maxOffset) {
+            if (timer.pxOffset > maxOffset) {
                 timer.pxOffset = maxOffset;
                 timer.delay = 0.0;
                 timer.reachedEnd = true;
