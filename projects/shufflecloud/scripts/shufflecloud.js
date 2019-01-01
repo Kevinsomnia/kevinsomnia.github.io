@@ -352,8 +352,8 @@ function updateTrackInfoUI() {
         // No track selected. Reset to default values.
         trackPermalink.href = '';
         trackArtwork.src = '../../images/shufflecloud.jpg';
-        trackNameLabel.innerHTML = 'Track Name OMG SO LONG OMAFASOJIDASDOfsadsadsaIJCXZOIVONZOIFSAOF :))))';
-        artistNameLabel.innerHTML = 'Artist Name Not so long lmfao!!!!';
+        trackNameLabel.innerHTML = 'Track Name';
+        artistNameLabel.innerHTML = 'Artist Name';
     }
     else {
         // Update static track elements (basically everything except for the current time).
