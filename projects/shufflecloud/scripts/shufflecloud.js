@@ -61,6 +61,7 @@ $('#playerVolSldr').on('input', function (e) {
     playerVolume = $('#playerVolSldr').val() / 100.0;
     musicPlayer.volume = playerVolume;
     localStorage.setItem('playerVolume', playerVolume.toString());
+    handleDefaultSlider(playerVolumeSlider); // update fill background.
 });
 
 $('#playerProgSldr').on('mousedown', function (e) {
@@ -94,6 +95,7 @@ function onWebpageLoaded() {
     $('#cIdInput').val(scClientID);
     $('#scLink').val(localStorage.getItem('scLink'));
     $('#playerVolSldr').val(Math.round(playerVolume * 100));
+    handleDefaultSlider(playerVolumeSlider); // update fill background.
 
     // Initialize music player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
@@ -325,18 +327,18 @@ function playerUpdateLoop(timestamp) {
             updateCurrentTimeLabel(curPlayerTime);
             playerProgSlider.value = curPlayerTime.toString();
         }
+
+        // Update progress slider background.
+        var bufferFactor = 0.0;
+        var bufferRangeCount = musicPlayer.buffered.length;
+
+        if (bufferRangeCount > 0 && !isNaN(musicPlayer.duration)) {
+            // Get buffer extent as slider value.
+            bufferFactor = musicPlayer.buffered.end(bufferRangeCount - 1) / musicPlayer.duration;
+        }
+
+        handleBufferSlider(playerProgSlider, bufferFactor);
     }
-
-    var bufferFactor = 0.0;
-    var bufferRangeCount = musicPlayer.buffered.length;
-
-    if (bufferRangeCount > 0 && !isNaN(musicPlayer.duration)) {
-        // Get buffer amount (largest buffered time) as slider duration.
-        bufferFactor = musicPlayer.buffered.end(bufferRangeCount - 1) / musicPlayer.duration;
-    }
-
-    handleBufferSlider(playerProgSlider, bufferFactor);
-    handleDefaultSlider(playerVolumeSlider);
 
     // Update track and artist label positioning.
     var trackLblParentWidth = trackLblParent.clientWidth + 6; // Magic number :o
@@ -446,6 +448,7 @@ function updateTrackInfoUI() {
     trackDurationLabel.innerHTML = '--:--';
     playerProgSlider.max = playerProgSlider.step.toString();
     playerProgSlider.value = '0';
+    handleBufferSlider(playerProgSlider, 0.0);
 }
 
 function onTrackLoaded() {
@@ -455,6 +458,7 @@ function onTrackLoaded() {
     var curPlayerDuration = (!isNaN(musicPlayer.duration)) ? musicPlayer.duration : 0;
     trackDurationLabel.innerHTML = toTimerFormat(curPlayerDuration);
     playerProgSlider.max = curPlayerDuration.toString();
+    handleBufferSlider(playerProgSlider, 0.0);
 }
 
 // Player controls
