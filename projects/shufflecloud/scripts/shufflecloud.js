@@ -69,6 +69,13 @@ $('#playerProgSldr').on('mousedown', function (e) {
     }
 });
 
+$('#playerProgSldr').on('input', function (e) {
+    if (isPlayerPlaying && isScrubbing) {
+        // To update current time label.
+        musicPlayer.currentTime = $('#playerProgSldr').val();
+    }
+});
+
 $('#playerProgSldr').on('mouseup', function (e) {
     if (isPlayerPlaying && isScrubbing) {
         // Stop scrubbing. Go to this point in time and resume.
