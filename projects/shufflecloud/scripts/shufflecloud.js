@@ -66,7 +66,6 @@ $('#playerProgSldr').on('mousedown', function (e) {
         // User started scrubbing, so pause playback.
         musicPlayer.pause();
         isScrubbing = true;
-        console.log('started scrubbing');
     }
 });
 
@@ -74,7 +73,6 @@ $('#playerProgSldr').on('mouseup', function (e) {
     if (isPlayerPlaying && isScrubbing) {
         // Stop scrubbing. Go to this point in time and resume.
         musicPlayer.currentTime = $('#playerProgSldr').val();
-        console.log('stopped scrubbing: ' + musicPlayer.currentTime);
         musicPlayer.play();
         isScrubbing = false;
     }
@@ -321,7 +319,9 @@ function playerUpdateLoop(timestamp) {
             cachedCurTimeText = curTimeText;
         }
 
-        playerProgSlider.value = curPlayerTime.toString();
+        if (!isScrubbing) {
+            playerProgSlider.value = curPlayerTime.toString();
+        }
     }
 
     // Update track and artist label positioning.
