@@ -62,7 +62,7 @@ $('#playerVolSldr').on('input', function (e) {
 });
 
 $('#playerProgSldr').on('mousedown', function (e) {
-    if (isPlayerPlaying && !isScrubbing) {
+    if (curTrackIndex > -1 && musicPlayer.src !== '' && !isScrubbing) {
         // User started scrubbing, so pause playback.
         musicPlayer.pause();
         isScrubbing = true;
@@ -70,14 +70,14 @@ $('#playerProgSldr').on('mousedown', function (e) {
 });
 
 $('#playerProgSldr').on('input', function (e) {
-    if (isPlayerPlaying && isScrubbing) {
+    if (curTrackIndex > -1 && musicPlayer.src !== '' && isScrubbing) {
         // To update current time label.
         musicPlayer.currentTime = $('#playerProgSldr').val();
     }
 });
 
 $('#playerProgSldr').on('mouseup', function (e) {
-    if (isPlayerPlaying && isScrubbing) {
+    if (curTrackIndex > -1 && musicPlayer.src !== '' && isScrubbing) {
         // Stop scrubbing. Go to this point in time and resume.
         musicPlayer.currentTime = $('#playerProgSldr').val();
         musicPlayer.play();

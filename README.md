@@ -3,7 +3,7 @@ This is my personal website for web projects.
 
 **Web projects:**
 - [Text Cruncher (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/text_cruncher)
-- [SoundSmash (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/soundsmash)
+- [TempoSmash (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/temposmash)
 - [ShuffleCloud](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/shufflecloud)
 
 **Libraries used in all projects:**
