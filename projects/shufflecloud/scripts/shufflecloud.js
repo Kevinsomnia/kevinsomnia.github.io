@@ -1,6 +1,8 @@
 // Global constants.
 const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
-const TEXT_SCROLL_DURATION = 7.5; // in seconds.
+const TEXT_SCROLL_SPEED = 75; // in pixels/s.
+const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
+const TEXT_SCROLL_END_DELAY = 1.5; // in seconds.
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -31,7 +33,8 @@ var isBusy = false;
 var isPlayerPlaying = false;
 var curTrackIndex = -1;
 var playerVolume = 1.0;
-var scrollingTextTimer = 0.0;
+var trackScrollingTimer = null;
+var artistScrollingTimer = null;
 var lastTimestamp = 0.0;
 
 // Cached HTML variables that are constantly updating.
@@ -67,12 +70,12 @@ function onWebpageLoaded() {
     $('#scLink').val(localStorage.getItem('scLink'));
     $('#playerVolSldr').val(Math.round(playerVolume * 100));
 
-    // Initialize audio player for audio streaming.
+    // Initialize music player for audio streaming.
     musicPlayer.crossOrigin = 'anonymous';
     musicPlayer.addEventListener('loadeddata', onTrackLoaded);
     musicPlayer.addEventListener('ended', onTrackEnded);
     musicPlayer.volume = playerVolume;
-    scrollingTextTimer = 0.0;
+    resetScrollingTimers();
     clearCurrentTrack();
 
     // Start player UI update loop.
@@ -308,15 +311,10 @@ function playerUpdateLoop(timestamp) {
     var artistNameMoveDist = Math.max(0, artistNameLabel.clientWidth - trackLblParentWidth);
     var dt = (timestamp - lastTimestamp) / 1000.0; // time elapsed in seconds.
 
-    // Scroll from 17.5% to 82.5% of the animation time.
-    var animTime = inverseLerp(0.175, 0.825, scrollingTextTimer);
-    trackNameLabel.style.left = Math.round(lerp(0, -trackNameMoveDist, animTime)) + 'px';
-    artistNameLabel.style.left = Math.round(lerp(0, -artistNameMoveDist, animTime)) + 'px';
-    scrollingTextTimer += dt / TEXT_SCROLL_DURATION;
-
-    if (scrollingTextTimer >= 1.0) {
-        scrollingTextTimer = 0.0; // Reset animation.
-    }
+    runScrollingTimer(trackScrollingTimer, trackNameMoveDist, dt);
+    runScrollingTimer(artistScrollingTimer, artistNameMoveDist, dt);
+    trackNameLabel.style.left = -trackScrollingTimer.pxOffset + 'px';
+    artistNameLabel.style.left = -artistScrollingTimer.pxOffset + 'px';
 
     requestAnimationFrame(playerUpdateLoop);
     lastTimestamp = timestamp;
@@ -340,7 +338,7 @@ function loadTrackOntoPlayer(index) {
     isPlayerPlaying = false;
     musicPlayer.src = getStreamUrl(index);
     musicPlayer.currentTime = 0.0;
-    scrollingTextTimer = 0.0; // Reset scrolling text.
+    resetScrollingTimers();
     setIsBusy(true);
     toggleTrackPlayback(); // Start playing.
 
@@ -354,8 +352,8 @@ function updateTrackInfoUI() {
         // No track selected. Reset to default values.
         trackPermalink.href = '';
         trackArtwork.src = '../../images/shufflecloud.jpg';
-        trackNameLabel.innerHTML = 'Track Name';
-        artistNameLabel.innerHTML = 'Artist Name';
+        trackNameLabel.innerHTML = 'Track Name OMG SO LONG OMAFASOJIDASDOfsadsadsaIJCXZOIVONZOIFSAOF :))))';
+        artistNameLabel.innerHTML = 'Artist Name Not so long lmfao!!!!';
     }
     else {
         // Update static track elements (basically everything except for the current time).
@@ -453,12 +451,48 @@ function clearCurrentTrack() {
     musicPlayer.src = '';
     isPlayerPlaying = false;
     curTrackIndex = -1;
+    resetScrollingTimers();
 
     // Clear cached label texts.
     cachedCurTimeText = '';
 
     // Update UI.
     updateTrackInfoUI();
+}
+
+function runScrollingTimer(timer, maxOffset, deltaTime) {
+    if(timer.reachedEnd) {
+        // Timer to reset to beginning.
+        timer.delay += deltaTime;
+
+        if(timer.delay >= TEXT_SCROLL_END_DELAY) {
+            // Go back to the start.
+            timer.pxOffset = 0.0;
+            timer.delay = 0.0;
+            timer.reachedEnd = false;
+        }
+    }
+    else {
+        if(timer.delay < TEXT_SCROLL_START_DELAY) {
+            // Wait! There's a delay set!
+            timer.delay += deltaTime;
+        }
+        else {
+            // Start scrolling to the right.
+            timer.pxOffset += TEXT_SCROLL_SPEED * deltaTime;
+
+            if(timer.pxOffset > maxOffset) {
+                timer.pxOffset = maxOffset;
+                timer.delay = 0.0;
+                timer.reachedEnd = true;
+            }
+        }
+    }
+}
+
+function resetScrollingTimers() {
+    trackScrollingTimer = { pxOffset: 0.0, delay: 0.0, reachedEnd: false };
+    artistScrollingTimer = { pxOffset: 0.0, delay: 0.0, reachedEnd: false };
 }
 
 function displayError(msg) {
