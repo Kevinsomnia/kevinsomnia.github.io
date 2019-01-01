@@ -64,7 +64,9 @@ $('#playerVolSldr').on('input', function (e) {
 
 $('#playerProgSldr').on('mousedown', function (e) {
     if (curTrackIndex > -1 && musicPlayer.src !== '') {
+        // Begin scrubbing. Set scrub time for current time label.
         isScrubbing = true;
+        scrubTime = $('#playerProgSldr').val();
     }
 });
 
