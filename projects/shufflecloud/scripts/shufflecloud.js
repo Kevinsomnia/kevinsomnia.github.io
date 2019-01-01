@@ -329,8 +329,8 @@ function playerUpdateLoop(timestamp) {
 
     var bufferFactor = 0.0;
     var bufferRangeCount = musicPlayer.buffered.length;
-    
-    if(bufferRangeCount > 0 && !isNaN(musicPlayer.duration)) {
+
+    if (bufferRangeCount > 0 && !isNaN(musicPlayer.duration)) {
         // Get buffer amount (largest buffered time) as slider duration.
         bufferFactor = musicPlayer.buffered.end(bufferRangeCount - 1) / musicPlayer.duration;
     }
@@ -366,12 +366,18 @@ function updateCurrentTimeLabel(time) {
 function handleBufferSlider(slider, bufferPercent) {
     var t = inverseLerp(slider.min, slider.max, slider.value);
     var buffer = clamp(bufferPercent, t, 1.0);
-    
-    var colorKeys = 'color-stop(0.0, #1e3e6d), '; // light blue.
-    colorKeys += 'color-stop(' + t + ', #2220af), '; // dark purple
-    colorKeys += 'color-stop(' + t + ', #5d6993), '; // blue-gray.
-    colorKeys += 'color-stop(' + buffer + ', #5d6993), '; // blue-gray.
-    colorKeys += 'color-stop(' + buffer + ', #333333)'; // background color (dark gray)
+
+    var colorKeys = 'color-stop(0.0, #1e3e6d)'; // light blue.
+    colorKeys += ', color-stop(' + t + ', #2220af)'; // dark purple
+
+    if (t < 1.0) {
+        colorKeys += ', color-stop(' + t + ', #5d6993)'; // blue-gray: start buffer area.
+        colorKeys += ', color-stop(' + buffer + ', #5d6993)'; // blue-gray: end buffer area.
+
+        if (buffer < 1.0) {
+            colorKeys += ', color-stop(' + buffer + ', #333333)'; // background color (dark gray)
+        }
+    }
 
     slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
 }
@@ -379,10 +385,14 @@ function handleBufferSlider(slider, bufferPercent) {
 function handleDefaultSlider(slider) {
     var t = inverseLerp(slider.min, slider.max, slider.value);
 
-    var colorKeys = 'color-stop(0.0, #1e3e6d), '; // light blue.
-    colorKeys += 'color-stop(' + t + ', #2220af), '; // dark purple
-    colorKeys += 'color-stop(' + t + ', #333333), '; // stop gradient.
-    colorKeys += 'color-stop(' + t + ', #333333)'; // background color (dark gray)
+    var colorKeys = 'color-stop(0.0, #1e3e6d)'; // light blue.
+    colorKeys += ', color-stop(' + t + ', #2220af)'; // dark purple
+
+    if (t < 1.0) {
+        // Only necessary when the gradient isn't covering the entire background.
+        colorKeys += ', color-stop(' + t + ', #333333)'; // stop gradient.
+        colorKeys += ', color-stop(' + t + ', #333333)'; // background color (dark gray)
+    }
 
     slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
 }
