@@ -1,6 +1,6 @@
 // Global constants.
 const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
-const STATIC_ELEMENTS_HEIGHT = 265; // in pixels.
+const STATIC_ELEMENTS_HEIGHT = 285; // in pixels.
 const MIN_PLAYLIST_HEIGHT = 50; // in pixels.
 const TEXT_SCROLL_SPEED = 75; // in pixels/s.
 const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
