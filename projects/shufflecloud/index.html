@@ -76,8 +76,7 @@
 
             <audio id="musicPlayer"></audio>
 
-            <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there). This doesn't work on
-                Firefox yet!</h5>
+            <h5 class="main-header">For mobile devices: use the mobile app (shuffle works there)</h5>
 
             <div class="row">
                 <div class="col-8">
@@ -150,10 +149,10 @@
                     </div>
 
                     <div class="col-2" style="padding-right:16px;">
-                        <img src="images/quiet.png" style="position:relative;left:0px;top:8px;width:14px;height:14px;outline:none;">
+                        <input type="image" onclick="minVolume()" src="images/quiet.png" style="position:relative;left:0px;top:10px;width:16px;height:16px;outline:none;">
                         <input type="range" id="playerVolSldr" min="0" max="100" step="1" value="100" class="slider-main"
-                            style="position:relative;left:5px;top:7px;min-width:60px;width:50%;">
-                        <img src="images/loud.png" style="position:relative;left:10px;top:8px;width:14px;height:14px;outline:none;">
+                            style="position:relative;left:4px;top:4px;min-width:60px;width:50%;">
+                        <input type="image" onclick="maxVolume()" src="images/loud.png" style="position:relative;left:10px;top:10px;width:16px;height:16px;outline:none;">
                     </div>
                 </div>
             </div>

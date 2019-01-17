@@ -5,8 +5,13 @@ const MIN_PLAYLIST_HEIGHT = 50; // in pixels.
 const TEXT_SCROLL_SPEED = 75; // in pixels/s.
 const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
 const TEXT_SCROLL_END_DELAY = 1.5; // in seconds.
-const SLIDER_GRADIENT = '-webkit-gradient(linear, left top, right top, ';
+const SLIDER_GRADIENT_CHROME = '-webkit-gradient(linear, left top, right top';
+const SLIDER_GRADIENT_FIREFOX = 'linear-gradient(to right';
 const DEFAULT_WINDOW_TITLE = 'ShuffleCloud | Kevin\'s Web Portfolio';
+
+// Browser detection.
+const BROWSER_CHROME = 0, BROWSER_FIREFOX = 1;
+var browserIndex = -1;
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -92,6 +97,13 @@ $('#playerProgSldr').on('mouseup', function (e) {
 });
 
 function onWebpageLoaded() {
+    // Detect browser.
+    browserIndex = BROWSER_CHROME;
+
+    if (navigator.userAgent.indexOf('Firefox') > -1) {
+        browserIndex = BROWSER_FIREFOX;
+    }
+
     // Load settings.
     scClientID = loadString('scClientId', 'HzEllmdjxRaeJ4LHu62ED4YKXrx4ji1v');
     playerVolume = loadFloat('playerVolume', 1.0);
@@ -193,19 +205,19 @@ function onPressLoad() {
         title: '<b>Loading:</b>',
         message: 'Retrieving playlist...'
     }, {
-        type: 'info',
-        allow_dismiss: false,
-        spacing: 5,
-        timer: 0,
-        placement: {
-            from: "top",
-            align: "center"
-        },
-        animate: {
-            enter: 'animated faster fadeInDown',
-            exit: 'animated faster fadeOutUp'
-        }
-    });
+            type: 'info',
+            allow_dismiss: false,
+            spacing: 5,
+            timer: 0,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            animate: {
+                enter: 'animated faster fadeInDown',
+                exit: 'animated faster fadeOutUp'
+            }
+        });
 }
 
 function onPressShuffle() {
@@ -394,34 +406,49 @@ function handleBufferSlider(slider, bufferPercent) {
     var t = inverseLerp(slider.min, slider.max, slider.value);
     var buffer = clamp(bufferPercent, t, 1.0);
 
-    var colorKeys = 'color-stop(0.0, #1e3e6d)'; // light blue.
-    colorKeys += ', color-stop(' + t + ', #2220af)'; // dark purple
+    var colorKeys = getColorKey(0.0, '#1e3e6d'); // start light blue.
+    colorKeys += getColorKey(t, '#2220af'); // end dark purple
 
     if (t < 1.0) {
-        colorKeys += ', color-stop(' + t + ', #5d6993)'; // blue-gray: start buffer area.
-        colorKeys += ', color-stop(' + buffer + ', #5d6993)'; // blue-gray: end buffer area.
+        // Only necessary when the gradient isn't covering the entire background.
+        colorKeys += getColorKey(t, '#5d6993'); // blue-gray: start buffer area.
+        colorKeys += getColorKey(buffer, '#5d6993'); // blue-gray: end buffer area.
 
         if (buffer < 1.0) {
-            colorKeys += ', color-stop(' + buffer + ', #333333)'; // background color (dark gray)
+            colorKeys += getColorKey(buffer, '#333333'); // background color (dark gray)
         }
     }
 
-    slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
+    if (browserIndex == BROWSER_CHROME)
+        slider.style.background = SLIDER_GRADIENT_CHROME + colorKeys + ')';
+    else
+        slider.style.background = SLIDER_GRADIENT_FIREFOX + colorKeys + ')';
 }
 
 function handleDefaultSlider(slider) {
     var t = inverseLerp(slider.min, slider.max, slider.value);
 
-    var colorKeys = 'color-stop(0.0, #1e3e6d)'; // light blue.
-    colorKeys += ', color-stop(' + t + ', #2220af)'; // dark purple
+    var colorKeys = getColorKey(0.0, '#1e3e6d'); // start light blue.
+    colorKeys += getColorKey(t, '#2220af'); // end dark purple
 
     if (t < 1.0) {
         // Only necessary when the gradient isn't covering the entire background.
-        colorKeys += ', color-stop(' + t + ', #333333)'; // stop gradient.
-        colorKeys += ', color-stop(' + t + ', #333333)'; // background color (dark gray)
+        colorKeys += getColorKey(t, '#333333'); // start background color.
     }
 
-    slider.style.background = SLIDER_GRADIENT + colorKeys + ')';
+    if (browserIndex == BROWSER_CHROME)
+        slider.style.background = SLIDER_GRADIENT_CHROME + colorKeys + ')';
+    else
+        slider.style.background = SLIDER_GRADIENT_FIREFOX + colorKeys + ')';
+}
+
+function getColorKey(percent, hexColor) {
+    if (browserIndex == BROWSER_FIREFOX) {
+        return ', ' + hexColor + ' ' + (percent * 100) + '%';
+    }
+
+    // Default: Chrome.
+    return ', color-stop(' + percent + ', ' + hexColor + ')';
 }
 
 function onTrackEnded() {
@@ -570,6 +597,24 @@ function clearCurrentTrack() {
     updateTrackInfoUI();
 }
 
+function minVolume() {
+    // Update slider UI.
+    $('#playerVolSldr').val(0);
+    handleDefaultSlider(playerVolumeSlider);
+    
+    musicPlayer.volume = 0.0; // Apply volume to player.
+    localStorage.setItem('playerVolume', '0.0'); // Save volume to storage.
+}
+
+function maxVolume() {
+    // Update slider UI.
+    $('#playerVolSldr').val(100);
+    handleDefaultSlider(playerVolumeSlider);
+
+    musicPlayer.volume = 1.0; // Apply volume to player.
+    localStorage.setItem('playerVolume', '1.0'); // Save volume to storage.
+}
+
 function runScrollingTimer(timer, maxOffset, deltaTime) {
     if (timer.reachedEnd) {
         // Timer to reset to beginning.
@@ -618,20 +663,20 @@ function displayError(msg) {
         title: '<b>Error:</b>',
         message: msg
     }, {
-        type: 'danger',
-        allow_dismiss: true,
-        spacing: 5,
-        delay: 5000,
-        timer: 250,
-        placement: {
-            from: "top",
-            align: "center"
-        },
-        animate: {
-            enter: 'animated faster fadeInDown',
-            exit: 'animated faster fadeOutUp'
-        }
-    });
+            type: 'danger',
+            allow_dismiss: true,
+            spacing: 5,
+            delay: 5000,
+            timer: 250,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            animate: {
+                enter: 'animated faster fadeInDown',
+                exit: 'animated faster fadeOutUp'
+            }
+        });
 }
 
 function setIsBusy(busy) {
