@@ -1,9 +1,12 @@
 // Global constants.
 const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
+const STATIC_ELEMENTS_HEIGHT = 265; // in pixels.
+const MIN_PLAYLIST_HEIGHT = 50; // in pixels.
 const TEXT_SCROLL_SPEED = 75; // in pixels/s.
 const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
 const TEXT_SCROLL_END_DELAY = 1.5; // in seconds.
 const SLIDER_GRADIENT = '-webkit-gradient(linear, left top, right top, ';
+const DEFAULT_WINDOW_TITLE = 'ShuffleCloud | Kevin\'s Web Portfolio';
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -38,6 +41,7 @@ var playerVolume = 1.0;
 var trackScrollingTimer = null;
 var artistScrollingTimer = null;
 var lastTimestamp = 0.0;
+var lastPlaylistHeight = 0;
 
 // Cached HTML variables that are constantly updating.
 var cachedCurTimeText = '';
@@ -112,8 +116,16 @@ function onWebpageLoaded() {
 
 function initController() {
     // Create controller object for this client ID.
-    scController = { clientID: scClientID, metadata: null, playlist: null, onRetrieved: null, onFailed: null };
-    SC.initialize({ client_id: scClientID });
+    scController = {
+        clientID: scClientID,
+        metadata: null,
+        playlist: null,
+        onRetrieved: null,
+        onFailed: null
+    };
+    SC.initialize({
+        client_id: scClientID
+    });
 }
 
 function getStreamUrl(index) {
@@ -132,7 +144,9 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     link = link.trim();
 
     // Resolve to get playlist from link.
-    SC.get('/resolve', { url: link }, function (result) {
+    SC.get('/resolve', {
+        url: link
+    }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
                 scController.metadata = result;
@@ -175,7 +189,10 @@ function onPressLoad() {
     tryGetPlaylist(link, onPlaylistLoadSuccess, onPlaylistLoadFail);
     setIsBusy(true);
 
-    loadingNotification = $.notify({ title: '<b>Loading:</b>', message: 'Retrieving playlist...' }, {
+    loadingNotification = $.notify({
+        title: '<b>Loading:</b>',
+        message: 'Retrieving playlist...'
+    }, {
         type: 'info',
         allow_dismiss: false,
         spacing: 5,
@@ -267,8 +284,8 @@ function shufflePlaylist() {
 function refreshPlaylistUI() {
     var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | '
-        + scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
+    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' +
+        scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
 
     var listContents = '';
     var trackCount = scController.playlist.length;
@@ -318,6 +335,14 @@ function scrollToCurrentTrack() {
 }
 
 function playerUpdateLoop(timestamp) {
+    // Update the scrollable playlist height to place the player UI at the bottom of the page.
+    var height = Math.max(MIN_PLAYLIST_HEIGHT, window.innerHeight - STATIC_ELEMENTS_HEIGHT);
+
+    if (height != lastPlaylistHeight) {
+        playlistUI.style.height = height + 'px';
+        lastPlaylistHeight = height;
+    }
+
     if (curTrackIndex > -1) {
         if (isScrubbing) {
             updateCurrentTimeLabel(scrubTime);
@@ -430,6 +455,7 @@ function loadTrackOntoPlayer(index) {
 function updateTrackInfoUI() {
     if (curTrackIndex <= -1) {
         // No track selected. Reset to default values.
+        document.title = DEFAULT_WINDOW_TITLE;
         trackPermalink.href = '';
         trackArtwork.src = '../../images/shufflecloud.jpg';
         trackNameLabel.innerHTML = 'Track Name';
@@ -437,6 +463,7 @@ function updateTrackInfoUI() {
     }
     else {
         // Update static track elements (basically everything except for the current time).
+        document.title = scController.playlist[curTrackIndex].title + ' by ' + scController.playlist[curTrackIndex].user.username + ' | ShuffleCloud';
         trackPermalink.href = scController.playlist[curTrackIndex].permalink_url;
         trackArtwork.src = scController.playlist[curTrackIndex].artwork_url;
         trackNameLabel.innerHTML = scController.playlist[curTrackIndex].title;
@@ -574,12 +601,23 @@ function runScrollingTimer(timer, maxOffset, deltaTime) {
 }
 
 function resetScrollingTimers() {
-    trackScrollingTimer = { pxOffset: 0.0, delay: 0.0, reachedEnd: false };
-    artistScrollingTimer = { pxOffset: 0.0, delay: 0.0, reachedEnd: false };
+    trackScrollingTimer = {
+        pxOffset: 0.0,
+        delay: 0.0,
+        reachedEnd: false
+    };
+    artistScrollingTimer = {
+        pxOffset: 0.0,
+        delay: 0.0,
+        reachedEnd: false
+    };
 }
 
 function displayError(msg) {
-    $.notify({ title: '<b>Error:</b>', message: msg }, {
+    $.notify({
+        title: '<b>Error:</b>',
+        message: msg
+    }, {
         type: 'danger',
         allow_dismiss: true,
         spacing: 5,
