@@ -45,15 +45,13 @@ body.fadeout {
 .main-card {
 	transition: all 0.1s ease-in-out;
 	background-color: #333333c0;
+	height: 100%;
 	margin-left: -0.5rem;
 	margin-right: -0.5rem;
 	margin-bottom: 0.75rem;
 	border: solid 2px;
 	border-color: #505050;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	border-bottom-left-radius: 15px;
-	border-bottom-right-radius: 15px;
+	border-radius: 10px;
 	box-shadow: 0 0.5rem 2rem #0000004d !important;
 }
 .main-card:hover {
@@ -62,7 +60,7 @@ body.fadeout {
 .main-card-contents {
 	padding: 1.25rem;
 	text-align: center;
-	color: #ffffff;
+	color: #ffffff !important;
 }
 
 .main-shadow {
