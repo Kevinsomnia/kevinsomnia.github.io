@@ -2,9 +2,10 @@
 This is my personal website for web projects.
 
 **Web projects:**
-- [Text Cruncher (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/text_cruncher)
-- [TempoSmash (in progress)](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/temposmash)
+- [Text Cruncher](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/text_cruncher)
+- [TempoSmash](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/temposmash)
 - [ShuffleCloud](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/shufflecloud)
+- [LiveSubs](https://github.com/bayyatej/livesubs)
 
 **Libraries used in all projects:**
 - [Chart.js](https://www.chartjs.org/)
