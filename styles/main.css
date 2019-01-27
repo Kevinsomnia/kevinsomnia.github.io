@@ -62,6 +62,12 @@ body.fadeout {
 	text-align: center;
 	color: #ffffff !important;
 }
+.subheader {
+	color: #d0d0d0 !important;
+	margin-top: -5px;
+	line-height: 1.25;
+	font-size: 0.9rem;
+}
 
 .main-shadow {
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important;
@@ -134,8 +140,14 @@ a:hover {
 	text-shadow: 0px 0px 2rem #def0ff50;
 }
 
+.card-divider {
+	border-color: #505050;
+	border-style: inset;
+	border-width: 1px;
+	margin: 1rem 0;
+}
 .showcase-divider {
-	border-color: #666666;
+	border-color: #505050;
 	border-style: inset;
 	border-width: 1px;
 	margin: 2rem 0;
