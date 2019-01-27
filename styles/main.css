@@ -111,6 +111,20 @@ body.fadeout {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+::-webkit-scrollbar {
+	width: 15px;
+}
+::-webkit-scrollbar-track {
+	background: #000000;
+	box-shadow: inset 0 0 4px #161616;
+}
+::-webkit-scrollbar-thumb {
+	background: #2c335f;
+	box-shadow: inset 0 0 4px #000000a0;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: #343c70;
+}
 
 .toggle.round,
 .toggle-on.round,
