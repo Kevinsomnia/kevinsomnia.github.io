@@ -28,7 +28,7 @@ $('#connectBtn').click(function() {
     ipString = $('#ipInput').val();
     portString = $('#portInput').val();
 
-    var finalWsUrl = 'ws://' + ipString + ':' + portString;
+    var finalWsUrl = 'wss://' + ipString + ':' + portString;
     console.log('Connecting to: ' + finalWsUrl);
     
     // Connect to URL.
