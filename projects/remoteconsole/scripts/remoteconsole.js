@@ -9,6 +9,12 @@ var ipString = '192.168.1.50';
 var portString = '8080';
 var socket = null;
 
+
+// ADD FIREFOX DETECTION AND NOTIFY THAT THEY NEED TO EITHER USE CHROME OR ALLOW INSECURE WEBSOCKETS.
+
+// SETTINGS MENU WITH TOGGLE FOR SECURE (disabled by default).
+
+
 // HTML elements
 var consoleBody = document.getElementById('consoleBody');
 
@@ -100,12 +106,17 @@ function setConnectingState(state) {
     $('#connectBtn').attr('disabled', connecting);
 }
 
+function updateTabName() {
+    if(connected)
+        document.title = ipString + ':' + portString + ' | Remote Console';
+    else
+        document.title = 'Remote Console | Kevin\'s Web Portfolio';
+}
+
 // WebSocket connection.
 function onConnect(event) {
     connected = true;
-
-    // Update tab name.
-    document.title = ipString + ':' + portString + ' | Remote Console | Paxitium';
+    updateTabName();
 
     // Fade out form and load console UI.
     animateCSS('#connectForm', 'fadeOut', function() {
@@ -164,4 +175,5 @@ function sendMessageToServer(msg) {
 
 function onReceivedData(data) {
     console.log('Received data: ' + data);
+    $('#consoleBody').append('<br>' + data);
 }
