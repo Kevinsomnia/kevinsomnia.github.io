@@ -1,4 +1,8 @@
 /* Main styling for website */
+html {
+	min-height: 100%;
+}
+
 body {
 	color: #ebebeb;
 	background-color: #161616;
@@ -133,17 +137,17 @@ body.fadeout {
 }
 
 .form-control {
-	background-color: #444444;
-	border-color: #2c335f;
+	background-color: #101010;
+	border-color: #252c4e;
 	color: #efefef;
 }
 .form-control:focus {
-	background-color: #444444;
+	background-color: #121212;
 	border-color: #2c335f;
 	color: #efefef;
 }
 .form-control::placeholder {
-	color: #999999;
+	color: #505050;
 }
 
 a {

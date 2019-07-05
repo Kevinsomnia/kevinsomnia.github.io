@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="This is a remote web console that uses the WebSocket API to communicate with other applications.">
+    <meta name="author" content="Kevin Tong">
+    <meta name="theme-color" content="#161616">
+    <link rel="icon" href="images/favicon.png">
+
+    <title>WebRemoteConsole</title>
+
+    <!-- Bootstrap and page CSS -->
+    <link href="../../styles/bootstrap.min.css" rel="stylesheet">
+    <link href="../../styles/main.css" rel="stylesheet">
+    <link href="styles/remoteconsole.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Content invisible -->
+    <script>
+        document.body.classList.add('fadeout');
+    </script>
+
+    <main role="main">
+        <!-- Header of the webpage. -->
+        <div class="container" style="margin-top: 6rem; text-align: center;">
+            <h2 class="banner-name" style="text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
+            <div class="subheader" style="margin-bottom: 3rem;">Officially supported for Paxitium</div>
+            
+            <!-- Client connection form -->
+            <div class="main-form col-11 col-sm-9 col-md-7 col-lg-5 mx-auto">                
+                <div class="form-group">
+                    <div class="subheader" style="text-align: center;">Server IP Address</div>
+                    <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="127.0.0.1">
+                    <div class="subheader" style="text-align: center;">Server Port</div>
+                    <input id="portInput" class="form-control" style="margin-bottom: 25px; text-align: center;" type="text" maxlength="5" placeholder="8052">
+                </div>
+                
+                <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
+                    style="background-color:#2f476b">Connect</button>
+            </div>
+    
+        </div>
+
+    </main>
+
+    <script src="../../scripts/popper.min.js"></script>
+    <script src="../../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../../scripts/bootstrap.min.js"></script>
+    <script src="../../scripts/jquery.mask.min.js"></script>
+    <script src="scripts/remoteconsole.js"></script>
+    
+    <!-- Fade done -->
+    <script>
+        // Fade in page after done loading.
+        window.onload = function () {
+            document.body.classList.remove('fadeout');
+        };
+    </script>
+</body>
+
+</html>
