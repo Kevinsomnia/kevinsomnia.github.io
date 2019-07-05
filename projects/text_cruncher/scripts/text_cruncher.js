@@ -248,7 +248,7 @@ $('#ignoreEmptyLines').change(function (e) {
 $('#closeSettings').click(function (e) {
     // Save invalid keyword list into one string.
     invalidKeywords = $('#invalidKeywords').tagit('assignedTags');
-    localStorage.setItem('invalidKeywords', invalidKeywords.join(','));
+    saveArray('invalidKeywords', invalidKeywords);
 });
 
 // Drag and drop event.

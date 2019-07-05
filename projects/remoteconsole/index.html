@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="This is a remote web console that uses the WebSocket API to communicate with other applications.">
+    <meta name="description" content="A remote web console that uses the WebSocket API to communicate with other applications.">
     <meta name="author" content="Kevin Tong">
     <meta name="theme-color" content="#161616">
     <link rel="icon" href="images/favicon.png">
@@ -13,6 +13,7 @@
 
     <!-- Bootstrap and page CSS -->
     <link href="../../styles/bootstrap.min.css" rel="stylesheet">
+    <link href="../../styles/animate.min.css" rel="stylesheet">
     <link href="../../styles/main.css" rel="stylesheet">
     <link href="styles/remoteconsole.css" rel="stylesheet">
 </head>
@@ -23,33 +24,51 @@
         document.body.classList.add('fadeout');
     </script>
 
-    <main role="main">
-        <!-- Header of the webpage. -->
-        <div class="container" style="margin-top: 6rem; text-align: center;">
-            <h2 class="banner-name" style="text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
-            <div class="subheader" style="margin-bottom: 3rem;">Officially supported for Paxitium</div>
-            
-            <!-- Client connection form -->
-            <div class="main-form col-11 col-sm-9 col-md-7 col-lg-5 mx-auto">                
-                <div class="form-group">
-                    <div class="subheader" style="text-align: center;">Server IP Address</div>
-                    <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="127.0.0.1">
-                    <div class="subheader" style="text-align: center;">Server Port</div>
-                    <input id="portInput" class="form-control" style="margin-bottom: 25px; text-align: center;" type="text" maxlength="5" placeholder="8052">
-                </div>
-                
-                <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
-                    style="background-color:#2f476b">Connect</button>
+    <!-- Client connection form -->
+    <div id="connectForm" class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4 mx-auto center-screen" style="text-align: center;">
+        <h2 class="banner-name" style="margin-bottom: 2rem;text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
+        
+        <div class="main-form">                
+            <div class="form-group">
+                <div class="subheader" style="text-align: center;">Server IP Address</div>
+                <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="192.168.1.50">
+                <div class="subheader" style="text-align: center;">Server Port</div>
+                <input id="portInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="5" placeholder="8080">
+                <div style="margin-bottom: 20px;"></div>
             </div>
-    
+            
+            <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
+                style="background-color:#2f476b">Connect</button>
+        </div>
+    </div>
+
+    <!-- Console UI -->
+    <div id="consoleUI" class="col-12" style="display: none;">
+        <div class="row mx-auto" style="margin-top: 10px; margin-bottom: 10px;">
+            <div id="serverTitle" class="col main-header console-input" style="margin-top: 10px; text-align: center;">
+                127.0.0.1 | Port 8080
+            </div>
+
+            <button id="disconnectBtn" type="button" class="btn btn-secondary console-input"
+                style="max-width: 150px; background-color:#6b2f37">Disconnect</button>
         </div>
 
-    </main>
+        <div id="consoleBody" class="console-body">
+                Successfully connected to 127.0.0.1:8080!
+        </div>
+
+        <div class="row mx-auto">
+            <input id="inputField" class="col form-control console-input" type="text">
+            <button id="sendBtn" type="button" class="btn btn-secondary console-input"
+                style="margin-left: 10px; width: 100px; background-color:#303052">Send</button>
+        </div>
+    </div>
 
     <script src="../../scripts/popper.min.js"></script>
     <script src="../../scripts/jquery-3.3.1.min.js"></script>
     <script src="../../scripts/bootstrap.min.js"></script>
     <script src="../../scripts/jquery.mask.min.js"></script>
+    <script src="../../scripts/main.js"></script>
     <script src="scripts/remoteconsole.js"></script>
     
     <!-- Fade done -->

@@ -39,6 +39,14 @@ body.fadeout {
 
 /* MAIN/SHARED STYLING
 ------------------------- */
+.center-screen {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+  	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+}
+
 .main-header {
 	color: #cdedff;
 	font-weight: -10;

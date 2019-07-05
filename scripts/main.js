@@ -1,6 +1,26 @@
 // A nice compilation of helper functions for my projects.
 // Author: Kevin Tong
 
+function saveString(key, value) {
+    localStorage.setItem(key, value);
+}
+
+function saveBoolean(key, value) {
+    localStorage.setItem(key, value.toString());
+}
+
+function saveFloat(key, value) {
+    localStorage.setItem(key, value.toString());
+}
+
+function saveInt(key, value) {
+    localStorage.setItem(key, value.toString());
+}
+
+function saveArray(key, value) {
+    localStorage.setItem(key, value.join(','));
+}
+
 function loadString(key, defaultValue) {
     var value = localStorage.getItem(key);
 
@@ -98,4 +118,19 @@ function clamp(val, min, max) {
 
 function randomInt(minInclusive, maxInclusive) {
     return Math.floor(lerp(minInclusive, maxInclusive + 1, Math.random()));
+}
+
+function animateCSS(element, animationName, callback) {
+    const node = document.querySelector(element);
+    node.classList.add('animated', animationName, 'fastest');
+
+    function handleAnimationEnd() {
+        node.classList.remove('animated', animationName, 'fastest');
+        node.removeEventListener('animationend', handleAnimationEnd);
+        
+        if(typeof callback === 'function')
+            callback();
+    }
+
+    node.addEventListener('animationend', handleAnimationEnd);
 }

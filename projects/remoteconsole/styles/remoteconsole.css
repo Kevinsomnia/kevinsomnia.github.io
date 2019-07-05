@@ -32,3 +32,21 @@ body.fadeout {
 	margin-bottom: 2.5rem;
 	box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
+
+/* Console UI
+------------------------- */
+.console-body {
+	height: 830px;
+	background-color: #1f2c3ba0;
+	font-family: 'Lucida Console';
+	font-size: 75%;
+	padding: 1rem;
+	margin-bottom: 5px;
+	box-shadow: 0 0 2rem rgb(0, 0, 0, 0.4) !important;
+	overflow-y: auto;
+}
+
+.console-input {
+	font-family: 'Lucida Console';
+	font-size: 85%;
+}
