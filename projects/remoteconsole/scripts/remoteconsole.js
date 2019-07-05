@@ -44,7 +44,10 @@ $('#connectBtn').click(function() {
     }
 
     socket.onclose = function(event) {
-        onDisconnect(event);
+        if(connected)
+            alert('Lost connection to server...');
+        
+        onDisconnect();
     }
 
     socket.onerror = function(event) {
@@ -73,7 +76,7 @@ $('#disconnectBtn').on('click', () => {
     socket.close();
     socket = null;
     setConnectingState(false);
-    connected = false;
+    onDisconnect();
 });
 
 function resizeConsoleBody() {
@@ -112,16 +115,28 @@ function onConnect(event) {
     });
 }
 
-function onDisconnect(event) {
-    console.log('Socket closed!');
-    setConnectingState(false);
-    connected = false;
+function onDisconnect() {
+    if(connected) {
+        // Fade out console UI and load connection form.
+        animateCSS('#consoleUI', 'fadeOut', function() {
+            setConnectingState(false);
+            $('#consoleUI').hide();
+            loadConnectionUI();
+        });
+
+        connected = false;
+    }
 }
 
 function onError(event) {
     alert('Connection error! Could not connect to: ' + event.target.url);
     setConnectingState(false);
     connected = false;
+}
+
+function loadConnectionUI() {
+    $('#connectForm').show();
+    animateCSS('#connectForm', 'fadeIn', null);
 }
 
 function loadConsoleUI() {
