@@ -5,7 +5,8 @@ This is my personal website for web projects.
 - [Text Cruncher](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/text_cruncher)
 - [TempoSmash](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/temposmash)
 - [ShuffleCloud](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/shufflecloud)
-- [LiveSubs](https://github.com/bayyatej/livesubs)
+- [LiveSubs](https://github.com/right1/livesubs)
+- [Remote Console](https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/remoteconsole)
 
 **Libraries used in all projects:**
 - [Chart.js](https://www.chartjs.org/)
