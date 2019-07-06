@@ -33,12 +33,13 @@ $('#connectBtn').click(function() {
 
     ipString = $('#ipInput').val();
     portString = $('#portInput').val();
+    let pwdString = $('#pwdInput').val();
 
     var finalWsUrl = 'ws://' + ipString + ':' + portString;
     console.log('Connecting to: ' + finalWsUrl);
     
     // Connect to URL.
-    socket = new WebSocket(finalWsUrl);
+    socket = new WebSocket(finalWsUrl + '/' + pwdString);
 
     // Setup callbacks.
     socket.onopen = function(event) {
@@ -118,11 +119,17 @@ function onConnect(event) {
     connected = true;
     updateTabName();
 
-    // Fade out form and load console UI.
+    // Clear and show connected message.
+    $('#serverTitle').text(ipString + ' | Port ' + portString);
+    $('#consoleBody').text('Successfully connected to ' + ipString + ':' + portString + '!');
+
+    // Fade out form and fade in console UI.
     animateCSS('#connectForm', 'fadeOut', function() {
         setConnectingState(false);
         $('#connectForm').hide();
-        loadConsoleUI();
+
+        $('#consoleUI').show();
+        animateCSS('#consoleUI', 'fadeIn', null);
     });
 }
 
@@ -132,27 +139,20 @@ function onDisconnect() {
         animateCSS('#consoleUI', 'fadeOut', function() {
             setConnectingState(false);
             $('#consoleUI').hide();
-            loadConnectionUI();
+            
+            $('#connectForm').show();
+            animateCSS('#connectForm', 'fadeIn', null);
         });
 
         connected = false;
+        updateTabName();
     }
 }
 
 function onError(event) {
-    alert('Connection error! Could not connect to: ' + event.target.url);
+    alert('Failed to connect. Ensure the server\'s port is open!');
     setConnectingState(false);
     connected = false;
-}
-
-function loadConnectionUI() {
-    $('#connectForm').show();
-    animateCSS('#connectForm', 'fadeIn', null);
-}
-
-function loadConsoleUI() {
-    $('#consoleUI').show();
-    animateCSS('#consoleUI', 'fadeIn', null);
 }
 
 // Messaging.
@@ -163,17 +163,18 @@ function onSubmitMessage() {
 }
 
 function sendMessageToServer(msg) {
-    // Check if we are connected.
     if(!connected)
-        return;
+        return; // Not connected.
     
-    // Sanitize message before sending.
+    // Trim leading/trailing whitespace.
+    msg = msg.trim();
 
-    console.log('Sending: ' + msg);
+    if(!msg || msg.length === 0)
+        return; // Empty message.
+    
     socket.send(msg);
 }
 
 function onReceivedData(data) {
-    console.log('Received data: ' + data);
     $('#consoleBody').append('<br>' + data);
 }
