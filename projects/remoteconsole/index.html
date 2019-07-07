@@ -25,30 +25,41 @@
     </script>
 
     <!-- Client connection form -->
-    <div id="connectForm" class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4 mx-auto center-screen" style="text-align: center;">
-        <h2 class="banner-name" style="margin-bottom: 2rem;text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
-        
-        <div class="main-form">                
-            <div class="form-group">
-                <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server IP Address</div>
-                <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="192.168.1.50" data-lpignore='true'>
-                <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server Port</div>
-                <input id="portInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="5" placeholder="25001" data-lpignore='true'>
-                <div class="subheader" style="margin-bottom: 2px; text-align: center;">Console Password</div>
-                <input id="pwdInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="password" maxlength="64" placeholder="Optional" data-lpignore='true'>
-                <div style="margin-bottom: 20px;"></div>
-            </div>
+    <div id="connectForm" class="mx-auto">
+        <div class="row" style="margin-left: 8px; margin-right: 8px; margin-top: 8px;">
+                <a href="../.." type="button" class="btn btn-secondary"
+                    style="width:150px;background-color:#00000000">Back to Portfolio</button>
+                
+                <a href="https://github.com/Kevinsomnia/kevinsomnia.github.io/tree/master/projects/remoteconsole" target="_blank">
+                    <img src="../../images/github.png" style="margin-left:15px; width:38px; height:38px">
+                </a>
+            </a>
+        </div>
+
+        <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4 center-screen" style="text-align: center;">
+            <h2 class="banner-name" style="margin-bottom: 2rem;text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
             
-            <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
-                style="background-color:#2f476b">Connect</button>
+            <div class="main-form">                
+                <div class="form-group">
+                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server IP Address</div>
+                    <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="192.168.1.50" data-lpignore='true'>
+                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server Port</div>
+                    <input id="portInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="5" placeholder="25001" data-lpignore='true'>
+                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Console Password</div>
+                    <input id="pwdInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="password" maxlength="64" placeholder="Optional" data-lpignore='true'>
+                    <div style="margin-bottom: 20px;"></div>
+                </div>
+                
+                <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
+                    style="background-color:#2f476b">Connect</button>
+            </div>
         </div>
     </div>
-
     <!-- Console UI -->
     <div id="consoleUI" class="col-12" style="display: none;">
         <div class="row mx-auto" style="margin-top: 10px; margin-bottom: 10px;">
             <div id="serverTitle" class="col main-header console-input" style="margin-top: 10px; text-align: center;">
-                127.0.0.1 | Port 8080
+                [Server IP] | Port [Server Port]
             </div>
 
             <button id="disconnectBtn" type="button" class="btn btn-secondary console-input"
@@ -56,7 +67,7 @@
         </div>
 
         <div id="consoleBody" class="console-body">
-                Successfully connected to 127.0.0.1:8080!
+                Successfully connected to [server IP]:[server port]!
         </div>
 
         <div class="row mx-auto">
