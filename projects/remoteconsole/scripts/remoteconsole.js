@@ -3,17 +3,14 @@ const ENTER_KEY = 13;
 const MIN_CONSOLE_BODY_HEIGHT = 75; // in pixels.
 const STATIC_ELEMENTS_HEIGHT = 115; // in pixels.
 
+var secureMode = false;
 var connecting = false;
 var connected = false;
 var ipString = '192.168.1.50';
 var portString = '8080';
 var socket = null;
 
-
 // ADD FIREFOX DETECTION AND NOTIFY THAT THEY NEED TO EITHER USE CHROME OR ALLOW INSECURE WEBSOCKETS.
-
-// SETTINGS MENU WITH TOGGLE FOR SECURE (disabled by default).
-
 
 // HTML elements
 var consoleBody = document.getElementById('consoleBody');
@@ -35,7 +32,14 @@ $('#connectBtn').click(function() {
     portString = $('#portInput').val();
     let pwdString = $('#pwdInput').val();
 
-    var finalWsUrl = 'ws://' + ipString + ':' + portString;
+    let finalWsUrl;
+
+    if(secureMode)
+        finalWsUrl = 'wss://';
+    else
+        finalWsUrl = 'ws://';
+    
+    finalWsUrl += ipString + ':' + portString;
     console.log('Connecting to: ' + finalWsUrl);
     
     // Connect to URL.
@@ -60,6 +64,10 @@ $('#connectBtn').click(function() {
     socket.onerror = function(event) {
         onError(event);
     }
+});
+
+$('#secureToggleBtn').click(function() {
+    setSecureState(!secureMode);
 });
 
 // Console UI.
@@ -95,11 +103,27 @@ function resizeConsoleBody() {
 function loadSettings() {
     $('#ipInput').val(loadString('ip', ''));
     $('#portInput').val(loadString('port', ''));
+    setSecureState(loadBoolean('secure', false));
 }
 
 function saveSettings() {
     saveString('ip', $('#ipInput').val());
     saveString('port', $('#portInput').val());
+    saveBoolean('secure', secureMode);
+}
+
+function setSecureState(state) {
+    secureMode = state;
+    saveSettings();
+
+    if(secureMode) {
+        $('#secureToggleBtn').css('background-color', '#40942b'); // green
+        $('#secureIcon').attr('src', 'images/secure.png');
+    }
+    else {
+        $('#secureToggleBtn').css('background-color', '#7a7942'); // yellow
+        $('#secureIcon').attr('src', 'images/insecure.png');
+    }
 }
 
 function setConnectingState(state) {

@@ -50,8 +50,17 @@
                     <div style="margin-bottom: 20px;"></div>
                 </div>
                 
-                <button id="connectBtn" type="button" class="btn btn-secondary wide-button"
-                    style="background-color:#2f476b">Connect</button>
+                <div class="row" style="margin-left:0px;margin-right:0px;">
+                    <button id="connectBtn" type="button" class="btn btn-secondary col"
+                        style="background-color:#2f476b">Connect</button>
+                    
+                    <button id="secureToggleBtn" type="button" class="btn btn-secondary"
+                        style="background-color:#7a7942;margin-left:10px;width:56px;"
+                        data-toggle="tooltip" data-placement="top" data-html="true"
+                        title="Toggle use of secure WebSockets. If enabled, the server is required to have a valid SSL certificate setup.">
+                        <img id="secureIcon" src="images/insecure.png" style="width:28px; height:28px">
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -88,6 +97,10 @@
     <script>
         // Fade in page after done loading.
         window.onload = function () {
+            // Initialize tooltips for the entire page.
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Fade in webpage.
             document.body.classList.remove('fadeout');
         };
     </script>
