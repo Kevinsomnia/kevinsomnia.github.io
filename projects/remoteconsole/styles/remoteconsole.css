@@ -19,7 +19,7 @@ body.fadeout {
 	background-color: #161616;
 	background-image: url(../../../images/noise_bg.jpg);
 	background-repeat: repeat;
-	padding: 2rem;
+	padding: 1rem;
 	margin-bottom: 3rem;
 	outline: solid 1px;
 	outline-color: #303030;

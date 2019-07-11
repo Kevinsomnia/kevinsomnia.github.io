@@ -36,30 +36,53 @@
             </a>
         </div>
 
-        <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4 center-screen" style="text-align: center;">
+        <div class="col-12 col-md-10 col-lg-9 col-xl-5 center-screen" style="text-align: center;">
             <h2 class="banner-name" style="margin-bottom: 2rem;text-shadow: 0px 0px 3rem #def0ff60;">Remote Console</h2>
             
-            <div class="main-form">                
-                <div class="form-group">
-                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server IP Address</div>
-                    <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="192.168.1.50" data-lpignore='true'>
-                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server Port</div>
-                    <input id="portInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="5" placeholder="25001" data-lpignore='true'>
-                    <div class="subheader" style="margin-bottom: 2px; text-align: center;">Console Password</div>
-                    <input id="pwdInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="password" maxlength="64" placeholder="Optional" data-lpignore='true'>
-                    <div style="margin-bottom: 20px;"></div>
+            <div class="row">
+                <!-- Saved server list -->
+                <div class="col-5" style="padding-right:5px;">
+                    <div class="main-form">                
+                        <div class="form-group">
+                            <div style="height:203px;"></div>
+                        </div>
+                        
+                        <div class="row" style="margin-left:0px;margin-right:0px;">
+                            <a id="addServerBtn">
+                                <img src="images/insecure.png" class="img-button" style="width:20px; height:20px">
+                            </a>
+                            <a id="removeServerBtn" style="margin-left:10px;">
+                                <img src="images/insecure.png" class="img-button" style="width:20px; height:20px">
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="row" style="margin-left:0px;margin-right:0px;">
-                    <button id="connectBtn" type="button" class="btn btn-secondary col"
-                        style="background-color:#2f476b">Connect</button>
-                    
-                    <button id="secureToggleBtn" type="button" class="btn btn-secondary"
-                        style="background-color:#7a7942;margin-left:10px;width:56px;"
-                        data-toggle="tooltip" data-placement="top" data-html="true"
-                        title="Toggle use of secure WebSockets. If enabled, the server is required to have a valid SSL certificate setup.">
-                        <img id="secureIcon" src="images/insecure.png" style="width:28px; height:28px">
-                    </button>
+
+                <!-- Server details/connection form -->
+                <div class="col-7" style="padding-left:5px;">
+                    <div class="main-form">                
+                        <div class="form-group">
+                            <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server IP Address</div>
+                            <input id="ipInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="15" placeholder="192.168.1.50" data-lpignore='true'>
+                            <div class="subheader" style="margin-bottom: 2px; text-align: center;">Server Port</div>
+                            <input id="portInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="text" maxlength="5" placeholder="25001" data-lpignore='true'>
+                            <div class="subheader" style="margin-bottom: 2px; text-align: center;">Console Password</div>
+                            <input id="pwdInput" class="form-control" style="margin-bottom: 10px; text-align: center;" type="password" maxlength="64" placeholder="Optional" data-lpignore='true'>
+                            <div style="margin-bottom: 20px;"></div>
+                        </div>
+                        
+                        <div class="row" style="margin-left:0px;margin-right:0px;">
+                            <button id="connectBtn" type="button" class="btn btn-secondary col"
+                                style="background-color:#2f476b">Connect</button>
+                            
+                            <button id="secureToggleBtn" type="button" class="btn btn-secondary"
+                                style="background-color:#7a7942;margin-left:10px;width:56px;"
+                                data-toggle="tooltip" data-placement="top" data-html="true"
+                                title="Toggle use of connecting via secure WebSocket (wss://). If enabled, the server is required to have a valid SSL certificate setup.">
+                                <img id="secureIcon" src="images/insecure.png" style="width:28px; height:28px">
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

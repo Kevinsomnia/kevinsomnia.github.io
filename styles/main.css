@@ -47,6 +47,10 @@ body.fadeout {
 	-ms-transform: translate(-50%, -50%);
 }
 
+.img-button:hover {
+	cursor: pointer
+}
+
 .main-header {
 	color: #cdedff;
 	font-weight: -10;
