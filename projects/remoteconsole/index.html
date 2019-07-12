@@ -78,7 +78,7 @@
                             <button id="secureToggleBtn" type="button" class="btn btn-secondary"
                                 style="background-color:#7a7942;margin-left:10px;width:56px;"
                                 data-toggle="tooltip" data-placement="top" data-html="true"
-                                title="Toggle use of connecting via secure WebSocket (wss://). If enabled, the server is required to have a valid SSL certificate setup.">
+                                title="Toggles connecting via secure WebSocket (wss://). If enabled, the server is required to have a valid SSL certificate setup.">
                                 <img id="secureIcon" src="images/insecure.png" style="width:28px; height:28px">
                             </button>
                         </div>
@@ -103,7 +103,7 @@
         </div>
 
         <div class="row mx-auto">
-            <input id="inputField" class="col form-control console-input" type="text">
+            <input id="inputField" class="col form-control console-input" maxlength="120" type="text">
             <button id="sendBtn" type="button" class="btn btn-secondary console-input"
                 style="margin-left: 10px; width: 100px; background-color:#303052">Send</button>
         </div>

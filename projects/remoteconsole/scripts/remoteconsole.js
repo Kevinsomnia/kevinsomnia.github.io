@@ -9,6 +9,7 @@ var connected = false;
 var ipString = '192.168.1.50';
 var portString = '8080';
 var socket = null;
+var lastRecvTime = 0;
 
 // ADD FIREFOX DETECTION AND NOTIFY THAT THEY NEED TO EITHER USE CHROME OR ALLOW INSECURE WEBSOCKETS.
 
@@ -41,7 +42,7 @@ $('#connectBtn').click(function() {
     
     finalWsUrl += ipString + ':' + portString;
     console.log('Connecting to: ' + finalWsUrl);
-    
+
     // Connect to URL.
     socket = new WebSocket(finalWsUrl + '/' + pwdString);
 
@@ -146,11 +147,15 @@ function onConnect(event) {
     // Clear and show connected message.
     $('#serverTitle').text(ipString + ' | Port ' + portString);
     $('#consoleBody').text('Successfully connected to ' + ipString + ':' + portString + '!');
+    $('#consoleBody').append('<br>');
 
     // Fade out form and fade in console UI.
     animateCSS('#connectForm', 'fadeOut', function() {
         setConnectingState(false);
         $('#connectForm').hide();
+
+        // Clear password input.
+        $('#pwdInput').val('');
 
         $('#consoleUI').show();
         animateCSS('#consoleUI', 'fadeIn', null);
@@ -200,5 +205,33 @@ function sendMessageToServer(msg) {
 }
 
 function onReceivedData(data) {
-    $('#consoleBody').append('<br>' + data);
+    let scrollPos = $('#consoleBody').scrollTop();
+    let contentHeight = $('#consoleBody').prop('scrollHeight');
+    let viewHeight = $('#consoleBody').prop('clientHeight');
+    let autoScroll = (scrollPos + viewHeight >= contentHeight - 1);
+
+    if(data == '\0\0') {
+        // This is a separator tag. Add a space separator.
+        $('#consoleBody').append('<div style="margin-bottom:0.5rem;"></div>');
+    }
+    else {
+        // Check for timestamp flag in data.
+        if(data.length >= 2 && data.substring(data.length - 2) == '+$') {
+            data = data.substring(0, data.length - 2);
+            let recvTime = Math.floor(Date.now() / 1000); // seconds.
+
+            // Only print timestamp when it's at least one second apart.
+            if(recvTime > lastRecvTime) {
+                data += '<span style="float:right;color:#808080;">' + getTimestampString() + '</span>';
+                lastRecvTime = recvTime;
+            }
+        }
+
+        // Append message.
+        $('#consoleBody').append('<div>' + data + '</div>');
+    }
+
+    if(autoScroll) {
+        $('#consoleBody').scrollTop(contentHeight);
+    }
 }

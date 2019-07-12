@@ -71,6 +71,24 @@ function loadArray(key) {
     return [];
 }
 
+// Example: 7/11/2019, 2:27:03 PM
+function getTimestampString() {
+    let dateNow = new Date(Date.now());
+    let hours = dateNow.getHours();
+    let mins = dateNow.getMinutes();
+    let secs = dateNow.getSeconds();
+    let meridiem = ' AM';
+
+    if(hours > 12) {
+        meridiem = ' PM';
+        hours -= 12;
+    }
+
+    let timestamp = (dateNow.getMonth() + 1) + '/' + dateNow.getDate() + '/' + dateNow.getFullYear() + ', ';
+    timestamp += hours + ((mins < 10) ? ':0' : ':') + mins + ((secs < 10) ? ':0' : ':') + secs + meridiem;
+    return timestamp;
+}
+
 function toTimerFormat(seconds) {
     seconds = Math.floor(seconds); // no milliseconds.
     var needHours = (seconds >= 3600);
