@@ -106,8 +106,9 @@ body.fadeout {
 }
 
 select {
-	background-color: #0000;
-	border: none;
+	background-color: #ffffff0a;
+	border: solid 2px;
+	border-color: #121212;
 }
 
 select option {
