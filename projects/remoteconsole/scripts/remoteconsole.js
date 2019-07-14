@@ -296,7 +296,7 @@ function onDisconnect() {
 }
 
 function onError(event) {
-    alert('Failed to connect. Ensure the server\'s port is open!');
+    alert('Failed to connect! Ensure the server\'s port is open, and that you have entered the correct password (if the server has one).');
     setConnectingState(false);
     connected = false;
 }
