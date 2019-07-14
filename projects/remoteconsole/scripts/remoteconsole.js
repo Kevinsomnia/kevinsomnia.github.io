@@ -175,7 +175,7 @@ function loadSettings() {
 
     if(loadServers.length == 0) {
         // If there isn't any saved data, just add a temporary item.
-        serverList.push({ 'serverName': 'My Server 1', 'ip': '127.0.0.1', 'port': '25001' });
+        serverList.push({ 'serverName': 'localhost', 'ip': '127.0.0.1', 'port': '25001' });
     }
     else {
         // Parse the string as a JSON array.
@@ -216,7 +216,6 @@ function updateServerListUI(index) {
     }
     else {
         // Update a specific element inside the list only.
-        console.log('updating ' + index);
         $('#savedServerList option:eq(' + index + ')').text(serverList[index].serverName);
     }
 }
