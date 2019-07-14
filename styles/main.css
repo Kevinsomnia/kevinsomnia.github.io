@@ -105,6 +105,15 @@ body.fadeout {
 	margin: 2px;
 }
 
+select {
+	background-color: #0000;
+	border: none;
+}
+
+select option {
+	color: #eeeeee;
+}
+
 .btn {
 	border: 2px solid;
 	border-color: #5b616db0;

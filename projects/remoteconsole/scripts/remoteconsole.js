@@ -3,15 +3,14 @@ const ENTER_KEY = 13;
 const MIN_CONSOLE_BODY_HEIGHT = 75; // in pixels.
 const STATIC_ELEMENTS_HEIGHT = 115; // in pixels.
 
+// Member variables.
 var secureMode = false;
 var connecting = false;
 var connected = false;
-var ipString = '192.168.1.50';
-var portString = '8080';
+var serverList = []; // Server list.
+var connectedIndex = 0; // index in 'serverList'
 var socket = null;
 var lastRecvTime = 0;
-
-// ADD FIREFOX DETECTION AND NOTIFY THAT THEY NEED TO EITHER USE CHROME OR ALLOW INSECURE WEBSOCKETS.
 
 // HTML elements
 var consoleBody = document.getElementById('consoleBody');
@@ -20,50 +19,78 @@ var consoleBody = document.getElementById('consoleBody');
 $('#ipInput').mask('099.099.099.099');
 $('#portInput').mask('00000');
 loadSettings();
+loadServerInfo(0); // Select the first item in server list by default.
 
 resizeConsoleBody();
 window.onresize = resizeConsoleBody;
 
 // Connection form UI.
-$('#connectBtn').click(function() {
-    setConnectingState(true);
-    saveSettings();
+$('#savedServerList').change(function() {
+    let selectedIndex = $('#savedServerList').prop('selectedIndex');
+    loadServerInfo(selectedIndex);
+});
 
-    ipString = $('#ipInput').val();
-    portString = $('#portInput').val();
-    let pwdString = $('#pwdInput').val();
-
-    let finalWsUrl;
-
-    if(secureMode)
-        finalWsUrl = 'wss://';
-    else
-        finalWsUrl = 'ws://';
+$('#addServerBtn').click(function() {
+    let newIndex = serverList.length;
+    serverList.push({ 'serverName': ('My Server ' + (newIndex + 1)), 'ip': '127.0.0.1', 'port': '25001' });
     
-    finalWsUrl += ipString + ':' + portString;
-    console.log('Connecting to: ' + finalWsUrl);
+    updateServerListUI();
 
-    // Connect to URL.
-    socket = new WebSocket(finalWsUrl + '/' + pwdString);
+    // Select added server.
+    loadServerInfo(newIndex);
 
-    // Setup callbacks.
-    socket.onopen = function(event) {
-        onConnect(event);
-    }
+    // Save server list.
+    saveSettings();
+});
 
-    socket.onmessage = function(event) {
-        onReceivedData(event.data);
-    }
+$('#removeServerBtn').click(function() {
+    if(serverList.length <= 1)
+        return; // Requires at least one item in list.
+    
+    // Remove selected option.
+    let selectedIndex = $('#savedServerList').prop('selectedIndex');
+    serverList.splice(selectedIndex, 1);
 
-    socket.onclose = function(event) {
-        if(connected)
-            alert('Lost connection to server...');
-        
-        onDisconnect();
-    }
+    updateServerListUI();
 
-    socket.onerror = function(event) {
-        onError(event);
+    // Select next available option.
+    let newSelection = Math.min(selectedIndex, serverList.length - 1);
+    loadServerInfo(newSelection);
+
+    // Save server list.
+    saveSettings();
+});
+
+// Server input field events.
+$('#nameInput').on('input', function() {
+    let selectedIndex = $('#savedServerList').prop('selectedIndex');
+    let newName = $('#nameInput').val();
+
+    if(newName.length == 0)
+        newName = 'Unnamed Server ' + (selectedIndex + 1); // Placeholder for empty server names.
+    
+    serverList[selectedIndex].serverName = newName;
+    updateServerListUI(selectedIndex);
+});
+
+$('#ipInput').on('input', function() {
+    let selectedIndex = $('#savedServerList').prop('selectedIndex');
+    serverList[selectedIndex].ip = $('#ipInput').val();
+});
+
+$('#portInput').on('input', function() {
+    let selectedIndex = $('#savedServerList').prop('selectedIndex');
+    serverList[selectedIndex].port = $('#portInput').val();
+});
+
+$('#connectBtn').click(function() {
+    startConnectToServer();
+});
+
+$(document).on('keydown', (event) => {
+    // Connect to server when in connection UI.
+    if(!connected && !connecting && event.keyCode === ENTER_KEY) {
+        startConnectToServer();
     }
 });
 
@@ -95,6 +122,47 @@ $('#disconnectBtn').on('click', () => {
     onDisconnect();
 });
 
+function startConnectToServer() {
+    setConnectingState(true);
+    saveSettings();
+
+    connectedIndex = $('#savedServerList').prop('selectedIndex');
+    let pwdString = $('#pwdInput').val();
+
+    let finalWsUrl;
+
+    if(secureMode)
+        finalWsUrl = 'wss://';
+    else
+        finalWsUrl = 'ws://';
+    
+    finalWsUrl += serverList[connectedIndex].ip + ':' + serverList[connectedIndex].port;
+    console.log('Connecting to: ' + finalWsUrl);
+
+    // Connect to URL.
+    socket = new WebSocket(finalWsUrl + '/' + pwdString);
+
+    // Setup callbacks.
+    socket.onopen = function(event) {
+        onConnect(event);
+    }
+
+    socket.onmessage = function(event) {
+        onReceivedData(event.data);
+    }
+
+    socket.onclose = function(event) {
+        if(connected)
+            alert('Lost connection to server...');
+        
+        onDisconnect();
+    }
+
+    socket.onerror = function(event) {
+        onError(event);
+    }
+}
+
 function resizeConsoleBody() {
     // Fit console UI to window height.
     let height = Math.max(MIN_CONSOLE_BODY_HEIGHT, window.innerHeight - STATIC_ELEMENTS_HEIGHT);
@@ -102,15 +170,55 @@ function resizeConsoleBody() {
 }
 
 function loadSettings() {
-    $('#ipInput').val(loadString('ip', ''));
-    $('#portInput').val(loadString('port', ''));
+    // Load saved server list.
+    let loadServers = loadString('servers', '');
+
+    if(loadServers.length == 0) {
+        // If there isn't any saved data, just add a temporary item.
+        serverList.push({ 'serverName': 'My Server 1', 'ip': '127.0.0.1', 'port': '25001' });
+    }
+    else {
+        // Parse the string as a JSON array.
+        serverList = JSON.parse(loadServers);
+    }
+    
+    updateServerListUI();
     setSecureState(loadBoolean('secure', false));
 }
 
 function saveSettings() {
-    saveString('ip', $('#ipInput').val());
-    saveString('port', $('#portInput').val());
+    saveString('servers', JSON.stringify(serverList));
     saveBoolean('secure', secureMode);
+}
+
+function updateServerListUI(index) {
+    if(index === undefined) {
+        // Positive: add items, negative: remove items.
+        let optionDelta = serverList.length - $('#savedServerList').children('option').length;
+
+        if(optionDelta > 0) {
+            // Add entries if necessary.
+            for(let i = 0; i < optionDelta; i++) {
+                $('#savedServerList').append($('<option>', { text: '' }));
+            }
+        }
+        else if(optionDelta < 0) {
+            // Remove entries if necessary.
+            for(let i = 0; i < -optionDelta; i++) {
+                $('#savedServerList option:eq(' + (serverList.length - i - 1) + ')').remove();
+            }
+        }
+
+        // Update existing entries.
+        for(let i = 0; i < serverList.length; i++) {
+            updateServerListUI(i);
+        }
+    }
+    else {
+        // Update a specific element inside the list only.
+        console.log('updating ' + index);
+        $('#savedServerList option:eq(' + index + ')').text(serverList[index].serverName);
+    }
 }
 
 function setSecureState(state) {
@@ -127,6 +235,16 @@ function setSecureState(state) {
     }
 }
 
+function loadServerInfo(index) {
+    let elementID = '#savedServerList option:eq(' + index + ')';
+    $(elementID).prop('selected', true); // Select item in list.
+
+    // Update input values.
+    $('#nameInput').val(serverList[index].serverName);
+    $('#ipInput').val(serverList[index].ip);
+    $('#portInput').val(serverList[index].port);
+}
+
 function setConnectingState(state) {
     connecting = state;
     $('#connectBtn').attr('disabled', connecting);
@@ -134,7 +252,7 @@ function setConnectingState(state) {
 
 function updateTabName() {
     if(connected)
-        document.title = ipString + ':' + portString + ' | Remote Console';
+        document.title = serverList[connectedIndex].ip + ':' + serverList[connectedIndex].port + ' | Remote Console';
     else
         document.title = 'Remote Console | Kevin\'s Web Portfolio';
 }
@@ -145,8 +263,8 @@ function onConnect(event) {
     updateTabName();
 
     // Clear and show connected message.
-    $('#serverTitle').text(ipString + ' | Port ' + portString);
-    $('#consoleBody').text('Successfully connected to ' + ipString + ':' + portString + '!');
+    $('#serverTitle').text(serverList[connectedIndex].ip + ' | Port ' + serverList[connectedIndex].port);
+    $('#consoleBody').text('Successfully connected to ' + serverList[connectedIndex].ip + ':' + serverList[connectedIndex].port + '!');
     $('#consoleBody').append('<br>');
 
     // Fade out form and fade in console UI.
@@ -191,6 +309,7 @@ function onSubmitMessage() {
     $('#inputField').val('');
 }
 
+// Sending data to server.
 function sendMessageToServer(msg) {
     if(!connected)
         return; // Not connected.
@@ -204,6 +323,7 @@ function sendMessageToServer(msg) {
     socket.send(msg);
 }
 
+// Received data from server.
 function onReceivedData(data) {
     let scrollPos = $('#consoleBody').scrollTop();
     let contentHeight = $('#consoleBody').prop('scrollHeight');
