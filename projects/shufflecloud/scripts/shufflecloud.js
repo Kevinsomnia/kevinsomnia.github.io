@@ -1,6 +1,6 @@
 // Global constants.
 const UPDATE_PLAYER_INTERVAL = 16; // in milliseconds.
-const STATIC_ELEMENTS_HEIGHT = 285; // in pixels.
+const STATIC_ELEMENTS_HEIGHT = 255; // in pixels.
 const MIN_PLAYLIST_HEIGHT = 50; // in pixels.
 const TEXT_SCROLL_SPEED = 75; // in pixels/s.
 const TEXT_SCROLL_START_DELAY = 1.5; // in seconds.
@@ -8,6 +8,7 @@ const TEXT_SCROLL_END_DELAY = 1.5; // in seconds.
 const SLIDER_GRADIENT_CHROME = '-webkit-gradient(linear, left top, right top';
 const SLIDER_GRADIENT_FIREFOX = 'linear-gradient(to right';
 const DEFAULT_WINDOW_TITLE = 'ShuffleCloud | Kevin\'s Web Portfolio';
+const PLAYLIST_TITLE_PLACEHOLDER = '<strong>Load a playlist to get started! Don\'t forget to hit the shuffle button when done loading!</strong>';
 
 // Browser detection.
 const BROWSER_CHROME = 0, BROWSER_FIREFOX = 1;
@@ -121,8 +122,12 @@ function onWebpageLoaded() {
     resetScrollingTimers();
     clearCurrentTrack();
 
+    // Create SoundCloud controller.
+    initController();
+
     // Start player UI update loop.
-    lastTimestamp = performance.now();
+    refreshPlaylistUI();
+    lastTimestamp = performance.now(); // Accurate timestamp for rendering loop.
     playerUpdateLoop(lastTimestamp);
 }
 
@@ -370,7 +375,8 @@ function refreshPlaylistUI() {
         playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
     }
     else {
-        playlistTitleUI.innerHTML = '';
+        playlistTitleUI.innerHTML = PLAYLIST_TITLE_PLACEHOLDER;
+        playlistPermalink.href = 'javascrpt:void(0)'; // Disable playlist link.
         playlistUI.innerHTML = '';
     }
 }
