@@ -434,17 +434,21 @@ function updateCurrentTimeLabel(time) {
 
 function handleBufferSlider(slider, bufferPercent) {
     var t = inverseLerp(slider.min, slider.max, slider.value);
-    var buffer = clamp(bufferPercent, t, 1.0);
 
     var colorKeys = getColorKey(0.0, '#1e3e6d'); // start light blue.
     colorKeys += getColorKey(t, '#2220af'); // end dark purple
 
     if (t < 1.0) {
         // Only necessary when the gradient isn't covering the entire background.
+        t = Math.min(t + 0.001, 1.0); // Get around Firefox gradient rendering bug.
         colorKeys += getColorKey(t, '#5d6993'); // blue-gray: start buffer area.
+
+        let buffer = clamp(bufferPercent, t, 1.0);
         colorKeys += getColorKey(buffer, '#5d6993'); // blue-gray: end buffer area.
+        buffer = Math.min(buffer + 0.001, 1.0); // Get around Firefox gradient rendering bug.
 
         if (buffer < 1.0) {
+            // Only render slider background if it is not completely buffered.
             colorKeys += getColorKey(buffer, '#333333'); // background color (dark gray)
         }
     }
@@ -463,6 +467,7 @@ function handleDefaultSlider(slider) {
 
     if (t < 1.0) {
         // Only necessary when the gradient isn't covering the entire background.
+        t = Math.min(t + 0.001, 1.0); // Get around Firefox gradient rendering bug.
         colorKeys += getColorKey(t, '#333333'); // start background color.
     }
 
