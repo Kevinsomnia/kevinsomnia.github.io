@@ -131,11 +131,11 @@ function initController() {
     scController = {
         clientID: scClientID,
         metadata: null,
-        playlist: null,
+        playlist: [],
         onRetrieved: null,
         onFailed: null
     };
-    
+
     SC.initialize({
         client_id: scClientID
     });
@@ -180,10 +180,6 @@ function tryAppendPlaylist(link, onRetrieved, onFailed) {
                 }
 
                 // Append the fetched playlist to current list.
-                if(scController.playlist === null) {
-                    scController.playlist = [];
-                }
-
                 for (var i = 0; i < trackCount; i++) {
                     scController.playlist.push(fetchResult[i]);
                 }
@@ -322,47 +318,53 @@ function clearPlaylist() {
 }
 
 function refreshPlaylistUI() {
-    var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
+    if(scController.metadata !== null) {
+        var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
 
-    playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' +
-        scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
+        playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' +
+            scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
 
-    var listContents = '';
-    var trackCount = scController.playlist.length;
+        var listContents = '';
+        var trackCount = scController.playlist.length;
 
-    for (var i = 0; i < trackCount; i++) {
-        var selectedTrack = (i == curTrackIndex);
-        var styling = '" class="track-list-item';
+        for (var i = 0; i < trackCount; i++) {
+            var selectedTrack = (i == curTrackIndex);
+            var styling = '" class="track-list-item';
 
-        if (selectedTrack) {
-            styling += ' track-list-item-selected"';
-        }
-        else {
-            styling += '"'; // Close off class quotation mark.
-        }
-
-        // Add click callback to play this track.
-        styling += ' onclick="loadTrackOntoPlayer(' + i + ')">';
-        var playIcon = '';
-
-        if (selectedTrack) {
-            if (isPlayerPlaying) {
-                // Display play icon for the current track index.
-                playIcon = '<img src="images/play.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+            if (selectedTrack) {
+                styling += ' track-list-item-selected"';
             }
             else {
-                // Display pause icon instead.
-                playIcon = '<img src="images/pause.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+                styling += '"'; // Close off class quotation mark.
             }
+
+            // Add click callback to play this track.
+            styling += ' onclick="loadTrackOntoPlayer(' + i + ')">';
+            var playIcon = '';
+
+            if (selectedTrack) {
+                if (isPlayerPlaying) {
+                    // Display play icon for the current track index.
+                    playIcon = '<img src="images/play.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+                }
+                else {
+                    // Display pause icon instead.
+                    playIcon = '<img src="images/pause.png" class="img-no-interact" style="width:12px;height:16px;margin-right:7px;margin-bottom:3px;">';
+                }
+            }
+
+            var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
+            var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.playlist[i].user.username + '</div>';
+
+            listContents += '<button id="trackBtn' + i + styling + playIcon + trackName + uploaderName + '</button>';
         }
 
-        var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
-        var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.playlist[i].user.username + '</div>';
-
-        listContents += '<button id="trackBtn' + i + styling + playIcon + trackName + uploaderName + '</button>';
+        playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
     }
-
-    playlistUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
+    else {
+        playlistTitleUI.innerHTML = '';
+        playlistUI.innerHTML = '';
+    }
 }
 
 function scrollToCurrentTrack() {
