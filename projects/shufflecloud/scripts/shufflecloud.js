@@ -132,6 +132,7 @@ function initController() {
         clientID: scClientID,
         metadata: null,
         playlist: [],
+        playlistCount: 0,   // How many playlists were appended.
         onRetrieved: null,
         onFailed: null
     };
@@ -162,26 +163,31 @@ function tryAppendPlaylist(link, onRetrieved, onFailed) {
                 if(scController.metadata === null) {
                     // Only set playlist data if there is nothing. Adding more playlists will keep first one.
                     scController.metadata = result;
+                    // Update playlist link.
+                    playlistPermalink.href = link;
+                }
+                else {
+                    // Multiple playlists loaded.
+                    scController.metadata.title = 'Combined Playlist (' + scController.playlistCount + ' total)';
                 }
 
-                // The fetch result will contain the new playlist data to append to the current list.
-                let fetchResult = result.tracks;
+                // Add playlist.
+                scController.playlistCount++;
 
-                // Update playlist link.
-                playlistPermalink.href = link;
-                var trackCount = fetchResult.length;
+                // The fetch result will contain the new playlist data to append to the current list.
+                var trackCount = result.tracks.length;
 
                 // Remove tracks from playlist that are not streamable.
                 for (var i = trackCount - 1; i >= 0; i--) {
-                    if (!fetchResult[i].streamable) {
-                        fetchResult.splice(i, 1);
+                    if (!result.tracks[i].streamable) {
+                        result.tracks.splice(i, 1);
                         trackCount--;
                     }
                 }
 
                 // Append the fetched playlist to current list.
                 for (var i = 0; i < trackCount; i++) {
-                    scController.playlist.push(fetchResult[i]);
+                    scController.playlist.push(result.tracks[i]);
                 }
 
                 if (scController.onRetrieved !== null) {
@@ -313,6 +319,7 @@ function shufflePlaylist() {
 function clearPlaylist() {
     scController.metadata = null;
     scController.playlist.length = 0; // Clear playlist data.
+    scController.playlistCount = 0;
 
     refreshPlaylistUI();
 }
