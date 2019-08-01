@@ -133,6 +133,7 @@ function initController() {
         metadata: null,
         playlist: [],
         playlistCount: 0,   // How many playlists were appended.
+        totalPlaylistDuration: 0, // In seconds.
         onRetrieved: null,
         onFailed: null
     };
@@ -162,6 +163,7 @@ function tryAppendPlaylist(link, onRetrieved, onFailed) {
             if (!result.errors && result.kind == 'playlist') {
                 // Add to playlist load count.
                 scController.playlistCount++;
+                scController.totalPlaylistDuration += result.duration / 1000; // milliseconds -> seconds.
 
                 if(scController.metadata === null) {
                     // Only set playlist data if there is nothing. Adding more playlists will keep first one.
@@ -320,16 +322,15 @@ function clearPlaylist() {
     scController.metadata = null;
     scController.playlist.length = 0; // Clear playlist data.
     scController.playlistCount = 0;
+    scController.totalPlaylistDuration = 0;
 
     refreshPlaylistUI();
 }
 
 function refreshPlaylistUI() {
     if(scController.metadata !== null) {
-        var playlistDurationInSeconds = scController.metadata.duration / 1000; // milliseconds -> seconds.
-
         playlistTitleUI.innerHTML = '<strong>' + scController.metadata.title + ' | ' + scController.metadata.user.username + ' | ' +
-            scController.playlist.length + ' tracks | ' + toTimerFormat(playlistDurationInSeconds) + '</strong>';
+            scController.playlist.length + ' tracks | ' + toTimerFormat(scController.totalPlaylistDuration) + '</strong>';
 
         var listContents = '';
         var trackCount = scController.playlist.length;
