@@ -8,3 +8,6 @@ have to scroll down until the end to load all the songs, then play the first son
 Even then, it doesn't feel random enough (works perfectly fine on the mobile app
 for some reason). So, unlike SoundCloud, ShuffleCloud will make sure that every song in any
 playlist does not feel left out.
+
+In addition, playlists are limited to 500 tracks, so trying to load or shuffle a large music
+playlist is simply not possible.
