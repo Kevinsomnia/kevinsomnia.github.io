@@ -135,6 +135,7 @@ function initController() {
         onRetrieved: null,
         onFailed: null
     };
+    
     SC.initialize({
         client_id: scClientID
     });
@@ -144,10 +145,7 @@ function getStreamUrl(index) {
     return scController.playlist[index].stream_url + '?client_id=' + scController.clientID;
 }
 
-function tryGetPlaylist(link, onRetrieved, onFailed) {
-    // First, set the playlist to null. If everything is successful, it will contain the entire playlist data when onRetrieved() is called!
-    scController.playlist = null;
-
+function tryAppendPlaylist(link, onRetrieved, onFailed) {
     // Set callbacks for playlist retrieve result.
     scController.onRetrieved = onRetrieved;
     scController.onFailed = onFailed;
@@ -161,18 +159,33 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
-                scController.metadata = result;
-                scController.playlist = result.tracks;
+                if(scController.metadata === null) {
+                    // Only set playlist data if there is nothing. Adding more playlists will keep first one.
+                    scController.metadata = result;
+                }
+
+                // The fetch result will contain the new playlist data to append to the current list.
+                let fetchResult = result.tracks;
 
                 // Update playlist link.
                 playlistPermalink.href = link;
-                var trackCount = scController.playlist.length;
+                var trackCount = fetchResult.length;
 
                 // Remove tracks from playlist that are not streamable.
                 for (var i = trackCount - 1; i >= 0; i--) {
-                    if (!scController.playlist[i].streamable) {
-                        scController.playlist.splice(i, 1);
+                    if (!fetchResult[i].streamable) {
+                        fetchResult.splice(i, 1);
+                        trackCount--;
                     }
+                }
+
+                // Append the fetched playlist to current list.
+                if(scController.playlist === null) {
+                    scController.playlist = [];
+                }
+
+                for (var i = 0; i < trackCount; i++) {
+                    scController.playlist.push(fetchResult[i]);
                 }
 
                 if (scController.onRetrieved !== null) {
@@ -196,9 +209,9 @@ function tryGetPlaylist(link, onRetrieved, onFailed) {
     });
 }
 
-function onPressLoad() {
+function onPressLoadAndAdd() {
     var link = $('#scLink').val();
-    tryGetPlaylist(link, onPlaylistLoadSuccess, onPlaylistLoadFail);
+    tryAppendPlaylist(link, onPlaylistLoadSuccess, onPlaylistLoadFail);
     setIsBusy(true);
 
     loadingNotification = $.notify({
@@ -226,6 +239,14 @@ function onPressShuffle() {
     }
 
     shufflePlaylist();
+}
+
+function onPressClear() {
+    if (!scController || !scController.playlist) {
+        return; // No playlist to clear.
+    }
+
+    clearPlaylist();
 }
 
 function onPlaylistLoadSuccess() {
@@ -291,6 +312,13 @@ function shufflePlaylist() {
         loadingNotification.close();
         loadingNotification = null;
     }
+}
+
+function clearPlaylist() {
+    scController.metadata = null;
+    scController.playlist.length = 0; // Clear playlist data.
+
+    refreshPlaylistUI();
 }
 
 function refreshPlaylistUI() {
