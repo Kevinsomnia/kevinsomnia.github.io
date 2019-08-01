@@ -10,9 +10,16 @@ const SLIDER_GRADIENT_FIREFOX = 'linear-gradient(to right';
 const DEFAULT_WINDOW_TITLE = 'ShuffleCloud | Kevin\'s Web Portfolio';
 const PLAYLIST_TITLE_PLACEHOLDER = '<strong>Load a playlist to get started! Don\'t forget to hit the shuffle button when done loading!</strong>';
 
+// KeyCode constants.
+const SPACEBAR = 32;
+const LEFT_ARROW = 37;
+const RIGHT_ARROW = 39;
+const UP_ARROW = 38;
+const DOWN_ARROW = 40;
+
 // Browser detection.
 const BROWSER_CHROME = 0, BROWSER_FIREFOX = 1;
-var browserIndex = -1;
+var browserCode = -1;
 
 // HTML elements
 var musicPlayer = document.getElementById('musicPlayer');
@@ -53,7 +60,7 @@ var lastPlaylistHeight = 0;
 var cachedCurTimeText = '';
 
 $('#loadBtn').click(function (e) {
-    localStorage.setItem('scLink', $('#scLink').val());
+    saveString('scLink', $('#scLink').val());
 });
 
 $('#closeSettings').click(function (e) {
@@ -61,7 +68,7 @@ $('#closeSettings').click(function (e) {
 
     if (newId != scClientID) {
         scClientID = newId;
-        localStorage.setItem('scClientId', scClientID);
+        saveString('scClientId', scClientID);
 
         initController(); // Reinitialize.
     }
@@ -70,7 +77,7 @@ $('#closeSettings').click(function (e) {
 $('#playerVolSldr').on('input', function (e) {
     playerVolume = $('#playerVolSldr').val() / 100.0;
     musicPlayer.volume = playerVolume;
-    localStorage.setItem('playerVolume', playerVolume.toString());
+    saveFloat('playerVolume', playerVolume);
     handleDefaultSlider(playerVolumeSlider); // update fill background.
 });
 
@@ -97,12 +104,44 @@ $('#playerProgSldr').on('mouseup', function (e) {
     }
 });
 
+// Audio player key bindings.
+$(document).on('keydown', (event) => {
+    // Ignore inputs if there is something important selected/focused.
+    if(!$('#scLink').is(':focus') && !$('#settingsModal').is(':visible') && !$('#helpModal').is(':visible')) {
+        // Key bindings for audio track manipulation.
+        if(curTrackIndex >= 0) {
+            if(event.keyCode === SPACEBAR) {
+                // Toggle play/pause.
+                toggleTrackPlayback();
+            }
+            else if(event.keyCode === LEFT_ARROW) {
+                // Scrub backward 5 seconds.
+                musicPlayer.currentTime = Math.max(0.0, musicPlayer.currentTime - 5.0);
+            }
+            else if(event.keyCode === RIGHT_ARROW) {
+                // Scrub forward 5 seconds.
+                musicPlayer.currentTime = Math.min(musicPlayer.currentTime + 5.0, playerProgSlider.max);
+            }
+        }
+
+        // Volume control.
+        if(event.keyCode === UP_ARROW) {
+            // Volume up 10%.
+            setPlayerVolume(musicPlayer.volume + 0.1);
+        }
+        else if(event.keyCode === DOWN_ARROW) {
+            // Volume down 10%.
+            setPlayerVolume(musicPlayer.volume - 0.1);
+        }
+    }
+});
+
 function onWebpageLoaded() {
     // Detect browser.
-    browserIndex = BROWSER_CHROME;
+    browserCode = BROWSER_CHROME;
 
     if (navigator.userAgent.indexOf('Firefox') > -1) {
-        browserIndex = BROWSER_FIREFOX;
+        browserCode = BROWSER_FIREFOX;
     }
 
     // Load settings.
@@ -110,7 +149,7 @@ function onWebpageLoaded() {
     playerVolume = loadFloat('playerVolume', 1.0);
 
     $('#cIdInput').val(scClientID);
-    $('#scLink').val(localStorage.getItem('scLink'));
+    $('#scLink').val(loadString('scLink', ''));
     $('#playerVolSldr').val(Math.round(playerVolume * 100));
     handleDefaultSlider(playerVolumeSlider); // update fill background.
 
@@ -467,7 +506,7 @@ function handleBufferSlider(slider, bufferPercent) {
         }
     }
 
-    if (browserIndex == BROWSER_CHROME)
+    if (browserCode == BROWSER_CHROME)
         slider.style.background = SLIDER_GRADIENT_CHROME + colorKeys + ')';
     else
         slider.style.background = SLIDER_GRADIENT_FIREFOX + colorKeys + ')';
@@ -485,14 +524,14 @@ function handleDefaultSlider(slider) {
         colorKeys += getColorKey(t, '#333333'); // start background color.
     }
 
-    if (browserIndex == BROWSER_CHROME)
+    if (browserCode == BROWSER_CHROME)
         slider.style.background = SLIDER_GRADIENT_CHROME + colorKeys + ')';
     else
         slider.style.background = SLIDER_GRADIENT_FIREFOX + colorKeys + ')';
 }
 
 function getColorKey(percent, hexColor) {
-    if (browserIndex == BROWSER_FIREFOX) {
+    if (browserCode == BROWSER_FIREFOX) {
         return ', ' + hexColor + ' ' + (percent * 100) + '%';
     }
 
@@ -646,22 +685,20 @@ function clearCurrentTrack() {
     updateTrackInfoUI();
 }
 
+function setPlayerVolume(newVolume) {
+    newVolume = clamp(newVolume, 0.0, 1.0);
+    musicPlayer.volume = newVolume;
+    saveFloat('playerVolume', newVolume);
+    $('#playerVolSldr').val(newVolume * 100);
+    handleDefaultSlider(playerVolumeSlider); // update volume slider background.
+}
+
 function minVolume() {
-    // Update slider UI.
-    $('#playerVolSldr').val(0);
-    handleDefaultSlider(playerVolumeSlider);
-    
-    musicPlayer.volume = 0.0; // Apply volume to player.
-    localStorage.setItem('playerVolume', '0.0'); // Save volume to storage.
+    setPlayerVolume(0.0);
 }
 
 function maxVolume() {
-    // Update slider UI.
-    $('#playerVolSldr').val(100);
-    handleDefaultSlider(playerVolumeSlider);
-
-    musicPlayer.volume = 1.0; // Apply volume to player.
-    localStorage.setItem('playerVolume', '1.0'); // Save volume to storage.
+    setPlayerVolume(1.0);
 }
 
 function runScrollingTimer(timer, maxOffset, deltaTime) {
