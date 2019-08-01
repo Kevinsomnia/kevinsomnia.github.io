@@ -362,7 +362,7 @@ function refreshPlaylistUI() {
             }
 
             var trackName = '<div class="d-inline-flex">' + scController.playlist[i].title + '</div>';
-            var uploaderName = '<div class="d-inline-flex pl-3" style="color:#a0a0a0">by ' + scController.playlist[i].user.username + '</div>';
+            var uploaderName = '<div class="d-inline-flex pl-2" style="color:#a0a0a0">by ' + scController.playlist[i].user.username + '</div>';
 
             listContents += '<button id="trackBtn' + i + styling + playIcon + trackName + uploaderName + '</button>';
         }
