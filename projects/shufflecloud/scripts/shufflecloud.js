@@ -160,6 +160,9 @@ function tryAppendPlaylist(link, onRetrieved, onFailed) {
     }, function (result) {
         if (result) {
             if (!result.errors && result.kind == 'playlist') {
+                // Add to playlist load count.
+                scController.playlistCount++;
+
                 if(scController.metadata === null) {
                     // Only set playlist data if there is nothing. Adding more playlists will keep first one.
                     scController.metadata = result;
@@ -170,9 +173,6 @@ function tryAppendPlaylist(link, onRetrieved, onFailed) {
                     // Multiple playlists loaded.
                     scController.metadata.title = 'Combined Playlist (' + scController.playlistCount + ' total)';
                 }
-
-                // Add playlist.
-                scController.playlistCount++;
 
                 // The fetch result will contain the new playlist data to append to the current list.
                 var trackCount = result.tracks.length;
