@@ -54,6 +54,7 @@ const CHART_ENTRIES_PER_PAGE = 100; // Limit data displayed on chart at once.
 const MAX_FILES_PROCESSED_PER_FRAME = 500;
 const FILE_PROCESS_INTERVAL = 10; // in milliseconds.
 const ADD_ERROR_MSG_LIMIT = 15;
+const ENTER_KEY = 13;
 
 // Global settings (default values).
 var allowEmptyFileExtensions = false;
@@ -440,10 +441,45 @@ function updateFileList() {
         return;
     }
 
-    // Format list.
+    // Update buttons and stuff.
+    var searchField = '<div class="form-group"><input id="fileListSearch" class="form-control" type="text" placeholder="Search"></div>';
+
+    var buttons = '<button class="btn btn-primary btn-md ml-2" onclick="refreshListResults()" style="background-color:#4286f4" role="button">Go</button>';
+    buttons += '<button class="btn btn-primary btn-md ml-4" onclick="removeAllUnsupported()" style="background-color:#9b7735" role="button">Remove Unsupported</button>';
+    buttons += '<button class="btn btn-primary btn-md ml-2" onclick="clearList()" style="background-color:#a03333" role="button">Clear List</button>';
+
+    listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + ')</strong><div class="form-inline">' + searchField + buttons + '</div>';
+
+    // Pressing enter key when search field is focused.
+    $("#fileListSearch").on('keyup', function(e) {
+        if(e.keyCode == ENTER_KEY) {
+            refreshListResults();
+        }
+    })
+
+    // Update actual file list.
+    refreshListResults();
+
+    // Update disabled states of these buttons.
+    for (var i = 0; i < fileCount; i++) {
+        $('#' + i).prop('disabled', isBusy);
+    }
+
+    // Initialize tooltips for these buttons.
+    $('[data-toggle="tooltip"]').tooltip();
+}
+
+function refreshListResults() {
+    var fileCount = fileList.length;
+    var searchValue = $('#fileListSearch').val().toLowerCase();
     var listContents = '';
 
     for (var i = 0; i < fileCount; i++) {
+        if (searchValue && !fileList[i].name.toLowerCase().includes(searchValue)) {
+            // Filter out if it doesn't contain the search value.
+            continue;
+        }
+
         var styling = '" onclick="removeListItem(' + i + ')" class="file-list-item';
 
         if (!fileList[i].supported) {
@@ -460,33 +496,7 @@ function updateFileList() {
         listContents += '<button id="' + i + styling + fileList[i].name + '</button>';
     }
 
-    var searchField = '<div class="form-group"><input id="fileListSearch" class="form-control" type="text" placeholder="(doesn\'t work yet)"></div>';
-
-    var buttons = '<button class="btn btn-primary btn-md ml-2" onclick="searchFilter()" style="background-color:#4286f4" role="button">Go</button>';
-    buttons += '<button class="btn btn-primary btn-md ml-4" onclick="removeAllUnsupported()" style="background-color:#9b7735" role="button">Remove Unsupported</button>';
-    buttons += '<button class="btn btn-primary btn-md ml-2" onclick="clearList()" style="background-color:#a03333" role="button">Clear List</button>';
-
-    listTitleUI.innerHTML = '<strong>Selected Files (' + fileCount + ')</strong><div class="form-inline">' + searchField + buttons + '</div>';
     fileListUI.innerHTML = '<div class="list-group">' + listContents + '</div>';
-
-    // Update disabled states of these buttons.
-    for (var i = 0; i < fileList.length; i++) {
-        $('#' + i).prop('disabled', isBusy);
-    }
-
-    // Initialize tooltips for these buttons.
-    $('[data-toggle="tooltip"]').tooltip();
-}
-
-function searchFilter() {
-    var searchValue = $('#fileListSearch').val();
-
-    if (searchValue) {
-
-    }
-    else {
-
-    }
 }
 
 // Event function called after clicking on an item from the list.
