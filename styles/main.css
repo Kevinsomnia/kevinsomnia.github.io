@@ -60,7 +60,7 @@ body.fadeout {
 
 .main-card {
 	transition: all 0.1s ease-in-out;
-	background-color: #333333c0;
+	background-color: #00000050;
 	color: #ffffff !important;
 	height: 100%;
 	padding: 1.25rem;
@@ -68,13 +68,12 @@ body.fadeout {
 	margin-right: -0.5rem;
 	margin-bottom: 0.75rem;
 	border: solid 2px;
-	border-color: #505050;
+	border-color: #333333;
 	border-radius: 10px;
-	box-shadow: 0 0.5rem 2rem #0000004d !important;
 }
-
 .main-card:hover {
-	border-color: #777777;
+	background-color: #08091180;
+	border-color: #525bafb0;
 }
 
 .subheader {
