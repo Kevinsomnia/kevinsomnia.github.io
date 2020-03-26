@@ -72,11 +72,11 @@ body.fadeout {
 	border-radius: 10px;
 	box-shadow: 0 0.5rem 2rem #0000004d !important;
 }
+
 .main-card:hover {
 	border-color: #777777;
 }
-.main-card-contents {
-}
+
 .subheader {
 	color: #d0d0d0 !important;
 	margin-top: -5px;
