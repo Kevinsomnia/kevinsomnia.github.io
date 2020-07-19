@@ -51,11 +51,9 @@ body.fadeout {
 	cursor: pointer
 }
 
-.main-header {
+.body-header {
 	color: #cdedff;
-	font-weight: -10;
 	line-height: 1.25;
-	letter-spacing: -.025rem;
 }
 
 .main-card {
