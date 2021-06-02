@@ -47,6 +47,10 @@ body.fadeout {
   -ms-transform: translate(-50%, -50%);
 }
 
+.social-link {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+}
+
 .img-button:hover {
   cursor: pointer;
 }
