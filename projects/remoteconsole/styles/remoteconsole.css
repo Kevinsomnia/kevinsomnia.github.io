@@ -1,46 +1,46 @@
 /* Styling override for web console */
 body {
-	color: #ebebeb;
-	background-color: #161616;
-	background-image: url(../images/main_bg.jpg);
-	background-size: cover;
-	background-repeat: no-repeat;
-	opacity: 1;
-	transition: 0.35s opacity;
+  color: #ebebeb;
+  background-color: #161616;
+  background-image: url(../images/main_bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 1;
+  transition: 0.35s opacity;
 }
 body.fadeout {
-	opacity: 0;
-	transition: none;
+  opacity: 0;
+  transition: none;
 }
 
 /* Connect form
 ------------------------- */
 .main-form {
-	background-color: #161616;
-	background-image: url(../../../images/noise_bg.jpg);
-	background-repeat: repeat;
-	padding: 1rem;
-	margin-bottom: 3rem;
-	outline: solid 1px;
-	outline-color: #303030;
-	box-shadow: 0 0 2rem rgba(86, 94, 136, 0.15) !important;
+  background-color: #161616;
+  background-image: url(../../../images/noise_bg.jpg);
+  background-repeat: repeat;
+  padding: 1rem;
+  margin-bottom: 3rem;
+  outline: solid 1px;
+  outline-color: #303030;
+  box-shadow: 0 0 2rem rgba(86, 94, 136, 0.15) !important;
 }
 
 /* Console UI
 ------------------------- */
 .console-body {
-	height: 830px;
-	background-color: #1f2c3ba0;
-	font-family: 'Lucida Console';
-	font-size: 75%;
-	padding: 1rem;
-	margin-bottom: 5px;
-	outline: solid 1px;
-	outline-color: #3c414e;
-	overflow-y: auto;
+  height: 830px;
+  background-color: #1f2c3ba0;
+  font-family: "Lucida Console";
+  font-size: 75%;
+  padding: 1rem;
+  margin-bottom: 5px;
+  outline: solid 1px;
+  outline-color: #3c414e;
+  overflow-y: auto;
 }
 
 .console-input {
-	font-family: 'Lucida Console';
-	font-size: 85%;
+  font-family: "Lucida Console";
+  font-size: 85%;
 }
