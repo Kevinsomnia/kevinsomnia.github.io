@@ -1,5 +1,5 @@
-# What's this?
-This is my personal website for web projects.
+# kevinsomnia.github.io
+This is my personal website for a brief bio and other small web projects.
 
 **Web projects:**
 - [LiveSubs](https://github.com/right1/livesubs)
