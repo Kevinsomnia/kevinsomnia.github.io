@@ -1,15 +1,12 @@
 /* Main styling for website */
-html {
-  min-height: 100%;
-}
-
 body {
+  min-width: 384px;
   color: #ebebeb;
   background-color: #161616;
   background-image: url(../images/noise_bg.jpg);
   background-repeat: repeat;
   opacity: 1;
-  transition: 0.35s opacity;
+  transition: 400ms opacity;
 }
 body.fadeout {
   opacity: 0;
@@ -23,18 +20,17 @@ body.fadeout {
 }
 .banner-parallax {
   background: transparent;
-  padding: 2rem;
-  margin-bottom: 3rem;
+  padding: 32px;
+  margin-bottom: 12px;
   box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
 }
-.banner-parallax-small {
-  background: transparent;
-  padding-left: 2.25rem;
-  padding-right: 2.25rem;
-  padding-top: 1.75rem;
-  padding-bottom: 1.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3) !important;
+
+.avatar {
+  display: flex;
+  width: 100%;
+  max-width: 256px;
+  height: auto;
+  margin: auto;
 }
 
 /* MAIN/SHARED STYLING
@@ -48,7 +44,7 @@ body.fadeout {
 }
 
 .social-link {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .img-button:hover {
@@ -62,31 +58,37 @@ body.fadeout {
 
 .main-card {
   transition: all 0.1s ease-in-out;
-  background-color: #00000050;
   color: #ffffff !important;
-  height: 100%;
-  padding: 1.25rem;
-  margin-left: -0.5rem;
-  margin-right: -0.5rem;
-  margin-bottom: 0.75rem;
+  display: flex;
+  width: 100%;
+  padding: 28px 32px;
+  margin: 0 auto 16px;
   border: solid 2px;
-  border-color: #333333;
+  border-color: #223;
   border-radius: 10px;
+  background-size: cover;
+  background-position: 0 50%;
+  background-color: #000000d0;
+  background-blend-mode: multiply;
 }
 .main-card:hover {
-  background-color: #08091180;
+  background-color: #000000e0;
   border-color: #525bafb0;
+}
+.main-card-image {
+  position: absolute;
+  border-radius: 12px;
 }
 
 .subheader {
   color: #d0d0d0 !important;
   margin-top: -5px;
   line-height: 1.25;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .main-shadow {
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
 .v-divide {
@@ -192,6 +194,13 @@ a:hover {
 }
 .showcase-body {
   line-height: 1.5;
+}
+.showcase-image {
+  display: flex;
+  width: 100%;
+  height: auto;
+  max-width: 200px;
+  margin: 0 auto 32px;
 }
 
 /* PROJECT PAGES
@@ -325,6 +334,7 @@ a:hover {
 /* SLIDERS
 ------------------------- */
 .slider-main {
+  appearance: none;
   -webkit-appearance: none;
   width: 100%;
   height: 5px;
@@ -333,6 +343,7 @@ a:hover {
   outline: none;
 }
 .slider-main::-webkit-slider-thumb {
+  appearance: none;
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
